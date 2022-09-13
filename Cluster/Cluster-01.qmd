@@ -27,7 +27,64 @@ library(factoextra)
 library (patchwork)
 library (readxl)
 library (fpc)
+library (gt)
 ```
+
+Exemplo 1:
+
+```{r}
+df <- mtcars |> 
+select (mpg, disp, hp, drat, wt, qsec) |> 
+scale() 
+
+k3 <- kmeans(df, centers = 3)
+k4 <- kmeans(df, centers = 4)
+k5 <- kmeans(df, centers = 5)
+k6 <- kmeans(df, centers = 6)
+
+G1 <- fviz_cluster(k3, geom = "point", data = df) + ggtitle("k = 3")
+G2 <- fviz_cluster(k4, geom = "point", data = df) + ggtitle("k = 4")
+G3 <- fviz_cluster(k5, geom = "point", data = df) + ggtitle("k = 5")
+G4 <- fviz_cluster(k6, geom = "point", data = df) + ggtitle("k = 6")
+
+G1 + G2 + G3 + G4
+```
+```{r}
+fviz_nbclust(df, FUN = hcut, method = "wss")
+```
+```{r}
+fit <- data.frame(k3$cluster) |> 
+  rename (cluster = last_col())
+
+df_final <-  bind_cols(mtcars, fit) |> 
+  rownames_to_column(var = "name")
+
+df_EDA <- df_final |> 
+  group_by(cluster) |> 
+  summarise(num_models = n(),
+            across(c(2:8), ~mean(.x, na.rm = TRUE))) 
+
+df_EDA |> 
+  pivot_longer(!cluster) |> 
+  mutate(cluster = as_factor(cluster)) |> 
+  ggplot(aes(name, value, shape = cluster, color = cluster)) +
+  geom_point(size = 5, alpha = 0.7) +
+  scale_y_log10() +
+  coord_flip() +
+  guides(size = "none")
+  #+
+  #facet_wrap(vars(cluster)) 
+
+```
+
+```{r}
+df_final |> 
+  group_by(cluster) |> 
+  gt(rowname_col = "name") |> 
+  tab_stubhead(label ="Modelo") |> 
+  tab_options(row.striping.include_table_body = TRUE)
+```
+
 
 ## Carregar a base
 
