@@ -18,18 +18,28 @@ editor_options:
 library(tidyverse)
 library(ggrepel)
 library(robustbase)
+library(PerformanceAnalytics)
 
 library(robustX)
 ```
 
 ```{r}
-df <- starwars[c(2)] |> filter (!is.na(height))
+df <- starwars[c(2,3)] |> drop_na()
 bacon <- df |> BACON() 
 
-df_final <- cbind(bacon$subset, filter(starwars[c(1,2)], !is.na(height))) |> 
+names <- starwars[c(1,2,3)] |> drop_na()
+
+df_final <- cbind(bacon$subset, names) |> 
   mutate ("bacon$subset" = !`bacon$subset`)
 df_final <- cbind(bacon$dis, df_final)
 ```
+## Correlações
+
+```{r}
+chart.Correlation(df_final[c(4,5)])
+```
+
+
 ## Visualizando as distâncias e subset
 
 ```{r}
@@ -42,13 +52,10 @@ df_final |> ggplot(aes(x = height, color= `bacon$subset`)) +
          shape = guide_legend("Outlier"))
 
 df_final |> ggplot(aes(x = height, y = name, color= `bacon$subset`)) + 
-  geom_point() + 
+  geom_point(aes(size = mass), alpha = 0.6) + 
   geom_text_repel(aes(label = name)) +
   theme_minimal() +
   theme(legend.position = "bottom", axis.text.y = element_blank()) +
   guides(colour = guide_legend("Outlier"))
-  
- 
 
 ```
-
