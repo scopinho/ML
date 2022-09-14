@@ -1,0 +1,123 @@
+---
+title: "Não Supervisionado - Cluster"
+execute: 
+  warning: false
+format:
+  html:
+    toc: true
+    html-math-method: katex
+    css: styles.css
+editor_options: 
+  chunk_output_type: inline
+---
+
+```{r}
+library(tidyverse) 
+library (janitor)
+library (gt)
+library (PerformanceAnalytics)
+library(plotly)
+library(kableExtra)
+library(ggrepel)
+```
+
+# Base de Dados
+
+```{r}
+# Selecionar variáveis quantitativas
+df <- mtcars |> 
+select (mpg, disp, hp, drat, wt, qsec) |> 
+
+# Fazer o z-score (padronizacao)  
+scale() |> data.frame()
+```
+
+# Correlações
+
+```{r}
+chart.Correlation(df, histogram = TRUE, method = "pearson")
+DataExplorer::plot_correlation(df)
+```
+
+# PCA
+
+Análise Fatorial de Componentes Princpais
+
+```{r}
+afpc <- prcomp(df)
+summary(afpc)
+
+data.frame(afpc$rotation) |>
+  mutate(var = names(df)) |> 
+  pivot_longer(cols = !var) |> 
+  mutate(var = factor(var)) |>
+  ggplot(aes(x = var, y = value, fill = var)) +
+  geom_bar(stat = "identity", color = "black") +
+  facet_wrap(~name) +
+  labs(x = NULL, y = NULL, fill = "Legenda:") +
+  scale_fill_viridis_d() +
+  theme_bw()
+```
+
+
+
+```{r}
+ggplotly(
+  fviz_eig(X = afpc,
+           ggtheme = theme_bw(), 
+           barcolor = "black", 
+           barfill = "dodgerblue4",
+           linecolor = "darkgoldenrod3")
+  )
+```
+
+```{r}
+# Extraindo as Cargas Fatoriais
+k <- sum((afpc$sdev ^ 2) > 1) #número de variáveis presentes na base de dados
+cargas_fatoriais <- afpc$rotation[, 1:k] %*% diag(afpc$sdev[1:k])
+
+# Visualizando as cargas fatoriais
+data.frame(cargas_fatoriais) %>%
+  rename(F1 = X1,
+         F2 = X2) %>%
+  kable() %>%
+  kable_styling(bootstrap_options = "striped", 
+                full_width = T, 
+                font_size = 12)
+
+#Visualizando as Comunalidades
+data.frame(rowSums(cargas_fatoriais ^ 2)) %>%
+  rename(comunalidades = 1) %>%
+  kable() %>%
+  kable_styling(bootstrap_options = "striped", 
+                full_width = T, 
+                font_size = 12)
+
+# Relatório das cargas fatoriais e das comunalidades
+data.frame(cargas_fatoriais) %>%
+  rename(F1 = X1,
+         F2 = X2) %>%
+  mutate(Comunalidades = rowSums(cargas_fatoriais ^ 2)) %>%
+  kable() %>%
+  kable_styling(bootstrap_options = "striped", 
+                full_width = T, 
+                font_size = 12)
+
+# Plotagem das Cargas Fatoriais
+data.frame(cargas_fatoriais) %>%
+  ggplot(aes(x = X1, y = X2)) +
+  geom_point(color = "dodgerblue4") +
+  geom_hline(yintercept = 0, color = "darkgoldenrod3", linetype = "dashed") +
+  geom_vline(xintercept = 0, color = "darkgoldenrod3", linetype = "dashed") +
+  geom_text_repel(label = row.names(cargas_fatoriais)) +
+  labs(x = paste("F1", paste0("(",
+                              round(summary(afpc)$importance[2,1] * 100,
+                                    digits = 2),
+                                   "%)")),
+       y = paste("F2", paste0("(",
+                              round(summary(afpc)$importance[2,2] * 100,
+                                    digits = 2),
+                              "%)"))) +
+  theme_bw()
+```
+

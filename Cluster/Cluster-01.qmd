@@ -11,14 +11,6 @@ editor_options:
   chunk_output_type: inline
 ---
 
-# K-Means
-
-######################################## 
-# 
-# Testes com analise de Cluster (Não Supervisionado)
-# 
-######################################## 
-
 ```{r}
 library(tidyverse) 
 library(cluster) 
@@ -28,273 +20,190 @@ library (patchwork)
 library (readxl)
 library (fpc)
 library (gt)
+library (PerformanceAnalytics)
 ```
 
-Exemplo 1:
+# Base de Dados
 
 ```{r}
+# Selecionar variáveis quantitativas
 df <- mtcars |> 
 select (mpg, disp, hp, drat, wt, qsec) |> 
-scale() 
 
+# Fazer o z-score (padronizacao)  
+scale() |> data.frame()
+```
+
+# Correlações
+
+```{r}
+chart.Correlation(df, histogram = TRUE, method = "pearson")
+DataExplorer::plot_correlation(df)
+```
+
+# Método Hierárquico
+
+## Usando hclust
+
+```{r}
+#calcular as distancias da matriz utilizando a distancia euclidiana
+distancia <- dist(df, method = "euclidean")
+
+#Calcular o Cluster
+clusterh <- hclust(distancia, method = "single" )
+
+# Dendrograma
+plot(clusterh, cex = 0.6, hang = -1)
+
+#Metodo Elbow
+fviz_nbclust(df, FUN = hcut, method = "wss")
+
+#criando 5 grupos
+clusterh_grupos <- cutree(clusterh, k = 5)
+table(clusterh_grupos)
+
+#transformando em data frame a saida do cluster
+grupo_hierarquico <- data.frame(clusterh_grupos) |> 
+  dplyr::rename (cluster = last_col())
+
+df_final <- bind_cols(mtcars, grupo_hierarquico)
+
+df_final_EDA <- df_final |>  pivot_longer(cols = c(1,3:7))
+
+plot_final_EDA <- df_final_EDA |> 
+  ggplot(aes(x=cluster, y=value, color= as_factor(cluster)))+
+  #geom_jitter(alpha = 0.5, size = 6, width = 0.1)+
+  geom_boxplot()+
+  facet_grid(scales = "free_x", cols = vars(name))
+
+plot_final_EDA
+
+
+```
+
+## Usando agnes
+
+
+```{r}
+#Comparar os tipos de link
+m <- c( "average", "single", "complete", "ward")
+names(m) <- c( "average", "single", "complete", "ward")
+
+map(m, ~agnes(df, method = .)$ac)
+
+#Calcular o Cluster
+clustera <- agnes(df, method = "ward" )
+
+# Dendrograma
+pltree(clustera, cex = 0.6, hang = -1)
+
+#Agnes plot ( dendograma e banner plot)
+plot(clustera)
+
+#criando 5 grupos
+clustera_grupos <- cutree(clustera, k = 5)
+table(clustera_grupos)
+
+#transformando em data frame a saida do cluster
+grupo_hierarquico_a <- data.frame(clustera_grupos) |> 
+  dplyr::rename (cluster = last_col())
+
+df_final <- bind_cols(mtcars, grupo_hierarquico)
+
+df_final_EDA <- df_final |>  pivot_longer(cols = c(1,3:7))
+
+plot_final_EDA <- df_final_EDA |> 
+  ggplot(aes(x=cluster, y=value, color= as_factor(cluster)))+
+  #geom_jitter(alpha = 0.5, size = 6, width = 0.1)+
+  geom_boxplot()+
+  facet_grid(scales = "free_x", cols = vars(name))
+
+plot_final_EDA
+```
+:::callout-warning
+Veja que agnes(\*, method="ward") corresponde a hclust(\*, "ward.D2").
+:::
+
+# Método Não-Hierárquico
+# K-Means
+
+O número de cluster (k) precisa ser dado
+
+```{r}
+#Método Elbow
+fviz_nbclust(df, FUN = hcut, method = "wss")
+
+#Gerando clsuters com 3, 4, 5 e 6 grupos
 k3 <- kmeans(df, centers = 3)
 k4 <- kmeans(df, centers = 4)
 k5 <- kmeans(df, centers = 5)
 k6 <- kmeans(df, centers = 6)
 
-G1 <- fviz_cluster(k3, geom = "point", data = df) + ggtitle("k = 3")
-G2 <- fviz_cluster(k4, geom = "point", data = df) + ggtitle("k = 4")
-G3 <- fviz_cluster(k5, geom = "point", data = df) + ggtitle("k = 5")
-G4 <- fviz_cluster(k6, geom = "point", data = df) + ggtitle("k = 6")
+lista <- list(k3,k4,k5,k6)
+names(lista) <- c("k3", "k4", "k5", "k6")
 
-G1 + G2 + G3 + G4
-```
-```{r}
-fviz_nbclust(df, FUN = hcut, method = "wss")
-```
-```{r}
-fit <- data.frame(k3$cluster) |> 
-  rename (cluster = last_col())
+G <- map(lista, ~fviz_cluster(., geom = "point", data = df) +
+           ggtitle(paste(length(
+             (pluck(., 7))),"clusters")))
 
-df_final <-  bind_cols(mtcars, fit) |> 
-  rownames_to_column(var = "name")
-
-df_EDA <- df_final |> 
-  group_by(cluster) |> 
-  summarise(num_models = n(),
-            across(c(2:8), ~mean(.x, na.rm = TRUE))) 
-
-df_EDA |> 
-  pivot_longer(!cluster) |> 
-  mutate(cluster = as_factor(cluster)) |> 
-  ggplot(aes(name, value, shape = cluster, color = cluster)) +
-  geom_point(size = 5, alpha = 0.7) +
-  scale_y_log10() +
-  coord_flip() +
-  guides(size = "none")
-  #+
-  #facet_wrap(vars(cluster)) 
+G$k3 + G$k4 + G$k5 + G$k6 
 
 ```
+Escolhendo 5 grupos 
 
 ```{r}
-df_final |> 
+grupo_kmeans <- data.frame(k5$cluster) |> 
+  dplyr::rename (cluster = last_col())
+
+df_final_kmeans <-  bind_cols(mtcars, grupo_kmeans)
+
+df_final_kmeans_EDA <- df_final_kmeans |>  pivot_longer(cols = c(1,3:7))
+
+plot_final_kmeans_EDA <- df_final_kmeans_EDA |> 
+  ggplot(aes(x=cluster, y=value, color= as_factor(cluster)))+
+  #geom_jitter(alpha = 0.5, size = 6, width = 0.1)+
+  geom_boxplot()+
+  facet_grid(scales = "free_x", cols = vars(name))
+
+plot_final_kmeans_EDA
+```
+
+Visualizando os dados com os respetivos clsuters k-means
+
+
+```{r}
+df_final_kmeans |> 
   group_by(cluster) |> 
   gt(rowname_col = "name") |> 
   tab_stubhead(label ="Modelo") |> 
-  tab_options(row.striping.include_table_body = TRUE)
-```
-
-
-## Carregar a base
-
-```{r}
-municipios <- read_delim("dados/municipios.csv", 
-                         delim = ";", escape_double = FALSE, locale = 
-                           locale(date_names = "pt",
-                                  encoding = "ISO-8859-1"), 
-                         trim_ws = TRUE)
-```
-
-#Excluindo a cidade de SP:
-
-```{r}
-municipios <- municipios |> 
-  filter (str_detect(.data$Município, "São Paulo", negate = TRUE)) |> 
-  clean_names() |> 
-  column_to_rownames(var = "municipio") 
-```
-
-## Padronizar (Z scale)
-
-```{r}
-municipios.padronizado <- scale(municipios)
-```
-
-## Criar alguns clusters
-
-```{r}
-municipios.k3 <- kmeans(municipios.padronizado, centers = 3)
-municipios.k4 <- kmeans(municipios.padronizado, centers = 4)
-municipios.k5 <- kmeans(municipios.padronizado, centers = 5)
-municipios.k6 <- kmeans(municipios.padronizado, centers = 6)
-```
-
-## Graficos
-
-```{r}
-G1 <- fviz_cluster(municipios.k3, geom = "point", data = municipios.padronizado) + ggtitle("k = 3")
-G2 <- fviz_cluster(municipios.k4, geom = "point",  data = municipios.padronizado) + ggtitle("k = 4")
-G3 <- fviz_cluster(municipios.k5, geom = "point",  data = municipios.padronizado) + ggtitle("k = 5")
-G4 <- fviz_cluster(municipios.k6, geom = "point",  data = municipios.padronizado) + ggtitle("k = 6")
-```
-
-## Criar uma matriz com 4 graficos
-
-```{r}
-G1 + G2 + G3 + G4
-```
-
-## Método Elbow
-
-```{r}
-fviz_nbclust(municipios.padronizado, FUN = hcut, method = "wss")
-```
-
-## Juntando dados
-
-```{r}
-municipios2 <- read_delim("dados/municipios.csv", 
-                         delim = ";", escape_double = FALSE, locale = 
-                           locale(date_names = "pt",
-                                  encoding = "ISO-8859-1"), 
-                         trim_ws = TRUE)
-```
-
-```{r}
-municipios2 <- municipios2 |> 
-  filter (str_detect(.data$Município, "São Paulo", negate = TRUE)) |> 
-  clean_names() |> 
-  column_to_rownames(var = "municipio") 
-```
-
-#Escolhido K = 4
-
-```{r}
-municipiosfit <- data.frame(municipios.k4$cluster)
-```
-
-## Agrupar cluster e base
-
-```{r}
-MunicipioFinal <-  bind_cols(municipios2, municipiosfit) |> 
-  rename(cluster = last_col()) 
-
-MunicipioFinal_EDA <- MunicipioFinal |> 
-  group_by(cluster) |> 
-  summarise(num_municipios = n(),
-            across(c(2:8), ~mean(.x, na.rm = TRUE))) 
-```
-
-## Plot final EDA
-
-```{r}
-MunicipioFinal_EDA |> 
-  pivot_longer(!cluster) |> 
-  mutate(cluster = as_factor(cluster)) |> 
-  ggplot(aes(cluster, value, shape = cluster, color = cluster)) +
-  geom_point(size = 3) +
-  scale_y_log10() +
-  coord_flip() +
-  guides(size = "none") +
-  facet_wrap(vars(name)) 
-  
+  tab_options(row.striping.include_table_body = TRUE) |> 
+  text_transform(locations = cells_row_groups(),
+                 fn = function(x) {
+      paste0("Cluster: ", x)
+    })
 ```
 
 # DBSCAN
 
-######################################## 
-#Comparando todos os métodos com dbscan
-######################################## 
-
-## Carregar base de dados: 
-
-
 ```{r}
-notas_categ <- as.data.frame(read_excel("dados/notas_categ.xlsx"))
+dbscan <- fpc::dbscan(df, eps = .78, MinPts = 3)
+
+grupo_dbscan <- data.frame(dbscan$cluster) |> 
+  dplyr::rename (cluster = last_col())
+
+df_final_dbscan <-  bind_cols(mtcars, grupo_dbscan)
+
+df_final_dbscan_EDA <- df_final_dbscan |>  pivot_longer(cols = c(1,3:7))
+
+plot_final_dbscan_EDA <- df_final_dbscan_EDA |> 
+  ggplot(aes(x=cluster, y=value, color= as_factor(cluster)))+
+  #geom_jitter(alpha = 0.5, size = 6, width = 0.1)+
+  geom_boxplot()+
+  facet_grid(scales = "free_x", cols = vars(name))
+
+plot_final_dbscan_EDA
+
+#Outros plots:
+plot(dbscan, df)
+
 ```
-
-```{r}
-
-########################################
-#
-#   Brincando e comparando todos os métodos com dbscan
-#
-########################################
-
-#Carregar base de dados: 
-notas_categ <- as.data.frame(read_excel("dados/notas_categ.xlsx"))
-
-#pegando os dados que usaremos
-notas_alunos <- notas_categ  |>  
-  select(Estudante, Atuaria, Mkt)
-
-#para visualizar no plano
-notas_alunos |> ggplot() +
-  geom_point(aes(x = Atuaria,
-                 y = Mkt),
-             size = 3)
-
-#Transformar o nome 
-rownames(notas_alunos) <- notas_alunos[,1]
-notas_alunos <- notas_alunos[,-1]
-
-#Padronizar variaveis
-notas_alunos_pad <- scale(notas_alunos)
-
-#calcular as distancias da matriz utilizando a distancia euclidiana
-distancia <- dist(notas_alunos_pad, method = "euclidean")
-
-
-
-### método hiearquico
-
-#Calcular o Cluster
-cluster.hierarquico <- hclust(distancia, method = "single" )
-
-# Dendrograma
-plot(cluster.hierarquico, cex = 0.6, hang = -1)
-
-#criando grupos
-grupo_alunos_hierarquico <- cutree(cluster.hierarquico, k = 3)
-table(grupo_alunos_hierarquico)
-
-#transformando em data frame a saida do cluster
-grupo_alunos_hierarquico <- data.frame(grupo_alunos_hierarquico)
-
-#juntando com a base original
-notas_alunos_fim <- cbind(notas_alunos, grupo_alunos_hierarquico)
-
-#visualizando em cores os clusters
-notas_alunos_fim |> ggplot() +
-  geom_point(aes(x = Atuaria,
-                 y = Mkt,
-                 color = as.factor(grupo_alunos_hierarquico)),
-             size = 3)
-
-
-
-### método k-means
-
-#Calcular o Cluster
-cluster.k3 <- kmeans(notas_alunos_pad, centers = 3)
-
-#criando grupos
-grupo_alunos_kmeans3 <- data.frame(cluster.k3$cluster)
-
-#juntando com a base original
-notas_alunos_fim <- cbind(notas_alunos_fim, grupo_alunos_kmeans3)
-
-#visualizando em cores os clusters
-notas_alunos_fim |> ggplot() +
-  geom_point(aes(x = Atuaria,
-                 y = Mkt,
-                 color = as.factor(cluster.k3.cluster)),
-             size = 3)
-
-
-### método dbscan
-
-#Calcular o Cluster
-dbscan <- fpc::dbscan(notas_alunos_pad,eps = 0.56, MinPts = 3)
-
-notas_alunos_fim$dbscan <- dbscan$cluster
-
-#visualizando em cores os clusters
-notas_alunos_fim |> ggplot() +
-  geom_point(aes(x = Atuaria,
-                 y = Mkt,
-                 color = as.factor(dbscan)),
-             size = 3)
-```
-
