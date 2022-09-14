@@ -1,0 +1,53 @@
+---
+title: "Detecção Outliers Multivariados"
+execute: 
+  warning: false
+format:
+  html:
+    toc: true
+    html-math-method: katex
+    css: styles.css
+editor_options: 
+  chunk_output_type: inline
+---
+# BACON
+
+## Blocked Adaptative Computationally Efficient Outlier (BACON)
+
+```{r}
+library(tidyverse)
+library(ggrepel)
+library(robustbase)
+library(robustX)
+```
+
+```{r}
+df <- starwars[c(2)] |> filter (!is.na(height))
+bacon <- df |> BACON() 
+
+df_final <- cbind(bacon$subset, filter(starwars[c(1,2)], !is.na(height))) |> 
+  mutate ("bacon$subset" = !`bacon$subset`)
+df_final <- cbind(bacon$dis, df_final)
+```
+## Visualizando as distâncias e subset
+
+```{r}
+df_final |> ggplot(aes(x = height, color=`bacon$subset`)) + geom_dotplot()
+
+df_final |> ggplot(aes(x = height, color= `bacon$subset`)) + 
+  geom_point(aes(y = `bacon$dis`, size=`bacon$dis`, shape=`bacon$subset`)) + 
+  guides(colour = guide_legend("Outlier"),
+         size = guide_legend("Distancia"),
+         shape = guide_legend("Outlier"))
+
+df_final |> ggplot(aes(x = height, y = name, color= `bacon$subset`)) + 
+  geom_point() + 
+  geom_text_repel(aes(label = name)) +
+  theme_minimal() +
+  theme(legend.position = "bottom", axis.text.y = element_blank()) +
+  guides(colour = guide_legend("Outlier"))
+  
+ 
+
+```
+
