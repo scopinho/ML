@@ -45,6 +45,8 @@ chart.Correlation(df_final[c(4,5)])
 ```{r}
 df_final |> ggplot(aes(x = height, color=`bacon$subset`)) + geom_dotplot()
 
+df_final |> ggplot(aes(x = height, y = mass, size= bacon$dis, color=`bacon$subset`)) + geom_point() + geom_text_repel(aes(label = name)) + scale_y_log10() + guides (color = guide_legend("Outlier")) + theme(legend.position = "bottom")
+
 df_final |> ggplot(aes(x = height, color= `bacon$subset`)) + 
   geom_point(aes(y = `bacon$dis`, size=`bacon$dis`, shape=`bacon$subset`)) + 
   guides(colour = guide_legend("Outlier"),
