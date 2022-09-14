@@ -1,0 +1,1938 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.0.38">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>Não Supervisionado - Cluster</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+span.underline{text-decoration: underline;}
+div.column{display: inline-block; vertical-align: top; width: 50%;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #7d9029; } /* Attribute */
+code span.bn { color: #40a070; } /* BaseN */
+code span.bu { } /* BuiltIn */
+code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4070a0; } /* Char */
+code span.cn { color: #880000; } /* Constant */
+code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code span.dt { color: #902000; } /* DataType */
+code span.dv { color: #40a070; } /* DecVal */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #40a070; } /* Float */
+code span.fu { color: #06287e; } /* Function */
+code span.im { } /* Import */
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code span.op { color: #666666; } /* Operator */
+code span.ot { color: #007020; } /* Other */
+code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.sc { color: #4070a0; } /* SpecialChar */
+code span.ss { color: #bb6688; } /* SpecialString */
+code span.st { color: #4070a0; } /* String */
+code span.va { color: #19177c; } /* Variable */
+code span.vs { color: #4070a0; } /* VerbatimString */
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+</style>
+
+
+<script src="PCA-01_files/libs/clipboard/clipboard.min.js"></script>
+<script src="PCA-01_files/libs/quarto-html/quarto.js"></script>
+<script src="PCA-01_files/libs/quarto-html/popper.min.js"></script>
+<script src="PCA-01_files/libs/quarto-html/tippy.umd.min.js"></script>
+<script src="PCA-01_files/libs/quarto-html/anchor.min.js"></script>
+<link href="PCA-01_files/libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="PCA-01_files/libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="PCA-01_files/libs/bootstrap/bootstrap.min.js"></script>
+<link href="PCA-01_files/libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="PCA-01_files/libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
+
+<script src="PCA-01_files/libs/htmlwidgets-1.5.4/htmlwidgets.js"></script>
+<script src="PCA-01_files/libs/plotly-binding-4.10.0/plotly.js"></script>
+<script src="PCA-01_files/libs/typedarray-0.1/typedarray.min.js"></script>
+<script src="PCA-01_files/libs/jquery-3.5.1/jquery.min.js"></script>
+<link href="PCA-01_files/libs/crosstalk-1.2.0/css/crosstalk.min.css" rel="stylesheet">
+<script src="PCA-01_files/libs/crosstalk-1.2.0/js/crosstalk.min.js"></script>
+<link href="PCA-01_files/libs/plotly-htmlwidgets-css-2.5.1/plotly-htmlwidgets.css" rel="stylesheet">
+<script src="PCA-01_files/libs/plotly-main-2.5.1/plotly-latest.min.js"></script>
+<script src="PCA-01_files/libs/kePrint-0.0.1/kePrint.js"></script>
+<link href="PCA-01_files/libs/lightable-0.0.1/lightable.css" rel="stylesheet">
+
+
+<link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+
+<div id="quarto-content" class="page-columns page-rows-contents page-layout-article">
+<div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+  <nav id="TOC" role="doc-toc">
+    <h2 id="toc-title">Table of contents</h2>
+   
+  <ul>
+  <li><a href="#base-de-dados" id="toc-base-de-dados" class="nav-link active" data-scroll-target="#base-de-dados">Base de Dados</a></li>
+  <li><a href="#correlações" id="toc-correlações" class="nav-link" data-scroll-target="#correlações">Correlações</a></li>
+  <li><a href="#pca" id="toc-pca" class="nav-link" data-scroll-target="#pca">PCA</a>
+  <ul class="collapse">
+  <li><a href="#cargas-fatoriais-e-comunalidades" id="toc-cargas-fatoriais-e-comunalidades" class="nav-link" data-scroll-target="#cargas-fatoriais-e-comunalidades">Cargas Fatoriais e Comunalidades</a></li>
+  <li><a href="#scores-fatoriais" id="toc-scores-fatoriais" class="nav-link" data-scroll-target="#scores-fatoriais">Scores Fatoriais</a></li>
+  <li><a href="#ranking" id="toc-ranking" class="nav-link" data-scroll-target="#ranking">Ranking</a></li>
+  </ul></li>
+  </ul>
+</nav>
+</div>
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">Não Supervisionado - Cluster</h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+    
+  </div>
+  
+
+</header>
+
+<div class="cell">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse) </span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span> (janitor)</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span> (gt)</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span> (PerformanceAnalytics)</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(plotly)</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(kableExtra)</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggrepel)</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(factoextra)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<section id="base-de-dados" class="level1">
+<h1>Base de Dados</h1>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Selecionar variáveis quantitativas</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>df <span class="ot">&lt;-</span> mtcars <span class="sc">|&gt;</span> </span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="fu">select</span> (mpg, disp, hp, drat, wt, qsec) <span class="sc">|&gt;</span> </span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Fazer o z-score (padronizacao)  </span></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a><span class="fu">scale</span>() <span class="sc">|&gt;</span> <span class="fu">data.frame</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="correlações" class="level1">
+<h1>Correlações</h1>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">chart.Correlation</span>(df, <span class="at">histogram =</span> <span class="cn">TRUE</span>, <span class="at">method =</span> <span class="st">"pearson"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="PCA-01_files/figure-html/unnamed-chunk-3-1.png" class="img-fluid" width="672"></p>
+</div>
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>DataExplorer<span class="sc">::</span><span class="fu">plot_correlation</span>(df)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="PCA-01_files/figure-html/unnamed-chunk-3-2.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+</section>
+<section id="pca" class="level1">
+<h1>PCA</h1>
+<p>Análise de Componentes Princpais</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>afpc <span class="ot">&lt;-</span> <span class="fu">prcomp</span>(df)</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(afpc)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Importance of components:
+                          PC1    PC2     PC3     PC4    PC5     PC6
+Standard deviation     2.0463 1.0715 0.57737 0.39289 0.3533 0.22799
+Proportion of Variance 0.6979 0.1913 0.05556 0.02573 0.0208 0.00866
+Cumulative Proportion  0.6979 0.8892 0.94481 0.97054 0.9913 1.00000</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Atributos:</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a><span class="co"># sdev: corresponde à raiz quadrada dos eigenvalues, ou seja, os desvios-padrão dos componentes principais.</span></span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a><span class="co"># rotation: corresponde à matriz de tamanho jxj de eigenvectors, em que j </span></span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a><span class="co"># representa a quantidade de variáveis da base de dados.</span></span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a><span class="co"># center: médias de cada variável utilizadas para após a padronização.</span></span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a><span class="co"># scale: desvios-padrão de cada variável utilizadas para a padronização.</span></span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a><span class="fu">data.frame</span>(afpc<span class="sc">$</span>rotation) <span class="sc">|&gt;</span></span>
+<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">var =</span> <span class="fu">names</span>(df)) <span class="sc">|&gt;</span> </span>
+<span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pivot_longer</span>(<span class="at">cols =</span> <span class="sc">!</span>var) <span class="sc">|&gt;</span> </span>
+<span id="cb7-15"><a href="#cb7-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">var =</span> <span class="fu">factor</span>(var)) <span class="sc">|&gt;</span></span>
+<span id="cb7-16"><a href="#cb7-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> var, <span class="at">y =</span> value, <span class="at">fill =</span> var)) <span class="sc">+</span></span>
+<span id="cb7-17"><a href="#cb7-17" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_col</span>() <span class="sc">+</span></span>
+<span id="cb7-18"><a href="#cb7-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">facet_wrap</span>(<span class="sc">~</span>name) <span class="sc">+</span></span>
+<span id="cb7-19"><a href="#cb7-19" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="cn">NULL</span>, <span class="at">y =</span> <span class="cn">NULL</span>, <span class="at">fill =</span> <span class="st">"Legenda:"</span>) </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="PCA-01_files/figure-html/unnamed-chunk-4-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplotly</span>(</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">fviz_eig</span>(<span class="at">X =</span> afpc,</span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>           <span class="at">ggtheme =</span> <span class="fu">theme_bw</span>(), </span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>           <span class="at">barcolor =</span> <span class="st">"dodgerblue4"</span>, </span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>           <span class="at">barfill =</span> <span class="st">"dodgerblue4"</span>,</span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>           <span class="at">linecolor =</span> <span class="st">"darkgoldenrod3"</span>)</span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>  )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div id="htmlwidget-9d72f13aeb09c888ef2b" style="width:100%;height:464px;" class="plotly html-widget"></div>
+<script type="application/json" data-for="htmlwidget-9d72f13aeb09c888ef2b">{"x":{"data":[{"orientation":"v","width":[0.9,0.9,0.9,0.9,0.9,0.9],"base":[0,0,0,0,0,0],"x":[1,2,3,4,5,6],"y":[69.7899412892492,19.1352020272811,5.55594439488502,2.57267573797885,2.07993347866325,0.866303071942599],"text":["dim: 1<br />eig: 69.7899413","dim: 2<br />eig: 19.1352020","dim: 3<br />eig:  5.5559444","dim: 4<br />eig:  2.5726757","dim: 5<br />eig:  2.0799335","dim: 6<br />eig:  0.8663031"],"type":"bar","textposition":"none","marker":{"autocolorscale":false,"color":"rgba(16,78,139,1)","line":{"width":1.88976377952756,"color":"rgba(16,78,139,1)"}},"showlegend":false,"xaxis":"x","yaxis":"y","hoverinfo":"text","mode":"","frame":null},{"x":[1,2,3,4,5,6],"y":[69.7899412892492,19.1352020272811,5.55594439488502,2.57267573797885,2.07993347866325,0.866303071942599],"text":["dim: 1<br />eig: 69.7899413","dim: 2<br />eig: 19.1352020","dim: 3<br />eig:  5.5559444","dim: 4<br />eig:  2.5726757","dim: 5<br />eig:  2.0799335","dim: 6<br />eig:  0.8663031"],"type":"scatter","mode":"lines+markers","line":{"width":1.88976377952756,"color":"rgba(205,149,12,1)","dash":"solid"},"hoveron":"points","showlegend":false,"xaxis":"x","yaxis":"y","hoverinfo":"text","marker":{"autocolorscale":false,"color":"rgba(205,149,12,1)","opacity":1,"size":5.66929133858268,"symbol":"circle","line":{"width":1.88976377952756,"color":"rgba(205,149,12,1)"}},"frame":null}],"layout":{"margin":{"t":43.7625570776256,"r":7.30593607305936,"b":40.1826484018265,"l":37.2602739726027},"plot_bgcolor":"rgba(255,255,255,1)","paper_bgcolor":"rgba(255,255,255,1)","font":{"color":"rgba(0,0,0,1)","family":"","size":14.6118721461187},"title":{"text":"Scree plot","font":{"color":"rgba(0,0,0,1)","family":"","size":17.5342465753425},"x":0,"xref":"paper"},"xaxis":{"domain":[0,1],"automargin":true,"type":"linear","autorange":false,"range":[0.4,6.6],"tickmode":"array","ticktext":["1","2","3","4","5","6"],"tickvals":[1,2,3,4,5,6],"categoryorder":"array","categoryarray":["1","2","3","4","5","6"],"nticks":null,"ticks":"outside","tickcolor":"rgba(0,0,0,1)","ticklen":3.65296803652968,"tickwidth":0.66417600664176,"showticklabels":true,"tickfont":{"color":"rgba(77,77,77,1)","family":"","size":11.689497716895},"tickangle":-0,"showline":false,"linecolor":null,"linewidth":0,"showgrid":true,"gridcolor":"rgba(235,235,235,1)","gridwidth":0.66417600664176,"zeroline":false,"anchor":"y","title":{"text":"Dimensions","font":{"color":"rgba(0,0,0,1)","family":"","size":14.6118721461187}},"hoverformat":".2f"},"yaxis":{"domain":[0,1],"automargin":true,"type":"linear","autorange":false,"range":[-3.48949706446246,73.2794383537116],"tickmode":"array","ticktext":["0","20","40","60"],"tickvals":[0,20,40,60],"categoryorder":"array","categoryarray":["0","20","40","60"],"nticks":null,"ticks":"outside","tickcolor":"rgba(0,0,0,1)","ticklen":3.65296803652968,"tickwidth":0.66417600664176,"showticklabels":true,"tickfont":{"color":"rgba(77,77,77,1)","family":"","size":11.689497716895},"tickangle":-0,"showline":false,"linecolor":null,"linewidth":0,"showgrid":true,"gridcolor":"rgba(235,235,235,1)","gridwidth":0.66417600664176,"zeroline":false,"anchor":"x","title":{"text":"Percentage of explained variances","font":{"color":"rgba(0,0,0,1)","family":"","size":14.6118721461187}},"hoverformat":".2f"},"shapes":[{"type":"rect","fillcolor":"transparent","line":{"color":"rgba(51,51,51,1)","width":0.66417600664176,"linetype":"solid"},"yref":"paper","xref":"paper","x0":0,"x1":1,"y0":0,"y1":1}],"showlegend":false,"legend":{"bgcolor":"rgba(255,255,255,1)","bordercolor":"transparent","borderwidth":1.88976377952756,"font":{"color":"rgba(0,0,0,1)","family":"","size":11.689497716895}},"hovermode":"closest","barmode":"relative"},"config":{"doubleClick":"reset","modeBarButtonsToAdd":["hoverclosest","hovercompare"],"showSendToCloud":false},"source":"A","attrs":{"125321a92c54b":{"x":{},"y":{},"type":"bar"},"125321e84dfa0":{"x":{},"y":{}},"12532659fef":{"x":{},"y":{}}},"cur_data":"125321a92c54b","visdat":{"125321a92c54b":["function (y) ","x"],"125321e84dfa0":["function (y) ","x"],"12532659fef":["function (y) ","x"]},"highlight":{"on":"plotly_click","persistent":false,"dynamic":false,"selectize":false,"opacityDim":0.2,"selected":{"opacity":1},"debounce":0},"shinyEvents":["plotly_hover","plotly_click","plotly_selected","plotly_relayout","plotly_brushed","plotly_brushing","plotly_clickannotation","plotly_doubleclick","plotly_deselect","plotly_afterplot","plotly_sunburstclick"],"base_url":"https://plot.ly"},"evals":[],"jsHooks":[]}</script>
+</div>
+</div>
+<section id="cargas-fatoriais-e-comunalidades" class="level2">
+<h2 class="anchored" data-anchor-id="cargas-fatoriais-e-comunalidades">Cargas Fatoriais e Comunalidades</h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Extraindo as Cargas Fatoriais</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>k <span class="ot">&lt;-</span> <span class="fu">sum</span>((afpc<span class="sc">$</span>sdev <span class="sc">^</span> <span class="dv">2</span>) <span class="sc">&gt;</span> <span class="dv">1</span>) <span class="co">#número de variáveis presentes na base de dados com carga maior que 1</span></span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>cargas_fatoriais <span class="ot">&lt;-</span> afpc<span class="sc">$</span>rotation[, <span class="dv">1</span><span class="sc">:</span>k] <span class="sc">%*%</span> <span class="fu">diag</span>(afpc<span class="sc">$</span>sdev[<span class="dv">1</span><span class="sc">:</span>k])</span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Visualizando as cargas fatoriais</span></span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a><span class="fu">data.frame</span>(cargas_fatoriais) <span class="sc">%&gt;%</span></span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rename</span>(<span class="at">F1 =</span> X1,</span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a>         <span class="at">F2 =</span> X2) <span class="sc">%&gt;%</span></span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">kable</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">kable_styling</span>(<span class="at">bootstrap_options =</span> <span class="st">"striped"</span>, </span>
+<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a>                <span class="at">full_width =</span> T, </span>
+<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a>                <span class="at">font_size =</span> <span class="dv">12</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+
+<table class="table table-striped" style="font-size: 12px; margin-left: auto; margin-right: auto;">
+ <thead>
+  <tr>
+   <th style="text-align:left;">   </th>
+   <th style="text-align:right;"> F1 </th>
+   <th style="text-align:right;"> F2 </th>
+  </tr>
+ </thead>
+<tbody>
+  <tr>
+   <td style="text-align:left;"> mpg </td>
+   <td style="text-align:right;"> -0.9386100 </td>
+   <td style="text-align:right;"> -0.0628714 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> disp </td>
+   <td style="text-align:right;"> 0.9536542 </td>
+   <td style="text-align:right;"> 0.0649896 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> hp </td>
+   <td style="text-align:right;"> 0.8714293 </td>
+   <td style="text-align:right;"> -0.3873213 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> drat </td>
+   <td style="text-align:right;"> -0.7511939 </td>
+   <td style="text-align:right;"> -0.4677369 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> wt </td>
+   <td style="text-align:right;"> 0.8975495 </td>
+   <td style="text-align:right;"> 0.3209513 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> qsec </td>
+   <td style="text-align:right;"> -0.5173734 </td>
+   <td style="text-align:right;"> 0.8173924 </td>
+  </tr>
+</tbody>
+</table>
+
+</div>
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="co">#Visualizando as Comunalidades</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="fu">data.frame</span>(<span class="fu">rowSums</span>(cargas_fatoriais <span class="sc">^</span> <span class="dv">2</span>)) <span class="sc">%&gt;%</span></span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rename</span>(<span class="at">comunalidades =</span> <span class="dv">1</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">kable</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">kable_styling</span>(<span class="at">bootstrap_options =</span> <span class="st">"striped"</span>, </span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a>                <span class="at">full_width =</span> T, </span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a>                <span class="at">font_size =</span> <span class="dv">12</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+
+<table class="table table-striped" style="font-size: 12px; margin-left: auto; margin-right: auto;">
+ <thead>
+  <tr>
+   <th style="text-align:left;">   </th>
+   <th style="text-align:right;"> comunalidades </th>
+  </tr>
+ </thead>
+<tbody>
+  <tr>
+   <td style="text-align:left;"> mpg </td>
+   <td style="text-align:right;"> 0.8849415 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> disp </td>
+   <td style="text-align:right;"> 0.9136799 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> hp </td>
+   <td style="text-align:right;"> 0.9094068 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> drat </td>
+   <td style="text-align:right;"> 0.7830701 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> wt </td>
+   <td style="text-align:right;"> 0.9086048 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> qsec </td>
+   <td style="text-align:right;"> 0.9358055 </td>
+  </tr>
+</tbody>
+</table>
+
+</div>
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Relatório das cargas fatoriais e das comunalidades</span></span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a><span class="fu">data.frame</span>(cargas_fatoriais) <span class="sc">%&gt;%</span></span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rename</span>(<span class="at">F1 =</span> X1,</span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>         <span class="at">F2 =</span> X2) <span class="sc">%&gt;%</span></span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">Comunalidades =</span> <span class="fu">rowSums</span>(cargas_fatoriais <span class="sc">^</span> <span class="dv">2</span>)) <span class="sc">%&gt;%</span></span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">kable</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">kable_styling</span>(<span class="at">bootstrap_options =</span> <span class="st">"striped"</span>, </span>
+<span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a>                <span class="at">full_width =</span> T, </span>
+<span id="cb11-9"><a href="#cb11-9" aria-hidden="true" tabindex="-1"></a>                <span class="at">font_size =</span> <span class="dv">12</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+
+<table class="table table-striped" style="font-size: 12px; margin-left: auto; margin-right: auto;">
+ <thead>
+  <tr>
+   <th style="text-align:left;">   </th>
+   <th style="text-align:right;"> F1 </th>
+   <th style="text-align:right;"> F2 </th>
+   <th style="text-align:right;"> Comunalidades </th>
+  </tr>
+ </thead>
+<tbody>
+  <tr>
+   <td style="text-align:left;"> mpg </td>
+   <td style="text-align:right;"> -0.9386100 </td>
+   <td style="text-align:right;"> -0.0628714 </td>
+   <td style="text-align:right;"> 0.8849415 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> disp </td>
+   <td style="text-align:right;"> 0.9536542 </td>
+   <td style="text-align:right;"> 0.0649896 </td>
+   <td style="text-align:right;"> 0.9136799 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> hp </td>
+   <td style="text-align:right;"> 0.8714293 </td>
+   <td style="text-align:right;"> -0.3873213 </td>
+   <td style="text-align:right;"> 0.9094068 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> drat </td>
+   <td style="text-align:right;"> -0.7511939 </td>
+   <td style="text-align:right;"> -0.4677369 </td>
+   <td style="text-align:right;"> 0.7830701 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> wt </td>
+   <td style="text-align:right;"> 0.8975495 </td>
+   <td style="text-align:right;"> 0.3209513 </td>
+   <td style="text-align:right;"> 0.9086048 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> qsec </td>
+   <td style="text-align:right;"> -0.5173734 </td>
+   <td style="text-align:right;"> 0.8173924 </td>
+   <td style="text-align:right;"> 0.9358055 </td>
+  </tr>
+</tbody>
+</table>
+
+</div>
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Plotagem das Cargas Fatoriais</span></span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a><span class="fu">data.frame</span>(cargas_fatoriais) <span class="sc">%&gt;%</span></span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> X1, <span class="at">y =</span> X2)) <span class="sc">+</span></span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">color =</span> <span class="st">"dodgerblue4"</span>) <span class="sc">+</span></span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_hline</span>(<span class="at">yintercept =</span> <span class="dv">0</span>, <span class="at">color =</span> <span class="st">"darkgoldenrod3"</span>, <span class="at">linetype =</span> <span class="st">"dashed"</span>) <span class="sc">+</span></span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_vline</span>(<span class="at">xintercept =</span> <span class="dv">0</span>, <span class="at">color =</span> <span class="st">"darkgoldenrod3"</span>, <span class="at">linetype =</span> <span class="st">"dashed"</span>) <span class="sc">+</span></span>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_text_repel</span>(<span class="at">label =</span> <span class="fu">row.names</span>(cargas_fatoriais)) <span class="sc">+</span></span>
+<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="fu">paste</span>(<span class="st">"F1"</span>, <span class="fu">paste0</span>(<span class="st">"("</span>,</span>
+<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a>                              <span class="fu">round</span>(<span class="fu">summary</span>(afpc)<span class="sc">$</span>importance[<span class="dv">2</span>,<span class="dv">1</span>] <span class="sc">*</span> <span class="dv">100</span>,</span>
+<span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a>                                    <span class="at">digits =</span> <span class="dv">2</span>),</span>
+<span id="cb12-11"><a href="#cb12-11" aria-hidden="true" tabindex="-1"></a>                                   <span class="st">"%)"</span>)),</span>
+<span id="cb12-12"><a href="#cb12-12" aria-hidden="true" tabindex="-1"></a>       <span class="at">y =</span> <span class="fu">paste</span>(<span class="st">"F2"</span>, <span class="fu">paste0</span>(<span class="st">"("</span>,</span>
+<span id="cb12-13"><a href="#cb12-13" aria-hidden="true" tabindex="-1"></a>                              <span class="fu">round</span>(<span class="fu">summary</span>(afpc)<span class="sc">$</span>importance[<span class="dv">2</span>,<span class="dv">2</span>] <span class="sc">*</span> <span class="dv">100</span>,</span>
+<span id="cb12-14"><a href="#cb12-14" aria-hidden="true" tabindex="-1"></a>                                    <span class="at">digits =</span> <span class="dv">2</span>),</span>
+<span id="cb12-15"><a href="#cb12-15" aria-hidden="true" tabindex="-1"></a>                              <span class="st">"%)"</span>))) <span class="sc">+</span></span>
+<span id="cb12-16"><a href="#cb12-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_bw</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="PCA-01_files/figure-html/unnamed-chunk-6-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+</section>
+<section id="scores-fatoriais" class="level2">
+<h2 class="anchored" data-anchor-id="scores-fatoriais">Scores Fatoriais</h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Scores Fatoriais</span></span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>scores_fatoriais <span class="ot">&lt;-</span> <span class="fu">t</span>(afpc<span class="sc">$</span>rotation)<span class="sc">/</span>afpc<span class="sc">$</span>sdev </span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a><span class="fu">colnames</span>(scores_fatoriais) <span class="ot">&lt;-</span> <span class="fu">colnames</span>(df)</span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a>scores_fatoriais</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>           mpg        disp         hp        drat         wt       qsec
+PC1 -0.2241512  0.22774394  0.2081077 -0.17939402  0.2143455 -0.1235549
+PC2 -0.0547607  0.05660566 -0.3373549 -0.40739654  0.2795470  0.7119448
+PC3  0.3373784 -0.16780224 -0.2531053 -1.38644346 -0.7235598 -0.5898997
+PC4 -1.9905415 -1.52720257 -0.3131144 -0.05750395 -0.2656826 -0.1086348
+PC5  0.3146458 -0.83401953  2.2808409 -0.40697924 -0.6515060  1.1942189
+PC6 -1.5461096  2.49249695 -0.2092904  0.49466253 -3.0372769  1.0593866</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>scores_fatoriais <span class="sc">%&gt;%</span></span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">t</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">data.frame</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rename</span>(<span class="at">PC1 =</span> <span class="dv">1</span>,</span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a>         <span class="at">PC2 =</span> <span class="dv">2</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(PC1, PC2) <span class="sc">%&gt;%</span></span>
+<span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">kable</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb15-8"><a href="#cb15-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">kable_styling</span>(<span class="at">bootstrap_options =</span> <span class="st">"striped"</span>, </span>
+<span id="cb15-9"><a href="#cb15-9" aria-hidden="true" tabindex="-1"></a>                <span class="at">full_width =</span> T, </span>
+<span id="cb15-10"><a href="#cb15-10" aria-hidden="true" tabindex="-1"></a>                <span class="at">font_size =</span> <span class="dv">12</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+
+<table class="table table-striped" style="font-size: 12px; margin-left: auto; margin-right: auto;">
+ <thead>
+  <tr>
+   <th style="text-align:left;">   </th>
+   <th style="text-align:right;"> PC1 </th>
+   <th style="text-align:right;"> PC2 </th>
+  </tr>
+ </thead>
+<tbody>
+  <tr>
+   <td style="text-align:left;"> mpg </td>
+   <td style="text-align:right;"> -0.2241512 </td>
+   <td style="text-align:right;"> -0.0547607 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> disp </td>
+   <td style="text-align:right;"> 0.2277439 </td>
+   <td style="text-align:right;"> 0.0566057 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> hp </td>
+   <td style="text-align:right;"> 0.2081077 </td>
+   <td style="text-align:right;"> -0.3373549 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> drat </td>
+   <td style="text-align:right;"> -0.1793940 </td>
+   <td style="text-align:right;"> -0.4073965 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> wt </td>
+   <td style="text-align:right;"> 0.2143455 </td>
+   <td style="text-align:right;"> 0.2795470 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> qsec </td>
+   <td style="text-align:right;"> -0.1235549 </td>
+   <td style="text-align:right;"> 0.7119448 </td>
+  </tr>
+</tbody>
+</table>
+
+</div>
+</div>
+</section>
+<section id="ranking" class="level2">
+<h2 class="anchored" data-anchor-id="ranking">Ranking</h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Proposta da construção de um ranking ------------------------------------</span></span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a><span class="co">#Assumindo-se apenas o F1 e F2 como indicadores, calculam-se os scores </span></span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a><span class="co">#fatorias</span></span>
+<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a>score_D1 <span class="ot">&lt;-</span> scores_fatoriais[<span class="dv">1</span>,]</span>
+<span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a>score_D1</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>       mpg       disp         hp       drat         wt       qsec 
+-0.2241512  0.2277439  0.2081077 -0.1793940  0.2143455 -0.1235549 </code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>score_D2 <span class="ot">&lt;-</span> scores_fatoriais[<span class="dv">2</span>,]</span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>score_D2</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>        mpg        disp          hp        drat          wt        qsec 
+-0.05476070  0.05660566 -0.33735491 -0.40739654  0.27954697  0.71194477 </code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="co">#Estabelecendo o ranking dos indicadores assumido</span></span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a>F1 <span class="ot">&lt;-</span> <span class="fu">map2_dfr</span>(df, score_D1, <span class="sc">~</span> .x<span class="sc">*</span>.y) <span class="sc">|&gt;</span> </span>
+<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">cbind</span>(<span class="fu">as_tibble</span>(<span class="fu">rownames</span>(df))) <span class="sc">|&gt;</span> </span>
+<span id="cb20-5"><a href="#cb20-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">column_to_rownames</span>(<span class="st">"value"</span>)</span>
+<span id="cb20-6"><a href="#cb20-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-7"><a href="#cb20-7" aria-hidden="true" tabindex="-1"></a>F2 <span class="ot">&lt;-</span> <span class="fu">map2_dfr</span>(df, score_D2, <span class="sc">~</span> .x<span class="sc">*</span>.y) <span class="sc">|&gt;</span> </span>
+<span id="cb20-8"><a href="#cb20-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">cbind</span>(<span class="fu">as_tibble</span>(<span class="fu">rownames</span>(df))) <span class="sc">|&gt;</span> </span>
+<span id="cb20-9"><a href="#cb20-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">column_to_rownames</span>(<span class="st">"value"</span>)</span>
+<span id="cb20-10"><a href="#cb20-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-11"><a href="#cb20-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-12"><a href="#cb20-12" aria-hidden="true" tabindex="-1"></a><span class="co">#Na construção de rankings no R, devemos efetuar a multiplicação por -1, </span></span>
+<span id="cb20-13"><a href="#cb20-13" aria-hidden="true" tabindex="-1"></a><span class="co">#visto que os scores fatoriais das observações mais fortes são, por padrão, </span></span>
+<span id="cb20-14"><a href="#cb20-14" aria-hidden="true" tabindex="-1"></a><span class="co">#apresentados acompanhados do sinal de menos.</span></span>
+<span id="cb20-15"><a href="#cb20-15" aria-hidden="true" tabindex="-1"></a>F1 <span class="ot">&lt;-</span>  <span class="fu">data.frame</span>(F1) <span class="sc">%&gt;%</span></span>
+<span id="cb20-16"><a href="#cb20-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">fator1 =</span> <span class="fu">rowSums</span>(.) <span class="sc">*</span> <span class="sc">-</span><span class="dv">1</span>)</span>
+<span id="cb20-17"><a href="#cb20-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-18"><a href="#cb20-18" aria-hidden="true" tabindex="-1"></a>F1 <span class="sc">%&gt;%</span></span>
+<span id="cb20-19"><a href="#cb20-19" aria-hidden="true" tabindex="-1"></a>  <span class="fu">kable</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb20-20"><a href="#cb20-20" aria-hidden="true" tabindex="-1"></a>  <span class="fu">kable_styling</span>(<span class="at">bootstrap_options =</span> <span class="st">"striped"</span>, </span>
+<span id="cb20-21"><a href="#cb20-21" aria-hidden="true" tabindex="-1"></a>                <span class="at">full_width =</span> T, </span>
+<span id="cb20-22"><a href="#cb20-22" aria-hidden="true" tabindex="-1"></a>                <span class="at">font_size =</span> <span class="dv">12</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+
+<table class="table table-striped" style="font-size: 12px; margin-left: auto; margin-right: auto;">
+ <thead>
+  <tr>
+   <th style="text-align:left;">   </th>
+   <th style="text-align:right;"> mpg </th>
+   <th style="text-align:right;"> disp </th>
+   <th style="text-align:right;"> hp </th>
+   <th style="text-align:right;"> drat </th>
+   <th style="text-align:right;"> wt </th>
+   <th style="text-align:right;"> qsec </th>
+   <th style="text-align:right;"> fator1 </th>
+  </tr>
+ </thead>
+<tbody>
+  <tr>
+   <td style="text-align:left;"> Mazda RX4 </td>
+   <td style="text-align:right;"> -0.0338210 </td>
+   <td style="text-align:right;"> -0.1299552 </td>
+   <td style="text-align:right;"> -0.1113569 </td>
+   <td style="text-align:right;"> -0.1018086 </td>
+   <td style="text-align:right;"> -0.1308364 </td>
+   <td style="text-align:right;"> 0.0960226 </td>
+   <td style="text-align:right;"> 0.4117555 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Mazda RX4 Wag </td>
+   <td style="text-align:right;"> -0.0338210 </td>
+   <td style="text-align:right;"> -0.1299552 </td>
+   <td style="text-align:right;"> -0.1113569 </td>
+   <td style="text-align:right;"> -0.1018086 </td>
+   <td style="text-align:right;"> -0.0749749 </td>
+   <td style="text-align:right;"> 0.0573024 </td>
+   <td style="text-align:right;"> 0.3946142 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Datsun 710 </td>
+   <td style="text-align:right;"> -0.1007657 </td>
+   <td style="text-align:right;"> -0.2255080 </td>
+   <td style="text-align:right;"> -0.1629567 </td>
+   <td style="text-align:right;"> -0.0850327 </td>
+   <td style="text-align:right;"> -0.1965558 </td>
+   <td style="text-align:right;"> -0.0526352 </td>
+   <td style="text-align:right;"> 0.8234541 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Hornet 4 Drive </td>
+   <td style="text-align:right;"> -0.0486976 </td>
+   <td style="text-align:right;"> 0.0501250 </td>
+   <td style="text-align:right;"> -0.1113569 </td>
+   <td style="text-align:right;"> 0.1733157 </td>
+   <td style="text-align:right;"> -0.0004929 </td>
+   <td style="text-align:right;"> -0.1100241 </td>
+   <td style="text-align:right;"> 0.0471308 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Hornet Sportabout </td>
+   <td style="text-align:right;"> 0.0517194 </td>
+   <td style="text-align:right;"> 0.2375554 </td>
+   <td style="text-align:right;"> 0.0859364 </td>
+   <td style="text-align:right;"> 0.1498295 </td>
+   <td style="text-align:right;"> 0.0487967 </td>
+   <td style="text-align:right;"> 0.0573024 </td>
+   <td style="text-align:right;"> -0.6311398 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Valiant </td>
+   <td style="text-align:right;"> 0.0740343 </td>
+   <td style="text-align:right;"> -0.0105142 </td>
+   <td style="text-align:right;"> -0.1265333 </td>
+   <td style="text-align:right;"> 0.2806813 </td>
+   <td style="text-align:right;"> 0.0531780 </td>
+   <td style="text-align:right;"> -0.1639557 </td>
+   <td style="text-align:right;"> -0.1068902 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Duster 360 </td>
+   <td style="text-align:right;"> 0.2153620 </td>
+   <td style="text-align:right;"> 0.2375554 </td>
+   <td style="text-align:right;"> 0.2984062 </td>
+   <td style="text-align:right;"> 0.1296984 </td>
+   <td style="text-align:right;"> 0.0772751 </td>
+   <td style="text-align:right;"> 0.1388913 </td>
+   <td style="text-align:right;"> -1.0971885 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Merc 240D </td>
+   <td style="text-align:right;"> -0.1602721 </td>
+   <td style="text-align:right;"> -0.1543947 </td>
+   <td style="text-align:right;"> -0.2570505 </td>
+   <td style="text-align:right;"> -0.0313499 </td>
+   <td style="text-align:right;"> -0.0059695 </td>
+   <td style="text-align:right;"> -0.1487442 </td>
+   <td style="text-align:right;"> 0.7577809 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Merc 230 </td>
+   <td style="text-align:right;"> -0.1007657 </td>
+   <td style="text-align:right;"> -0.1652362 </td>
+   <td style="text-align:right;"> -0.1568862 </td>
+   <td style="text-align:right;"> -0.1085189 </td>
+   <td style="text-align:right;"> -0.0147321 </td>
+   <td style="text-align:right;"> -0.3492594 </td>
+   <td style="text-align:right;"> 0.8953985 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Merc 280 </td>
+   <td style="text-align:right;"> 0.0331237 </td>
+   <td style="text-align:right;"> -0.1159898 </td>
+   <td style="text-align:right;"> -0.0718982 </td>
+   <td style="text-align:right;"> -0.1085189 </td>
+   <td style="text-align:right;"> 0.0487967 </td>
+   <td style="text-align:right;"> -0.0312009 </td>
+   <td style="text-align:right;"> 0.2456875 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Merc 280C </td>
+   <td style="text-align:right;"> 0.0851918 </td>
+   <td style="text-align:right;"> -0.1159898 </td>
+   <td style="text-align:right;"> -0.0718982 </td>
+   <td style="text-align:right;"> -0.1085189 </td>
+   <td style="text-align:right;"> 0.0487967 </td>
+   <td style="text-align:right;"> -0.0726867 </td>
+   <td style="text-align:right;"> 0.2351053 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Merc 450SE </td>
+   <td style="text-align:right;"> 0.1372599 </td>
+   <td style="text-align:right;"> 0.0828335 </td>
+   <td style="text-align:right;"> 0.1011128 </td>
+   <td style="text-align:right;"> 0.1766709 </td>
+   <td style="text-align:right;"> 0.1868074 </td>
+   <td style="text-align:right;"> 0.0310280 </td>
+   <td style="text-align:right;"> -0.7157124 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Merc 450SL </td>
+   <td style="text-align:right;"> 0.1037875 </td>
+   <td style="text-align:right;"> 0.0828335 </td>
+   <td style="text-align:right;"> 0.1011128 </td>
+   <td style="text-align:right;"> 0.1766709 </td>
+   <td style="text-align:right;"> 0.1123254 </td>
+   <td style="text-align:right;"> 0.0171994 </td>
+   <td style="text-align:right;"> -0.5939295 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Merc 450SLC </td>
+   <td style="text-align:right;"> 0.1818897 </td>
+   <td style="text-align:right;"> 0.0828335 </td>
+   <td style="text-align:right;"> 0.1011128 </td>
+   <td style="text-align:right;"> 0.1766709 </td>
+   <td style="text-align:right;"> 0.1232787 </td>
+   <td style="text-align:right;"> -0.0104579 </td>
+   <td style="text-align:right;"> -0.6553276 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Cadillac Fleetwood </td>
+   <td style="text-align:right;"> 0.3604088 </td>
+   <td style="text-align:right;"> 0.4433614 </td>
+   <td style="text-align:right;"> 0.1769949 </td>
+   <td style="text-align:right;"> 0.2236433 </td>
+   <td style="text-align:right;"> 0.4453037 </td>
+   <td style="text-align:right;"> -0.0090750 </td>
+   <td style="text-align:right;"> -1.6406371 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Lincoln Continental </td>
+   <td style="text-align:right;"> 0.3604088 </td>
+   <td style="text-align:right;"> 0.4213107 </td>
+   <td style="text-align:right;"> 0.2073477 </td>
+   <td style="text-align:right;"> 0.2001571 </td>
+   <td style="text-align:right;"> 0.4834210 </td>
+   <td style="text-align:right;"> 0.0019879 </td>
+   <td style="text-align:right;"> -1.6746333 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Chrysler Imperial </td>
+   <td style="text-align:right;"> 0.2004854 </td>
+   <td style="text-align:right;"> 0.3845597 </td>
+   <td style="text-align:right;"> 0.2528770 </td>
+   <td style="text-align:right;"> 0.1229881 </td>
+   <td style="text-align:right;"> 0.4661149 </td>
+   <td style="text-align:right;"> 0.0296451 </td>
+   <td style="text-align:right;"> -1.4566702 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Fiat 128 </td>
+   <td style="text-align:right;"> -0.4578041 </td>
+   <td style="text-align:right;"> -0.2793483 </td>
+   <td style="text-align:right;"> -0.2449093 </td>
+   <td style="text-align:right;"> -0.1622017 </td>
+   <td style="text-align:right;"> -0.2228436 </td>
+   <td style="text-align:right;"> -0.1120983 </td>
+   <td style="text-align:right;"> 1.4792053 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Honda Civic </td>
+   <td style="text-align:right;"> -0.3834211 </td>
+   <td style="text-align:right;"> -0.2848609 </td>
+   <td style="text-align:right;"> -0.2874033 </td>
+   <td style="text-align:right;"> -0.4473915 </td>
+   <td style="text-align:right;"> -0.3509964 </td>
+   <td style="text-align:right;"> -0.0464123 </td>
+   <td style="text-align:right;"> 1.8004855 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Toyota Corolla </td>
+   <td style="text-align:right;"> -0.5135913 </td>
+   <td style="text-align:right;"> -0.2933137 </td>
+   <td style="text-align:right;"> -0.2479446 </td>
+   <td style="text-align:right;"> -0.2091741 </td>
+   <td style="text-align:right;"> -0.3028022 </td>
+   <td style="text-align:right;"> -0.1418299 </td>
+   <td style="text-align:right;"> 1.7086558 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Toyota Corona </td>
+   <td style="text-align:right;"> -0.0524168 </td>
+   <td style="text-align:right;"> -0.2032736 </td>
+   <td style="text-align:right;"> -0.1508156 </td>
+   <td style="text-align:right;"> -0.0347051 </td>
+   <td style="text-align:right;"> -0.1647914 </td>
+   <td style="text-align:right;"> -0.1494357 </td>
+   <td style="text-align:right;"> 0.7554381 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Dodge Challenger </td>
+   <td style="text-align:right;"> 0.1707322 </td>
+   <td style="text-align:right;"> 0.1603782 </td>
+   <td style="text-align:right;"> 0.0100544 </td>
+   <td style="text-align:right;"> 0.2806813 </td>
+   <td style="text-align:right;"> 0.0663218 </td>
+   <td style="text-align:right;"> 0.0676739 </td>
+   <td style="text-align:right;"> -0.7558417 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> AMC Javelin </td>
+   <td style="text-align:right;"> 0.1818897 </td>
+   <td style="text-align:right;"> 0.1346525 </td>
+   <td style="text-align:right;"> 0.0100544 </td>
+   <td style="text-align:right;"> 0.1498295 </td>
+   <td style="text-align:right;"> 0.0477013 </td>
+   <td style="text-align:right;"> 0.0379423 </td>
+   <td style="text-align:right;"> -0.5620696 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Camaro Z28 </td>
+   <td style="text-align:right;"> 0.2525535 </td>
+   <td style="text-align:right;"> 0.2191799 </td>
+   <td style="text-align:right;"> 0.2984062 </td>
+   <td style="text-align:right;"> -0.0447706 </td>
+   <td style="text-align:right;"> 0.1364225 </td>
+   <td style="text-align:right;"> 0.1686229 </td>
+   <td style="text-align:right;"> -1.0304144 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Pontiac Firebird </td>
+   <td style="text-align:right;"> 0.0331237 </td>
+   <td style="text-align:right;"> 0.3110576 </td>
+   <td style="text-align:right;"> 0.0859364 </td>
+   <td style="text-align:right;"> 0.1733157 </td>
+   <td style="text-align:right;"> 0.1375179 </td>
+   <td style="text-align:right;"> 0.0552281 </td>
+   <td style="text-align:right;"> -0.7961793 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Fiat X1-9 </td>
+   <td style="text-align:right;"> -0.2681274 </td>
+   <td style="text-align:right;"> -0.2787970 </td>
+   <td style="text-align:right;"> -0.2449093 </td>
+   <td style="text-align:right;"> -0.1622017 </td>
+   <td style="text-align:right;"> -0.2808957 </td>
+   <td style="text-align:right;"> -0.0726867 </td>
+   <td style="text-align:right;"> 1.3076179 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Porsche 914-2 </td>
+   <td style="text-align:right;"> -0.2197785 </td>
+   <td style="text-align:right;"> -0.2029061 </td>
+   <td style="text-align:right;"> -0.1690273 </td>
+   <td style="text-align:right;"> -0.2796328 </td>
+   <td style="text-align:right;"> -0.2359874 </td>
+   <td style="text-align:right;"> 0.0794282 </td>
+   <td style="text-align:right;"> 1.0279039 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Lotus Europa </td>
+   <td style="text-align:right;"> -0.3834211 </td>
+   <td style="text-align:right;"> -0.2492124 </td>
+   <td style="text-align:right;"> -0.1022511 </td>
+   <td style="text-align:right;"> -0.0581913 </td>
+   <td style="text-align:right;"> -0.3733410 </td>
+   <td style="text-align:right;"> 0.0655996 </td>
+   <td style="text-align:right;"> 1.1008173 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Ford Pantera L </td>
+   <td style="text-align:right;"> 0.1595748 </td>
+   <td style="text-align:right;"> 0.2210174 </td>
+   <td style="text-align:right;"> 0.3560766 </td>
+   <td style="text-align:right;"> -0.2091741 </td>
+   <td style="text-align:right;"> -0.0103508 </td>
+   <td style="text-align:right;"> 0.2315432 </td>
+   <td style="text-align:right;"> -0.7486870 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Ferrari Dino </td>
+   <td style="text-align:right;"> 0.0145279 </td>
+   <td style="text-align:right;"> -0.1575185 </td>
+   <td style="text-align:right;"> 0.0859364 </td>
+   <td style="text-align:right;"> -0.0078637 </td>
+   <td style="text-align:right;"> -0.0979767 </td>
+   <td style="text-align:right;"> 0.1624000 </td>
+   <td style="text-align:right;"> 0.0004945 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Maserati Bora </td>
+   <td style="text-align:right;"> 0.1893280 </td>
+   <td style="text-align:right;"> 0.1291398 </td>
+   <td style="text-align:right;"> 0.5715816 </td>
+   <td style="text-align:right;"> 0.0189777 </td>
+   <td style="text-align:right;"> 0.0772751 </td>
+   <td style="text-align:right;"> 0.2246288 </td>
+   <td style="text-align:right;"> -1.2109310 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Volvo 142E </td>
+   <td style="text-align:right;"> -0.0486976 </td>
+   <td style="text-align:right;"> -0.2016198 </td>
+   <td style="text-align:right;"> -0.1143922 </td>
+   <td style="text-align:right;"> -0.1722672 </td>
+   <td style="text-align:right;"> -0.0957860 </td>
+   <td style="text-align:right;"> -0.0519438 </td>
+   <td style="text-align:right;"> 0.6847066 </td>
+  </tr>
+</tbody>
+</table>
+
+</div>
+<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a>F2 <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(F2) <span class="sc">%&gt;%</span></span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">fator2 =</span> <span class="fu">rowSums</span>(.) <span class="sc">*</span> <span class="sc">-</span><span class="dv">1</span>)</span>
+<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a>F2 <span class="sc">%&gt;%</span></span>
+<span id="cb21-5"><a href="#cb21-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">kable</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb21-6"><a href="#cb21-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">kable_styling</span>(<span class="at">bootstrap_options =</span> <span class="st">"striped"</span>, </span>
+<span id="cb21-7"><a href="#cb21-7" aria-hidden="true" tabindex="-1"></a>                <span class="at">full_width =</span> T, </span>
+<span id="cb21-8"><a href="#cb21-8" aria-hidden="true" tabindex="-1"></a>                <span class="at">font_size =</span> <span class="dv">12</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+
+<table class="table table-striped" style="font-size: 12px; margin-left: auto; margin-right: auto;">
+ <thead>
+  <tr>
+   <th style="text-align:left;">   </th>
+   <th style="text-align:right;"> mpg </th>
+   <th style="text-align:right;"> disp </th>
+   <th style="text-align:right;"> hp </th>
+   <th style="text-align:right;"> drat </th>
+   <th style="text-align:right;"> wt </th>
+   <th style="text-align:right;"> qsec </th>
+   <th style="text-align:right;"> fator2 </th>
+  </tr>
+ </thead>
+<tbody>
+  <tr>
+   <td style="text-align:left;"> Mazda RX4 </td>
+   <td style="text-align:right;"> -0.0082626 </td>
+   <td style="text-align:right;"> -0.0323003 </td>
+   <td style="text-align:right;"> 0.1805162 </td>
+   <td style="text-align:right;"> -0.2312031 </td>
+   <td style="text-align:right;"> -0.1706354 </td>
+   <td style="text-align:right;"> -0.5532987 </td>
+   <td style="text-align:right;"> 0.8151838 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Mazda RX4 Wag </td>
+   <td style="text-align:right;"> -0.0082626 </td>
+   <td style="text-align:right;"> -0.0323003 </td>
+   <td style="text-align:right;"> 0.1805162 </td>
+   <td style="text-align:right;"> -0.2312031 </td>
+   <td style="text-align:right;"> -0.0977814 </td>
+   <td style="text-align:right;"> -0.3301863 </td>
+   <td style="text-align:right;"> 0.5192175 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Datsun 710 </td>
+   <td style="text-align:right;"> -0.0246173 </td>
+   <td style="text-align:right;"> -0.0560499 </td>
+   <td style="text-align:right;"> 0.2641625 </td>
+   <td style="text-align:right;"> -0.1931058 </td>
+   <td style="text-align:right;"> -0.2563459 </td>
+   <td style="text-align:right;"> 0.3032933 </td>
+   <td style="text-align:right;"> -0.0373370 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Hornet 4 Drive </td>
+   <td style="text-align:right;"> -0.0118969 </td>
+   <td style="text-align:right;"> 0.0124585 </td>
+   <td style="text-align:right;"> 0.1805162 </td>
+   <td style="text-align:right;"> 0.3935929 </td>
+   <td style="text-align:right;"> -0.0006428 </td>
+   <td style="text-align:right;"> 0.6339777 </td>
+   <td style="text-align:right;"> -1.2080056 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Hornet Sportabout </td>
+   <td style="text-align:right;"> 0.0126352 </td>
+   <td style="text-align:right;"> 0.0590443 </td>
+   <td style="text-align:right;"> -0.1393081 </td>
+   <td style="text-align:right;"> 0.3402567 </td>
+   <td style="text-align:right;"> 0.0636401 </td>
+   <td style="text-align:right;"> -0.3301863 </td>
+   <td style="text-align:right;"> -0.0060818 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Valiant </td>
+   <td style="text-align:right;"> 0.0180868 </td>
+   <td style="text-align:right;"> -0.0026133 </td>
+   <td style="text-align:right;"> 0.2051181 </td>
+   <td style="text-align:right;"> 0.6374158 </td>
+   <td style="text-align:right;"> 0.0693541 </td>
+   <td style="text-align:right;"> 0.9447413 </td>
+   <td style="text-align:right;"> -1.8721027 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Duster 360 </td>
+   <td style="text-align:right;"> 0.0526135 </td>
+   <td style="text-align:right;"> 0.0590443 </td>
+   <td style="text-align:right;"> -0.4837342 </td>
+   <td style="text-align:right;"> 0.2945399 </td>
+   <td style="text-align:right;"> 0.1007813 </td>
+   <td style="text-align:right;"> -0.8003159 </td>
+   <td style="text-align:right;"> 0.7770711 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Merc 240D </td>
+   <td style="text-align:right;"> -0.0391549 </td>
+   <td style="text-align:right;"> -0.0383747 </td>
+   <td style="text-align:right;"> 0.4166941 </td>
+   <td style="text-align:right;"> -0.0711944 </td>
+   <td style="text-align:right;"> -0.0077854 </td>
+   <td style="text-align:right;"> 0.8570900 </td>
+   <td style="text-align:right;"> -1.1172748 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Merc 230 </td>
+   <td style="text-align:right;"> -0.0246173 </td>
+   <td style="text-align:right;"> -0.0410694 </td>
+   <td style="text-align:right;"> 0.2543218 </td>
+   <td style="text-align:right;"> -0.2464420 </td>
+   <td style="text-align:right;"> -0.0192134 </td>
+   <td style="text-align:right;"> 2.0124931 </td>
+   <td style="text-align:right;"> -1.9354727 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Merc 280 </td>
+   <td style="text-align:right;"> 0.0080922 </td>
+   <td style="text-align:right;"> -0.0288292 </td>
+   <td style="text-align:right;"> 0.1165513 </td>
+   <td style="text-align:right;"> -0.2464420 </td>
+   <td style="text-align:right;"> 0.0636401 </td>
+   <td style="text-align:right;"> 0.1797847 </td>
+   <td style="text-align:right;"> -0.0927971 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Merc 280C </td>
+   <td style="text-align:right;"> 0.0208126 </td>
+   <td style="text-align:right;"> -0.0288292 </td>
+   <td style="text-align:right;"> 0.1165513 </td>
+   <td style="text-align:right;"> -0.2464420 </td>
+   <td style="text-align:right;"> 0.0636401 </td>
+   <td style="text-align:right;"> 0.4188336 </td>
+   <td style="text-align:right;"> -0.3445663 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Merc 450SE </td>
+   <td style="text-align:right;"> 0.0335329 </td>
+   <td style="text-align:right;"> 0.0205882 </td>
+   <td style="text-align:right;"> -0.1639099 </td>
+   <td style="text-align:right;"> 0.4012124 </td>
+   <td style="text-align:right;"> 0.2436321 </td>
+   <td style="text-align:right;"> -0.1787887 </td>
+   <td style="text-align:right;"> -0.3562671 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Merc 450SL </td>
+   <td style="text-align:right;"> 0.0253556 </td>
+   <td style="text-align:right;"> 0.0205882 </td>
+   <td style="text-align:right;"> -0.1639099 </td>
+   <td style="text-align:right;"> 0.4012124 </td>
+   <td style="text-align:right;"> 0.1464936 </td>
+   <td style="text-align:right;"> -0.0991057 </td>
+   <td style="text-align:right;"> -0.3306341 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Merc 450SLC </td>
+   <td style="text-align:right;"> 0.0444361 </td>
+   <td style="text-align:right;"> 0.0205882 </td>
+   <td style="text-align:right;"> -0.1639099 </td>
+   <td style="text-align:right;"> 0.4012124 </td>
+   <td style="text-align:right;"> 0.1607786 </td>
+   <td style="text-align:right;"> 0.0602602 </td>
+   <td style="text-align:right;"> -0.5233657 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Cadillac Fleetwood </td>
+   <td style="text-align:right;"> 0.0880488 </td>
+   <td style="text-align:right;"> 0.1101973 </td>
+   <td style="text-align:right;"> -0.2869193 </td>
+   <td style="text-align:right;"> 0.5078849 </td>
+   <td style="text-align:right;"> 0.5807602 </td>
+   <td style="text-align:right;"> 0.0522920 </td>
+   <td style="text-align:right;"> -1.0522638 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Lincoln Continental </td>
+   <td style="text-align:right;"> 0.0880488 </td>
+   <td style="text-align:right;"> 0.1047166 </td>
+   <td style="text-align:right;"> -0.3361230 </td>
+   <td style="text-align:right;"> 0.4545487 </td>
+   <td style="text-align:right;"> 0.6304723 </td>
+   <td style="text-align:right;"> -0.0114544 </td>
+   <td style="text-align:right;"> -0.9302089 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Chrysler Imperial </td>
+   <td style="text-align:right;"> 0.0489791 </td>
+   <td style="text-align:right;"> 0.0955821 </td>
+   <td style="text-align:right;"> -0.4099286 </td>
+   <td style="text-align:right;"> 0.2793010 </td>
+   <td style="text-align:right;"> 0.6079018 </td>
+   <td style="text-align:right;"> -0.1708204 </td>
+   <td style="text-align:right;"> -0.4510151 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Fiat 128 </td>
+   <td style="text-align:right;"> -0.1118427 </td>
+   <td style="text-align:right;"> -0.0694319 </td>
+   <td style="text-align:right;"> 0.3970126 </td>
+   <td style="text-align:right;"> -0.3683535 </td>
+   <td style="text-align:right;"> -0.2906301 </td>
+   <td style="text-align:right;"> 0.6459301 </td>
+   <td style="text-align:right;"> -0.2026846 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Honda Civic </td>
+   <td style="text-align:right;"> -0.0936707 </td>
+   <td style="text-align:right;"> -0.0708021 </td>
+   <td style="text-align:right;"> 0.4658978 </td>
+   <td style="text-align:right;"> -1.0160079 </td>
+   <td style="text-align:right;"> -0.4577656 </td>
+   <td style="text-align:right;"> 0.2674360 </td>
+   <td style="text-align:right;"> 0.9049125 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Toyota Corolla </td>
+   <td style="text-align:right;"> -0.1254716 </td>
+   <td style="text-align:right;"> -0.0729030 </td>
+   <td style="text-align:right;"> 0.4019330 </td>
+   <td style="text-align:right;"> -0.4750260 </td>
+   <td style="text-align:right;"> -0.3949112 </td>
+   <td style="text-align:right;"> 0.8172485 </td>
+   <td style="text-align:right;"> -0.1508697 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Toyota Corona </td>
+   <td style="text-align:right;"> -0.0128055 </td>
+   <td style="text-align:right;"> -0.0505236 </td>
+   <td style="text-align:right;"> 0.2444810 </td>
+   <td style="text-align:right;"> -0.0788138 </td>
+   <td style="text-align:right;"> -0.2149191 </td>
+   <td style="text-align:right;"> 0.8610741 </td>
+   <td style="text-align:right;"> -0.7484931 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Dodge Challenger </td>
+   <td style="text-align:right;"> 0.0417103 </td>
+   <td style="text-align:right;"> 0.0398619 </td>
+   <td style="text-align:right;"> -0.0162987 </td>
+   <td style="text-align:right;"> 0.6374158 </td>
+   <td style="text-align:right;"> 0.0864962 </td>
+   <td style="text-align:right;"> -0.3899486 </td>
+   <td style="text-align:right;"> -0.3992369 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> AMC Javelin </td>
+   <td style="text-align:right;"> 0.0444361 </td>
+   <td style="text-align:right;"> 0.0334678 </td>
+   <td style="text-align:right;"> -0.0162987 </td>
+   <td style="text-align:right;"> 0.3402567 </td>
+   <td style="text-align:right;"> 0.0622115 </td>
+   <td style="text-align:right;"> -0.2186302 </td>
+   <td style="text-align:right;"> -0.2454433 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Camaro Z28 </td>
+   <td style="text-align:right;"> 0.0616995 </td>
+   <td style="text-align:right;"> 0.0544771 </td>
+   <td style="text-align:right;"> -0.4837342 </td>
+   <td style="text-align:right;"> -0.1016722 </td>
+   <td style="text-align:right;"> 0.1779207 </td>
+   <td style="text-align:right;"> -0.9716343 </td>
+   <td style="text-align:right;"> 1.2629434 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Pontiac Firebird </td>
+   <td style="text-align:right;"> 0.0080922 </td>
+   <td style="text-align:right;"> 0.0773132 </td>
+   <td style="text-align:right;"> -0.1393081 </td>
+   <td style="text-align:right;"> 0.3935929 </td>
+   <td style="text-align:right;"> 0.1793493 </td>
+   <td style="text-align:right;"> -0.3182339 </td>
+   <td style="text-align:right;"> -0.2008057 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Fiat X1-9 </td>
+   <td style="text-align:right;"> -0.0655042 </td>
+   <td style="text-align:right;"> -0.0692949 </td>
+   <td style="text-align:right;"> 0.3970126 </td>
+   <td style="text-align:right;"> -0.3683535 </td>
+   <td style="text-align:right;"> -0.3663410 </td>
+   <td style="text-align:right;"> 0.4188336 </td>
+   <td style="text-align:right;"> 0.0536473 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Porsche 914-2 </td>
+   <td style="text-align:right;"> -0.0536924 </td>
+   <td style="text-align:right;"> -0.0504322 </td>
+   <td style="text-align:right;"> 0.2740033 </td>
+   <td style="text-align:right;"> -0.6350347 </td>
+   <td style="text-align:right;"> -0.3077722 </td>
+   <td style="text-align:right;"> -0.4576791 </td>
+   <td style="text-align:right;"> 1.2306073 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Lotus Europa </td>
+   <td style="text-align:right;"> -0.0936707 </td>
+   <td style="text-align:right;"> -0.0619416 </td>
+   <td style="text-align:right;"> 0.1657551 </td>
+   <td style="text-align:right;"> -0.1321501 </td>
+   <td style="text-align:right;"> -0.4869072 </td>
+   <td style="text-align:right;"> -0.3779961 </td>
+   <td style="text-align:right;"> 0.9869106 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Ford Pantera L </td>
+   <td style="text-align:right;"> 0.0389845 </td>
+   <td style="text-align:right;"> 0.0549338 </td>
+   <td style="text-align:right;"> -0.5772213 </td>
+   <td style="text-align:right;"> -0.4750260 </td>
+   <td style="text-align:right;"> -0.0134994 </td>
+   <td style="text-align:right;"> -1.3341918 </td>
+   <td style="text-align:right;"> 2.3060202 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Ferrari Dino </td>
+   <td style="text-align:right;"> 0.0035492 </td>
+   <td style="text-align:right;"> -0.0391512 </td>
+   <td style="text-align:right;"> -0.1393081 </td>
+   <td style="text-align:right;"> -0.0178581 </td>
+   <td style="text-align:right;"> -0.1277801 </td>
+   <td style="text-align:right;"> -0.9357769 </td>
+   <td style="text-align:right;"> 1.2563252 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Maserati Bora </td>
+   <td style="text-align:right;"> 0.0462533 </td>
+   <td style="text-align:right;"> 0.0320976 </td>
+   <td style="text-align:right;"> -0.9265678 </td>
+   <td style="text-align:right;"> 0.0430976 </td>
+   <td style="text-align:right;"> 0.1007813 </td>
+   <td style="text-align:right;"> -1.2943503 </td>
+   <td style="text-align:right;"> 1.9986883 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Volvo 142E </td>
+   <td style="text-align:right;"> -0.0118969 </td>
+   <td style="text-align:right;"> -0.0501125 </td>
+   <td style="text-align:right;"> 0.1854366 </td>
+   <td style="text-align:right;"> -0.3912119 </td>
+   <td style="text-align:right;"> -0.1249231 </td>
+   <td style="text-align:right;"> 0.2993092 </td>
+   <td style="text-align:right;"> 0.0933987 </td>
+  </tr>
+</tbody>
+</table>
+
+</div>
+<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="co">#Importando o data frame original</span></span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a>df_orig <span class="ot">&lt;-</span> mtcars</span>
+<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb22-4"><a href="#cb22-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Importando as colunas de fatores F1 e F2</span></span>
+<span id="cb22-5"><a href="#cb22-5" aria-hidden="true" tabindex="-1"></a>df_orig[<span class="st">"Fator1"</span>] <span class="ot">&lt;-</span> F1<span class="sc">$</span>fator1</span>
+<span id="cb22-6"><a href="#cb22-6" aria-hidden="true" tabindex="-1"></a>df_orig[<span class="st">"Fator2"</span>] <span class="ot">&lt;-</span> F2<span class="sc">$</span>fator2</span>
+<span id="cb22-7"><a href="#cb22-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-8"><a href="#cb22-8" aria-hidden="true" tabindex="-1"></a><span class="co">#Criando um ranking pela soma ponderada dos fatores por sua variância</span></span>
+<span id="cb22-9"><a href="#cb22-9" aria-hidden="true" tabindex="-1"></a><span class="co">#compartilhada:</span></span>
+<span id="cb22-10"><a href="#cb22-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-11"><a href="#cb22-11" aria-hidden="true" tabindex="-1"></a><span class="co">#Calculando a variância compartilhada</span></span>
+<span id="cb22-12"><a href="#cb22-12" aria-hidden="true" tabindex="-1"></a>var_compartilhada <span class="ot">&lt;-</span> (afpc<span class="sc">$</span>sdev <span class="sc">^</span> <span class="dv">2</span><span class="sc">/</span><span class="fu">sum</span>(afpc<span class="sc">$</span>sdev <span class="sc">^</span> <span class="dv">2</span>))</span>
+<span id="cb22-13"><a href="#cb22-13" aria-hidden="true" tabindex="-1"></a>var_compartilhada</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 0.697899413 0.191352020 0.055559444 0.025726757 0.020799335 0.008663031</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb24"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a>df_orig <span class="ot">&lt;-</span> df_orig <span class="sc">%&gt;%</span> </span>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">pontuacao =</span> Fator1 <span class="sc">*</span> var_compartilhada[<span class="dv">1</span>] <span class="sc">+</span></span>
+<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a>           Fator2 <span class="sc">*</span> var_compartilhada[<span class="dv">2</span>]) </span>
+<span id="cb24-4"><a href="#cb24-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-5"><a href="#cb24-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Visualizando o ranking final</span></span>
+<span id="cb24-6"><a href="#cb24-6" aria-hidden="true" tabindex="-1"></a>df_orig <span class="sc">%&gt;%</span> </span>
+<span id="cb24-7"><a href="#cb24-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(<span class="fu">desc</span>(pontuacao)) <span class="sc">%&gt;%</span> </span>
+<span id="cb24-8"><a href="#cb24-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">kable</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb24-9"><a href="#cb24-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">kable_styling</span>(<span class="at">bootstrap_options =</span> <span class="st">"striped"</span>, </span>
+<span id="cb24-10"><a href="#cb24-10" aria-hidden="true" tabindex="-1"></a>                <span class="at">full_width =</span> T, </span>
+<span id="cb24-11"><a href="#cb24-11" aria-hidden="true" tabindex="-1"></a>                <span class="at">font_size =</span> <span class="dv">12</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+
+<table class="table table-striped" style="font-size: 12px; margin-left: auto; margin-right: auto;">
+ <thead>
+  <tr>
+   <th style="text-align:left;">   </th>
+   <th style="text-align:right;"> mpg </th>
+   <th style="text-align:right;"> cyl </th>
+   <th style="text-align:right;"> disp </th>
+   <th style="text-align:right;"> hp </th>
+   <th style="text-align:right;"> drat </th>
+   <th style="text-align:right;"> wt </th>
+   <th style="text-align:right;"> qsec </th>
+   <th style="text-align:right;"> vs </th>
+   <th style="text-align:right;"> am </th>
+   <th style="text-align:right;"> gear </th>
+   <th style="text-align:right;"> carb </th>
+   <th style="text-align:right;"> Fator1 </th>
+   <th style="text-align:right;"> Fator2 </th>
+   <th style="text-align:right;"> pontuacao </th>
+  </tr>
+ </thead>
+<tbody>
+  <tr>
+   <td style="text-align:left;"> Honda Civic </td>
+   <td style="text-align:right;"> 30.4 </td>
+   <td style="text-align:right;"> 4 </td>
+   <td style="text-align:right;"> 75.7 </td>
+   <td style="text-align:right;"> 52 </td>
+   <td style="text-align:right;"> 4.93 </td>
+   <td style="text-align:right;"> 1.615 </td>
+   <td style="text-align:right;"> 18.52 </td>
+   <td style="text-align:right;"> 1 </td>
+   <td style="text-align:right;"> 1 </td>
+   <td style="text-align:right;"> 4 </td>
+   <td style="text-align:right;"> 2 </td>
+   <td style="text-align:right;"> 1.8004855 </td>
+   <td style="text-align:right;"> 0.9049125 </td>
+   <td style="text-align:right;"> 1.4297146 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Toyota Corolla </td>
+   <td style="text-align:right;"> 33.9 </td>
+   <td style="text-align:right;"> 4 </td>
+   <td style="text-align:right;"> 71.1 </td>
+   <td style="text-align:right;"> 65 </td>
+   <td style="text-align:right;"> 4.22 </td>
+   <td style="text-align:right;"> 1.835 </td>
+   <td style="text-align:right;"> 19.90 </td>
+   <td style="text-align:right;"> 1 </td>
+   <td style="text-align:right;"> 1 </td>
+   <td style="text-align:right;"> 4 </td>
+   <td style="text-align:right;"> 1 </td>
+   <td style="text-align:right;"> 1.7086558 </td>
+   <td style="text-align:right;"> -0.1508697 </td>
+   <td style="text-align:right;"> 1.1636007 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Fiat 128 </td>
+   <td style="text-align:right;"> 32.4 </td>
+   <td style="text-align:right;"> 4 </td>
+   <td style="text-align:right;"> 78.7 </td>
+   <td style="text-align:right;"> 66 </td>
+   <td style="text-align:right;"> 4.08 </td>
+   <td style="text-align:right;"> 2.200 </td>
+   <td style="text-align:right;"> 19.47 </td>
+   <td style="text-align:right;"> 1 </td>
+   <td style="text-align:right;"> 1 </td>
+   <td style="text-align:right;"> 4 </td>
+   <td style="text-align:right;"> 1 </td>
+   <td style="text-align:right;"> 1.4792053 </td>
+   <td style="text-align:right;"> -0.2026846 </td>
+   <td style="text-align:right;"> 0.9935524 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Lotus Europa </td>
+   <td style="text-align:right;"> 30.4 </td>
+   <td style="text-align:right;"> 4 </td>
+   <td style="text-align:right;"> 95.1 </td>
+   <td style="text-align:right;"> 113 </td>
+   <td style="text-align:right;"> 3.77 </td>
+   <td style="text-align:right;"> 1.513 </td>
+   <td style="text-align:right;"> 16.90 </td>
+   <td style="text-align:right;"> 1 </td>
+   <td style="text-align:right;"> 1 </td>
+   <td style="text-align:right;"> 5 </td>
+   <td style="text-align:right;"> 2 </td>
+   <td style="text-align:right;"> 1.1008173 </td>
+   <td style="text-align:right;"> 0.9869106 </td>
+   <td style="text-align:right;"> 0.9571071 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Porsche 914-2 </td>
+   <td style="text-align:right;"> 26.0 </td>
+   <td style="text-align:right;"> 4 </td>
+   <td style="text-align:right;"> 120.3 </td>
+   <td style="text-align:right;"> 91 </td>
+   <td style="text-align:right;"> 4.43 </td>
+   <td style="text-align:right;"> 2.140 </td>
+   <td style="text-align:right;"> 16.70 </td>
+   <td style="text-align:right;"> 0 </td>
+   <td style="text-align:right;"> 1 </td>
+   <td style="text-align:right;"> 5 </td>
+   <td style="text-align:right;"> 2 </td>
+   <td style="text-align:right;"> 1.0279039 </td>
+   <td style="text-align:right;"> 1.2306073 </td>
+   <td style="text-align:right;"> 0.9528527 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Fiat X1-9 </td>
+   <td style="text-align:right;"> 27.3 </td>
+   <td style="text-align:right;"> 4 </td>
+   <td style="text-align:right;"> 79.0 </td>
+   <td style="text-align:right;"> 66 </td>
+   <td style="text-align:right;"> 4.08 </td>
+   <td style="text-align:right;"> 1.935 </td>
+   <td style="text-align:right;"> 18.90 </td>
+   <td style="text-align:right;"> 1 </td>
+   <td style="text-align:right;"> 1 </td>
+   <td style="text-align:right;"> 4 </td>
+   <td style="text-align:right;"> 1 </td>
+   <td style="text-align:right;"> 1.3076179 </td>
+   <td style="text-align:right;"> 0.0536473 </td>
+   <td style="text-align:right;"> 0.9228513 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Datsun 710 </td>
+   <td style="text-align:right;"> 22.8 </td>
+   <td style="text-align:right;"> 4 </td>
+   <td style="text-align:right;"> 108.0 </td>
+   <td style="text-align:right;"> 93 </td>
+   <td style="text-align:right;"> 3.85 </td>
+   <td style="text-align:right;"> 2.320 </td>
+   <td style="text-align:right;"> 18.61 </td>
+   <td style="text-align:right;"> 1 </td>
+   <td style="text-align:right;"> 1 </td>
+   <td style="text-align:right;"> 4 </td>
+   <td style="text-align:right;"> 1 </td>
+   <td style="text-align:right;"> 0.8234541 </td>
+   <td style="text-align:right;"> -0.0373370 </td>
+   <td style="text-align:right;"> 0.5675436 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Volvo 142E </td>
+   <td style="text-align:right;"> 21.4 </td>
+   <td style="text-align:right;"> 4 </td>
+   <td style="text-align:right;"> 121.0 </td>
+   <td style="text-align:right;"> 109 </td>
+   <td style="text-align:right;"> 4.11 </td>
+   <td style="text-align:right;"> 2.780 </td>
+   <td style="text-align:right;"> 18.60 </td>
+   <td style="text-align:right;"> 1 </td>
+   <td style="text-align:right;"> 1 </td>
+   <td style="text-align:right;"> 4 </td>
+   <td style="text-align:right;"> 2 </td>
+   <td style="text-align:right;"> 0.6847066 </td>
+   <td style="text-align:right;"> 0.0933987 </td>
+   <td style="text-align:right;"> 0.4957284 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Mazda RX4 </td>
+   <td style="text-align:right;"> 21.0 </td>
+   <td style="text-align:right;"> 6 </td>
+   <td style="text-align:right;"> 160.0 </td>
+   <td style="text-align:right;"> 110 </td>
+   <td style="text-align:right;"> 3.90 </td>
+   <td style="text-align:right;"> 2.620 </td>
+   <td style="text-align:right;"> 16.46 </td>
+   <td style="text-align:right;"> 0 </td>
+   <td style="text-align:right;"> 1 </td>
+   <td style="text-align:right;"> 4 </td>
+   <td style="text-align:right;"> 4 </td>
+   <td style="text-align:right;"> 0.4117555 </td>
+   <td style="text-align:right;"> 0.8151838 </td>
+   <td style="text-align:right;"> 0.4433510 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Toyota Corona </td>
+   <td style="text-align:right;"> 21.5 </td>
+   <td style="text-align:right;"> 4 </td>
+   <td style="text-align:right;"> 120.1 </td>
+   <td style="text-align:right;"> 97 </td>
+   <td style="text-align:right;"> 3.70 </td>
+   <td style="text-align:right;"> 2.465 </td>
+   <td style="text-align:right;"> 20.01 </td>
+   <td style="text-align:right;"> 1 </td>
+   <td style="text-align:right;"> 0 </td>
+   <td style="text-align:right;"> 3 </td>
+   <td style="text-align:right;"> 1 </td>
+   <td style="text-align:right;"> 0.7554381 </td>
+   <td style="text-align:right;"> -0.7484931 </td>
+   <td style="text-align:right;"> 0.3839941 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Mazda RX4 Wag </td>
+   <td style="text-align:right;"> 21.0 </td>
+   <td style="text-align:right;"> 6 </td>
+   <td style="text-align:right;"> 160.0 </td>
+   <td style="text-align:right;"> 110 </td>
+   <td style="text-align:right;"> 3.90 </td>
+   <td style="text-align:right;"> 2.875 </td>
+   <td style="text-align:right;"> 17.02 </td>
+   <td style="text-align:right;"> 0 </td>
+   <td style="text-align:right;"> 1 </td>
+   <td style="text-align:right;"> 4 </td>
+   <td style="text-align:right;"> 4 </td>
+   <td style="text-align:right;"> 0.3946142 </td>
+   <td style="text-align:right;"> 0.5192175 </td>
+   <td style="text-align:right;"> 0.3747543 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Merc 240D </td>
+   <td style="text-align:right;"> 24.4 </td>
+   <td style="text-align:right;"> 4 </td>
+   <td style="text-align:right;"> 146.7 </td>
+   <td style="text-align:right;"> 62 </td>
+   <td style="text-align:right;"> 3.69 </td>
+   <td style="text-align:right;"> 3.190 </td>
+   <td style="text-align:right;"> 20.00 </td>
+   <td style="text-align:right;"> 1 </td>
+   <td style="text-align:right;"> 0 </td>
+   <td style="text-align:right;"> 4 </td>
+   <td style="text-align:right;"> 2 </td>
+   <td style="text-align:right;"> 0.7577809 </td>
+   <td style="text-align:right;"> -1.1172748 </td>
+   <td style="text-align:right;"> 0.3150620 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Merc 230 </td>
+   <td style="text-align:right;"> 22.8 </td>
+   <td style="text-align:right;"> 4 </td>
+   <td style="text-align:right;"> 140.8 </td>
+   <td style="text-align:right;"> 95 </td>
+   <td style="text-align:right;"> 3.92 </td>
+   <td style="text-align:right;"> 3.150 </td>
+   <td style="text-align:right;"> 22.90 </td>
+   <td style="text-align:right;"> 1 </td>
+   <td style="text-align:right;"> 0 </td>
+   <td style="text-align:right;"> 4 </td>
+   <td style="text-align:right;"> 2 </td>
+   <td style="text-align:right;"> 0.8953985 </td>
+   <td style="text-align:right;"> -1.9354727 </td>
+   <td style="text-align:right;"> 0.2545415 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Ferrari Dino </td>
+   <td style="text-align:right;"> 19.7 </td>
+   <td style="text-align:right;"> 6 </td>
+   <td style="text-align:right;"> 145.0 </td>
+   <td style="text-align:right;"> 175 </td>
+   <td style="text-align:right;"> 3.62 </td>
+   <td style="text-align:right;"> 2.770 </td>
+   <td style="text-align:right;"> 15.50 </td>
+   <td style="text-align:right;"> 0 </td>
+   <td style="text-align:right;"> 1 </td>
+   <td style="text-align:right;"> 5 </td>
+   <td style="text-align:right;"> 6 </td>
+   <td style="text-align:right;"> 0.0004945 </td>
+   <td style="text-align:right;"> 1.2563252 </td>
+   <td style="text-align:right;"> 0.2407455 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Merc 280 </td>
+   <td style="text-align:right;"> 19.2 </td>
+   <td style="text-align:right;"> 6 </td>
+   <td style="text-align:right;"> 167.6 </td>
+   <td style="text-align:right;"> 123 </td>
+   <td style="text-align:right;"> 3.92 </td>
+   <td style="text-align:right;"> 3.440 </td>
+   <td style="text-align:right;"> 18.30 </td>
+   <td style="text-align:right;"> 1 </td>
+   <td style="text-align:right;"> 0 </td>
+   <td style="text-align:right;"> 4 </td>
+   <td style="text-align:right;"> 4 </td>
+   <td style="text-align:right;"> 0.2456875 </td>
+   <td style="text-align:right;"> -0.0927971 </td>
+   <td style="text-align:right;"> 0.1537082 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Merc 280C </td>
+   <td style="text-align:right;"> 17.8 </td>
+   <td style="text-align:right;"> 6 </td>
+   <td style="text-align:right;"> 167.6 </td>
+   <td style="text-align:right;"> 123 </td>
+   <td style="text-align:right;"> 3.92 </td>
+   <td style="text-align:right;"> 3.440 </td>
+   <td style="text-align:right;"> 18.90 </td>
+   <td style="text-align:right;"> 1 </td>
+   <td style="text-align:right;"> 0 </td>
+   <td style="text-align:right;"> 4 </td>
+   <td style="text-align:right;"> 4 </td>
+   <td style="text-align:right;"> 0.2351053 </td>
+   <td style="text-align:right;"> -0.3445663 </td>
+   <td style="text-align:right;"> 0.0981464 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Ford Pantera L </td>
+   <td style="text-align:right;"> 15.8 </td>
+   <td style="text-align:right;"> 8 </td>
+   <td style="text-align:right;"> 351.0 </td>
+   <td style="text-align:right;"> 264 </td>
+   <td style="text-align:right;"> 4.22 </td>
+   <td style="text-align:right;"> 3.170 </td>
+   <td style="text-align:right;"> 14.50 </td>
+   <td style="text-align:right;"> 0 </td>
+   <td style="text-align:right;"> 1 </td>
+   <td style="text-align:right;"> 5 </td>
+   <td style="text-align:right;"> 4 </td>
+   <td style="text-align:right;"> -0.7486870 </td>
+   <td style="text-align:right;"> 2.3060202 </td>
+   <td style="text-align:right;"> -0.0812466 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Hornet 4 Drive </td>
+   <td style="text-align:right;"> 21.4 </td>
+   <td style="text-align:right;"> 6 </td>
+   <td style="text-align:right;"> 258.0 </td>
+   <td style="text-align:right;"> 110 </td>
+   <td style="text-align:right;"> 3.08 </td>
+   <td style="text-align:right;"> 3.215 </td>
+   <td style="text-align:right;"> 19.44 </td>
+   <td style="text-align:right;"> 1 </td>
+   <td style="text-align:right;"> 0 </td>
+   <td style="text-align:right;"> 3 </td>
+   <td style="text-align:right;"> 1 </td>
+   <td style="text-align:right;"> 0.0471308 </td>
+   <td style="text-align:right;"> -1.2080056 </td>
+   <td style="text-align:right;"> -0.1982618 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Valiant </td>
+   <td style="text-align:right;"> 18.1 </td>
+   <td style="text-align:right;"> 6 </td>
+   <td style="text-align:right;"> 225.0 </td>
+   <td style="text-align:right;"> 105 </td>
+   <td style="text-align:right;"> 2.76 </td>
+   <td style="text-align:right;"> 3.460 </td>
+   <td style="text-align:right;"> 20.22 </td>
+   <td style="text-align:right;"> 1 </td>
+   <td style="text-align:right;"> 0 </td>
+   <td style="text-align:right;"> 3 </td>
+   <td style="text-align:right;"> 1 </td>
+   <td style="text-align:right;"> -0.1068902 </td>
+   <td style="text-align:right;"> -1.8721027 </td>
+   <td style="text-align:right;"> -0.4328293 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> AMC Javelin </td>
+   <td style="text-align:right;"> 15.2 </td>
+   <td style="text-align:right;"> 8 </td>
+   <td style="text-align:right;"> 304.0 </td>
+   <td style="text-align:right;"> 150 </td>
+   <td style="text-align:right;"> 3.15 </td>
+   <td style="text-align:right;"> 3.435 </td>
+   <td style="text-align:right;"> 17.30 </td>
+   <td style="text-align:right;"> 0 </td>
+   <td style="text-align:right;"> 0 </td>
+   <td style="text-align:right;"> 3 </td>
+   <td style="text-align:right;"> 2 </td>
+   <td style="text-align:right;"> -0.5620696 </td>
+   <td style="text-align:right;"> -0.2454433 </td>
+   <td style="text-align:right;"> -0.4392341 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Hornet Sportabout </td>
+   <td style="text-align:right;"> 18.7 </td>
+   <td style="text-align:right;"> 8 </td>
+   <td style="text-align:right;"> 360.0 </td>
+   <td style="text-align:right;"> 175 </td>
+   <td style="text-align:right;"> 3.15 </td>
+   <td style="text-align:right;"> 3.440 </td>
+   <td style="text-align:right;"> 17.02 </td>
+   <td style="text-align:right;"> 0 </td>
+   <td style="text-align:right;"> 0 </td>
+   <td style="text-align:right;"> 3 </td>
+   <td style="text-align:right;"> 2 </td>
+   <td style="text-align:right;"> -0.6311398 </td>
+   <td style="text-align:right;"> -0.0060818 </td>
+   <td style="text-align:right;"> -0.4416359 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Maserati Bora </td>
+   <td style="text-align:right;"> 15.0 </td>
+   <td style="text-align:right;"> 8 </td>
+   <td style="text-align:right;"> 301.0 </td>
+   <td style="text-align:right;"> 335 </td>
+   <td style="text-align:right;"> 3.54 </td>
+   <td style="text-align:right;"> 3.570 </td>
+   <td style="text-align:right;"> 14.60 </td>
+   <td style="text-align:right;"> 0 </td>
+   <td style="text-align:right;"> 1 </td>
+   <td style="text-align:right;"> 5 </td>
+   <td style="text-align:right;"> 8 </td>
+   <td style="text-align:right;"> -1.2109310 </td>
+   <td style="text-align:right;"> 1.9986883 </td>
+   <td style="text-align:right;"> -0.4626550 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Camaro Z28 </td>
+   <td style="text-align:right;"> 13.3 </td>
+   <td style="text-align:right;"> 8 </td>
+   <td style="text-align:right;"> 350.0 </td>
+   <td style="text-align:right;"> 245 </td>
+   <td style="text-align:right;"> 3.73 </td>
+   <td style="text-align:right;"> 3.840 </td>
+   <td style="text-align:right;"> 15.41 </td>
+   <td style="text-align:right;"> 0 </td>
+   <td style="text-align:right;"> 0 </td>
+   <td style="text-align:right;"> 3 </td>
+   <td style="text-align:right;"> 4 </td>
+   <td style="text-align:right;"> -1.0304144 </td>
+   <td style="text-align:right;"> 1.2629434 </td>
+   <td style="text-align:right;"> -0.4774588 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Merc 450SL </td>
+   <td style="text-align:right;"> 17.3 </td>
+   <td style="text-align:right;"> 8 </td>
+   <td style="text-align:right;"> 275.8 </td>
+   <td style="text-align:right;"> 180 </td>
+   <td style="text-align:right;"> 3.07 </td>
+   <td style="text-align:right;"> 3.730 </td>
+   <td style="text-align:right;"> 17.60 </td>
+   <td style="text-align:right;"> 0 </td>
+   <td style="text-align:right;"> 0 </td>
+   <td style="text-align:right;"> 3 </td>
+   <td style="text-align:right;"> 3 </td>
+   <td style="text-align:right;"> -0.5939295 </td>
+   <td style="text-align:right;"> -0.3306341 </td>
+   <td style="text-align:right;"> -0.4777705 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Merc 450SLC </td>
+   <td style="text-align:right;"> 15.2 </td>
+   <td style="text-align:right;"> 8 </td>
+   <td style="text-align:right;"> 275.8 </td>
+   <td style="text-align:right;"> 180 </td>
+   <td style="text-align:right;"> 3.07 </td>
+   <td style="text-align:right;"> 3.780 </td>
+   <td style="text-align:right;"> 18.00 </td>
+   <td style="text-align:right;"> 0 </td>
+   <td style="text-align:right;"> 0 </td>
+   <td style="text-align:right;"> 3 </td>
+   <td style="text-align:right;"> 3 </td>
+   <td style="text-align:right;"> -0.6553276 </td>
+   <td style="text-align:right;"> -0.5233657 </td>
+   <td style="text-align:right;"> -0.5574998 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Merc 450SE </td>
+   <td style="text-align:right;"> 16.4 </td>
+   <td style="text-align:right;"> 8 </td>
+   <td style="text-align:right;"> 275.8 </td>
+   <td style="text-align:right;"> 180 </td>
+   <td style="text-align:right;"> 3.07 </td>
+   <td style="text-align:right;"> 4.070 </td>
+   <td style="text-align:right;"> 17.40 </td>
+   <td style="text-align:right;"> 0 </td>
+   <td style="text-align:right;"> 0 </td>
+   <td style="text-align:right;"> 3 </td>
+   <td style="text-align:right;"> 3 </td>
+   <td style="text-align:right;"> -0.7157124 </td>
+   <td style="text-align:right;"> -0.3562671 </td>
+   <td style="text-align:right;"> -0.5676677 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Pontiac Firebird </td>
+   <td style="text-align:right;"> 19.2 </td>
+   <td style="text-align:right;"> 8 </td>
+   <td style="text-align:right;"> 400.0 </td>
+   <td style="text-align:right;"> 175 </td>
+   <td style="text-align:right;"> 3.08 </td>
+   <td style="text-align:right;"> 3.845 </td>
+   <td style="text-align:right;"> 17.05 </td>
+   <td style="text-align:right;"> 0 </td>
+   <td style="text-align:right;"> 0 </td>
+   <td style="text-align:right;"> 3 </td>
+   <td style="text-align:right;"> 2 </td>
+   <td style="text-align:right;"> -0.7961793 </td>
+   <td style="text-align:right;"> -0.2008057 </td>
+   <td style="text-align:right;"> -0.5940777 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Dodge Challenger </td>
+   <td style="text-align:right;"> 15.5 </td>
+   <td style="text-align:right;"> 8 </td>
+   <td style="text-align:right;"> 318.0 </td>
+   <td style="text-align:right;"> 150 </td>
+   <td style="text-align:right;"> 2.76 </td>
+   <td style="text-align:right;"> 3.520 </td>
+   <td style="text-align:right;"> 16.87 </td>
+   <td style="text-align:right;"> 0 </td>
+   <td style="text-align:right;"> 0 </td>
+   <td style="text-align:right;"> 3 </td>
+   <td style="text-align:right;"> 2 </td>
+   <td style="text-align:right;"> -0.7558417 </td>
+   <td style="text-align:right;"> -0.3992369 </td>
+   <td style="text-align:right;"> -0.6038963 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Duster 360 </td>
+   <td style="text-align:right;"> 14.3 </td>
+   <td style="text-align:right;"> 8 </td>
+   <td style="text-align:right;"> 360.0 </td>
+   <td style="text-align:right;"> 245 </td>
+   <td style="text-align:right;"> 3.21 </td>
+   <td style="text-align:right;"> 3.570 </td>
+   <td style="text-align:right;"> 15.84 </td>
+   <td style="text-align:right;"> 0 </td>
+   <td style="text-align:right;"> 0 </td>
+   <td style="text-align:right;"> 3 </td>
+   <td style="text-align:right;"> 4 </td>
+   <td style="text-align:right;"> -1.0971885 </td>
+   <td style="text-align:right;"> 0.7770711 </td>
+   <td style="text-align:right;"> -0.6170330 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Chrysler Imperial </td>
+   <td style="text-align:right;"> 14.7 </td>
+   <td style="text-align:right;"> 8 </td>
+   <td style="text-align:right;"> 440.0 </td>
+   <td style="text-align:right;"> 230 </td>
+   <td style="text-align:right;"> 3.23 </td>
+   <td style="text-align:right;"> 5.345 </td>
+   <td style="text-align:right;"> 17.42 </td>
+   <td style="text-align:right;"> 0 </td>
+   <td style="text-align:right;"> 0 </td>
+   <td style="text-align:right;"> 3 </td>
+   <td style="text-align:right;"> 4 </td>
+   <td style="text-align:right;"> -1.4566702 </td>
+   <td style="text-align:right;"> -0.4510151 </td>
+   <td style="text-align:right;"> -1.1029119 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Cadillac Fleetwood </td>
+   <td style="text-align:right;"> 10.4 </td>
+   <td style="text-align:right;"> 8 </td>
+   <td style="text-align:right;"> 472.0 </td>
+   <td style="text-align:right;"> 205 </td>
+   <td style="text-align:right;"> 2.93 </td>
+   <td style="text-align:right;"> 5.250 </td>
+   <td style="text-align:right;"> 17.98 </td>
+   <td style="text-align:right;"> 0 </td>
+   <td style="text-align:right;"> 0 </td>
+   <td style="text-align:right;"> 3 </td>
+   <td style="text-align:right;"> 4 </td>
+   <td style="text-align:right;"> -1.6406371 </td>
+   <td style="text-align:right;"> -1.0522638 </td>
+   <td style="text-align:right;"> -1.3463525 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Lincoln Continental </td>
+   <td style="text-align:right;"> 10.4 </td>
+   <td style="text-align:right;"> 8 </td>
+   <td style="text-align:right;"> 460.0 </td>
+   <td style="text-align:right;"> 215 </td>
+   <td style="text-align:right;"> 3.00 </td>
+   <td style="text-align:right;"> 5.424 </td>
+   <td style="text-align:right;"> 17.82 </td>
+   <td style="text-align:right;"> 0 </td>
+   <td style="text-align:right;"> 0 </td>
+   <td style="text-align:right;"> 3 </td>
+   <td style="text-align:right;"> 4 </td>
+   <td style="text-align:right;"> -1.6746333 </td>
+   <td style="text-align:right;"> -0.9302089 </td>
+   <td style="text-align:right;"> -1.3467229 </td>
+  </tr>
+</tbody>
+</table>
+
+</div>
+<div class="sourceCode cell-code" id="cb25"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="co">#Visualizando o ranking</span></span>
+<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a>df_orig <span class="sc">|&gt;</span> </span>
+<span id="cb25-3"><a href="#cb25-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rownames_to_column</span>(<span class="at">var =</span> <span class="st">"modelo"</span>) <span class="sc">|&gt;</span> </span>
+<span id="cb25-4"><a href="#cb25-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span> (<span class="at">modelo =</span> <span class="fu">as_factor</span>(modelo)) <span class="sc">|&gt;</span> </span>
+<span id="cb25-5"><a href="#cb25-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(</span>
+<span id="cb25-6"><a href="#cb25-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="fu">fct_reorder</span>(modelo, pontuacao), </span>
+<span id="cb25-7"><a href="#cb25-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> pontuacao))<span class="sc">+</span></span>
+<span id="cb25-8"><a href="#cb25-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">coord_flip</span>()<span class="sc">+</span></span>
+<span id="cb25-9"><a href="#cb25-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_col</span>(<span class="fu">aes</span>(<span class="at">fill =</span> pontuacao))<span class="sc">+</span></span>
+<span id="cb25-10"><a href="#cb25-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_fill_gradient</span>(<span class="at">low =</span> <span class="st">"darkslategray"</span>, <span class="at">high =</span> <span class="st">"green"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="PCA-01_files/figure-html/unnamed-chunk-8-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+</section>
+</section>
+
+</main>
+<!-- /main column -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const clipboard = new window.ClipboardJS('.code-copy-button', {
+    target: function(trigger) {
+      return trigger.previousElementSibling;
+    }
+  });
+  clipboard.on('success', function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    setTimeout(function() {
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  });
+  function tippyHover(el, contentFn) {
+    const config = {
+      allowHTML: true,
+      content: contentFn,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start'
+    };
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      let href = ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      return note.innerHTML;
+    });
+  }
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const cites = ref.parentNode.getAttribute('data-cites').split(' ');
+    tippyHover(ref, function() {
+      var popup = window.document.createElement('div');
+      cites.forEach(function(cite) {
+        var citeDiv = window.document.createElement('div');
+        citeDiv.classList.add('hanging-indent');
+        citeDiv.classList.add('csl-entry');
+        var biblioDiv = window.document.getElementById('ref-' + cite);
+        if (biblioDiv) {
+          citeDiv.innerHTML = biblioDiv.innerHTML;
+        }
+        popup.appendChild(citeDiv);
+      });
+      return popup.innerHTML;
+    });
+  }
+});
+</script>
+</div> <!-- /content -->
+
+
+
+</body></html>

@@ -19,6 +19,7 @@ library (PerformanceAnalytics)
 library(plotly)
 library(kableExtra)
 library(ggrepel)
+library(factoextra)
 ```
 
 # Base de Dados
@@ -41,22 +42,31 @@ DataExplorer::plot_correlation(df)
 
 # PCA
 
-Análise Fatorial de Componentes Princpais
+Análise de Componentes Princpais
 
 ```{r}
 afpc <- prcomp(df)
 summary(afpc)
+
+# Atributos:
+
+# sdev: corresponde à raiz quadrada dos eigenvalues, ou seja, os desvios-padrão dos componentes principais.
+
+# rotation: corresponde à matriz de tamanho jxj de eigenvectors, em que j 
+# representa a quantidade de variáveis da base de dados.
+
+# center: médias de cada variável utilizadas para após a padronização.
+
+# scale: desvios-padrão de cada variável utilizadas para a padronização.
 
 data.frame(afpc$rotation) |>
   mutate(var = names(df)) |> 
   pivot_longer(cols = !var) |> 
   mutate(var = factor(var)) |>
   ggplot(aes(x = var, y = value, fill = var)) +
-  geom_bar(stat = "identity", color = "black") +
+  geom_col() +
   facet_wrap(~name) +
-  labs(x = NULL, y = NULL, fill = "Legenda:") +
-  scale_fill_viridis_d() +
-  theme_bw()
+  labs(x = NULL, y = NULL, fill = "Legenda:") 
 ```
 
 
@@ -65,15 +75,16 @@ data.frame(afpc$rotation) |>
 ggplotly(
   fviz_eig(X = afpc,
            ggtheme = theme_bw(), 
-           barcolor = "black", 
+           barcolor = "dodgerblue4", 
            barfill = "dodgerblue4",
            linecolor = "darkgoldenrod3")
   )
 ```
+## Cargas Fatoriais e Comunalidades
 
 ```{r}
 # Extraindo as Cargas Fatoriais
-k <- sum((afpc$sdev ^ 2) > 1) #número de variáveis presentes na base de dados
+k <- sum((afpc$sdev ^ 2) > 1) #número de variáveis presentes na base de dados com carga maior que 1
 cargas_fatoriais <- afpc$rotation[, 1:k] %*% diag(afpc$sdev[1:k])
 
 # Visualizando as cargas fatoriais
@@ -119,5 +130,109 @@ data.frame(cargas_fatoriais) %>%
                                     digits = 2),
                               "%)"))) +
   theme_bw()
+```
+
+## Scores Fatoriais 
+
+```{r}
+# Scores Fatoriais
+scores_fatoriais <- t(afpc$rotation)/afpc$sdev 
+colnames(scores_fatoriais) <- colnames(df)
+
+scores_fatoriais
+
+scores_fatoriais %>%
+  t() %>%
+  data.frame() %>%
+  rename(PC1 = 1,
+         PC2 = 2) %>%
+  select(PC1, PC2) %>%
+  kable() %>%
+  kable_styling(bootstrap_options = "striped", 
+                full_width = T, 
+                font_size = 12)
+```
+
+## Ranking
+
+```{r}
+# Proposta da construção de um ranking ------------------------------------
+
+#Assumindo-se apenas o F1 e F2 como indicadores, calculam-se os scores 
+#fatorias
+score_D1 <- scores_fatoriais[1,]
+score_D1
+
+score_D2 <- scores_fatoriais[2,]
+score_D2
+
+#Estabelecendo o ranking dos indicadores assumido
+
+F1 <- map2_dfr(df, score_D1, ~ .x*.y) |> 
+  cbind(as_tibble(rownames(df))) |> 
+  column_to_rownames("value")
+
+F2 <- map2_dfr(df, score_D2, ~ .x*.y) |> 
+  cbind(as_tibble(rownames(df))) |> 
+  column_to_rownames("value")
+
+
+#Na construção de rankings no R, devemos efetuar a multiplicação por -1, 
+#visto que os scores fatoriais das observações mais fortes são, por padrão, 
+#apresentados acompanhados do sinal de menos.
+F1 <-  data.frame(F1) %>%
+  mutate(fator1 = rowSums(.) * -1)
+
+F1 %>%
+  kable() %>%
+  kable_styling(bootstrap_options = "striped", 
+                full_width = T, 
+                font_size = 12)
+
+F2 <- data.frame(F2) %>%
+  mutate(fator2 = rowSums(.) * -1)
+
+F2 %>%
+  kable() %>%
+  kable_styling(bootstrap_options = "striped", 
+                full_width = T, 
+                font_size = 12)
+
+#Importando o data frame original
+df_orig <- mtcars
+  
+# Importando as colunas de fatores F1 e F2
+df_orig["Fator1"] <- F1$fator1
+df_orig["Fator2"] <- F2$fator2
+
+#Criando um ranking pela soma ponderada dos fatores por sua variância
+#compartilhada:
+
+#Calculando a variância compartilhada
+var_compartilhada <- (afpc$sdev ^ 2/sum(afpc$sdev ^ 2))
+var_compartilhada
+
+df_orig <- df_orig %>% 
+  mutate(pontuacao = Fator1 * var_compartilhada[1] +
+           Fator2 * var_compartilhada[2]) 
+
+# Visualizando o ranking final
+df_orig %>% 
+  arrange(desc(pontuacao)) %>% 
+  kable() %>%
+  kable_styling(bootstrap_options = "striped", 
+                full_width = T, 
+                font_size = 12)
+
+#Visualizando o ranking
+df_orig |> 
+  rownames_to_column(var = "modelo") |> 
+  mutate (modelo = as_factor(modelo)) |> 
+  ggplot(aes(
+    x = fct_reorder(modelo, pontuacao), 
+    y = pontuacao))+
+  coord_flip()+
+  geom_col(aes(fill = pontuacao))+
+  scale_fill_gradient(low = "darkslategray", high = "green")
 ```
 
