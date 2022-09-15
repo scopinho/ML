@@ -131,6 +131,32 @@ data.frame(cargas_fatoriais) %>%
                               "%)"))) +
   theme_bw()
 ```
+::: callout-note
+Para o cálculo das coordenadas no gráfico usamos (Cargas Fatorias)
+Scores Fatorias * Desv Padrão:
+:::
+
+Por exemplo, calculando a coordenada das variáveis "mpg" e "wt"
+
+```{r}
+#Scores fatorias* o desvio padrão.
+
+#Exemplo com "mpg"
+
+Dim1_mpg <- afpc$rotation["mpg", 1] * afpc$sdev[1]
+Dim2_mpg <- afpc$rotation["mpg", 2] * afpc$sdev[2]
+
+paste0("Dim1= ", round(Dim1_mpg,3), ": Dim2= ", round(Dim2_mpg,2) )
+
+#Exemplo com "wt"
+Dim1_wt <- afpc$rotation["wt", 1] * afpc$sdev[1]
+Dim2_wt <- afpc$rotation["wt", 2] * afpc$sdev[2]
+
+paste0("Dim1= ", round(Dim1_wt,3), ": Dim2= ", round(Dim2_wt,2) )
+
+```
+
+
 
 ```{r}
 fviz_pca_biplot(afpc)
