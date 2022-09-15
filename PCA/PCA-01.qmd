@@ -132,6 +132,10 @@ data.frame(cargas_fatoriais) %>%
   theme_bw()
 ```
 
+```{r}
+fviz_pca_biplot(afpc)
+```
+
 ## Scores Fatoriais 
 
 ```{r}
@@ -234,5 +238,38 @@ df_orig |>
   coord_flip()+
   geom_col(aes(fill = pontuacao))+
   scale_fill_gradient(low = "darkslategray", high = "green")
+```
+## Apendice - Cluster
+Clusterizando pelos scores_fatorias:
+
+```{r}
+mt_cluster <- hclust(dist(afpc$x), method = "ward.D2")
+plot(mt_cluster)
+mt_cluster_k3 <- cutree(mt_cluster, k = 3)
+plot(mt_cluster)
+rect.hclust(mt_cluster, k = 3, border = "red")
+
+```
+
+Cluster pelos 3 primeiros grupos
+
+```{r}
+mt_grupos <- data.frame(afpc$x, "cluster" = factor(mt_cluster_k3))
+```
+
+Visualizando os clusteres dos scores:
+
+```{r}
+mt_grupos |> 
+ggplot(aes(x=PC1, y=PC2)) +
+  geom_text_repel(aes(label = rownames(mt_grupos))) +
+  theme_classic() +
+  geom_hline(yintercept = 0, color = "gray70") +
+  geom_vline(xintercept = 0, color = "gray70") +
+  geom_point(aes(color = cluster), alpha = 0.55, size = 3) +
+  xlab("PC1") +
+  ylab("PC2") + 
+  xlim(-5, 6) + 
+  ggtitle("PCA do MTCARS")
 ```
 
