@@ -10,6 +10,7 @@ format:
 editor_options: 
   chunk_output_type: inline
 ---
+
 # BACON
 
 ## Blocked Adaptative Computationally Efficient Outlier (BACON)
@@ -33,12 +34,12 @@ df_final <- cbind(bacon$subset, names) |>
   mutate ("bacon$subset" = !`bacon$subset`)
 df_final <- cbind(bacon$dis, df_final)
 ```
+
 ## Correlações
 
 ```{r}
 chart.Correlation(df_final[c(4,5)])
 ```
-
 
 ## Visualizando as distâncias e subset
 
@@ -61,3 +62,28 @@ df_final |> ggplot(aes(x = height, y = name, color= `bacon$subset`)) +
   guides(colour = guide_legend("Outlier"))
 
 ```
+
+# Mahalonobis
+
+```{r}
+df <- starwars[c(2,3)] |> drop_na()
+md <- mahalanobis (df, colMeans(df), cov(df)) 
+
+df$md <- md
+df$p <- pchisq(df$md, df=1, lower.tail = FALSE)
+
+names <- starwars[c(1,2,3)] |> drop_na()
+
+df_final <- cbind(df, names$name) |> 
+  mutate (outlier = case_when (p < 0.001 ~ TRUE,
+                               TRUE ~FALSE)
+          )
+
+df_final |> ggplot(aes(x = height, y = `names$name`, color= `outlier`)) + 
+  geom_point(aes(size = mass), alpha = 0.6) + 
+  geom_text_repel(aes(label = `names$name`)) +
+  theme_minimal() +
+  theme(legend.position = "bottom", axis.text.y = element_blank()) +
+  guides(colour = guide_legend("Outlier"))
+```
+

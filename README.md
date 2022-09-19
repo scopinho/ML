@@ -8,5 +8,6 @@ Experiments and cheatsheet for some ML algs in R
 - PCA
 [Principal Components Analysis](https://scopinho.github.io/ML/PCA/PCA-01.html)
 
-- BACON
-[Blocked Adaptative Computationally Efficient Outlier](https://scopinho.github.io/ML/BACON/BACON.html)
+- Outliers
+-- BACON e Mahalanobis
+[Blocked Adaptative Computationally Efficient e Mahalanobis Distance Outlier](https://scopinho.github.io/ML/BACON/BACON.html)
