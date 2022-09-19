@@ -1,0 +1,127 @@
+---
+title: "Análise Fatorial Exploratória - EFA"
+execute: 
+  warning: false
+format:
+  html:
+    toc: true
+    html-math-method: katex
+    css: styles.css
+editor_options: 
+  chunk_output_type: inline
+---
+
+```{r}
+library(tidyverse) 
+library(janitor)
+library(gt)
+library(PerformanceAnalytics)
+library(plotly)
+library(kableExtra)
+library(ggrepel)
+library(factoextra)
+library(psych)
+```
+
+# Base de Dados
+
+```{r}
+# Selecionar variáveis quantitativas
+df <- mtcars |> 
+select (mpg, disp, hp, drat, wt, qsec) |> 
+data.frame()
+
+df_std <- scale(df) |> data.frame()
+```
+
+# Correlações
+
+```{r}
+chart.Correlation(df, histogram = TRUE, method = "pearson")
+DataExplorer::plot_correlation(df)
+```
+```{r}
+#outra opcão:
+
+corrplot::corrplot(cor(df, use="complete.obs"), order = "hclust", tl.col='black', tl.cex=.75, addCoef.col = T) 
+```
+
+# KMO e Bartlett
+Verificamos se os dados estão adequados para uma análise fatorial.
+
+## KMO
+```{r}
+#Cutoff sugerido (Kairse 1974) >= 60.
+psych::KMO (r = cor(df))
+```
+
+## Teste de esfericidade de Bartlett
+Validar homogeneidade da variância
+
+```{r}
+bartlett.test(df)
+```
+
+# EFA
+
+Análise Fatorial Exploratória
+
+Nossos dados passaram com nível de significância de 5%.
+
+```{r}
+#EFA Sem rotação, com maxima verossemelhanca (ML).
+
+efa <- factanal(~ ., data= df_std, factors = 3, rotation = "none")
+efa
+
+# SS Loadings: Estes são as somas dos quadrados (SS) das cargas, ou seja, os eigen values.
+# .Eles explicam as variancias de todas as variáveis de determinado fator.
+
+# Como regra geral (Kaiser), se um fator tem eigenvalue maior que 1, ele é importante.
+# Neste caso, fatores 1 e 2 parecem ser importantes. Este valor pode ser calculado a partir das cargas: Ex: sum(efa$loadings[,1]^2) para o ev do primeiro fator.]
+
+#A comunalidade, é a soma dos quadrados de todos os fatores dada uma vaiável. A Singularidade é 1- Comunilidade. Por exemplo. Para a variável mpg temos Uniqueness = (1- sum(efa$loadings[1,]^2))
+
+cargas <- efa$loadings[,1:3]
+plot(cargas, type = "n")
+text (cargas, labels = names(df), cex=.7)
+
+data.frame(cargas) |>
+  mutate(var = names(df)) |> 
+  pivot_longer(cols = !var) |> 
+  mutate(var = factor(var)) |>
+  ggplot(aes(x = var, y = value, fill = var)) +
+  geom_col() +
+  facet_wrap(~name) +
+  labs(x = NULL, y = NULL, fill = "Legenda:") 
+```
+
+## Rotacionando a matriz
+
+```{r}
+# Usando varimax
+efa_rot <- factanal(~ ., data= df_std, factors = 3, rotation = "varimax")
+efa_rot
+
+cargas <- efa_rot$loadings[,1:3]
+plot(cargas, type = "n")
+text (cargas, labels = names(df), cex=.7)
+
+data.frame(cargas) |>
+  mutate(var = names(df)) |> 
+  pivot_longer(cols = !var) |> 
+  mutate(var = factor(var)) |>
+  ggplot(aes(x = var, y = value, fill = var)) +
+  geom_col() +
+  facet_wrap(~name) +
+  labs(x = NULL, y = NULL, fill = "Legenda:") 
+
+```
+## Análise Paralela
+
+```{r}
+corpdat1 <- cor(df, use="pairwise.complete.obs")
+fa.parallel(x=corpdat1, fm="minres", fa="fa")
+```
+
+

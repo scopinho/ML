@@ -1,5 +1,5 @@
 ---
-title: "Não Supervisionado - PCA"
+title: "Análise por Componentes Principais - PCA"
 execute: 
   warning: false
 format:
@@ -42,7 +42,7 @@ DataExplorer::plot_correlation(df)
 
 # PCA
 
-Análise de Componentes Princpais
+Análise de Componentes Principais
 
 ```{r}
 afpc <- prcomp(df)
