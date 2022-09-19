@@ -13,3 +13,8 @@ Experiments and cheatsheet for some ML algs in R
 - Outliers
 -- BACON e Mahalanobis
 [Blocked Adaptative Computationally Efficient e Mahalanobis Distance Outlier](https://scopinho.github.io/ML/BACON/BACON.html)
+
+- Tomada Decisão
+- AHP
+[Analise Hierarquica de Processos](https://scopinho.github.io/ML/AHP/AHP-01.html)
+

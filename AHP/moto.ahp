@@ -1,0 +1,119 @@
+Version: 2.0
+Alternatives: &alternatives
+  CBR650:
+  GSX1000:
+  SS950:
+  NINJA400:
+Goal:
+  name: Comprar uma Moto
+  decision-makers:
+    - DECISOR1: 2/3
+    - DECISOR2: 1/3
+  preferences:
+    DECISOR1:
+      pairwise:
+      - [Cilindrada, Esportividade, 1/5]
+      - [Cilindrada, Custo, 1/7]
+      - [Esportividade, Custo, 1/3]
+    DECISOR2:
+      pairwise:
+      - [Cilindrada, Esportividade, 3]
+      - [Cilindrada, Custo, 5]
+      - [Esportividade, Custo, 3]
+  children:
+  
+    Custo:
+      preferences:
+        DECISOR1:
+          pairwise:
+            - [Compra, Manutenção, 5]
+        DECISOR2:
+          pairwise:
+            - [Compra, Manutenção, 3]
+      children:
+        Compra:
+          preferences:
+            DECISOR1:
+              pairwise:
+                - [CBR650, GSX1000, 5]
+                - [CBR650, SS950, 7]
+                - [CBR650, NINJA400, 1/3]
+                - [GSX1000, SS950, 3]
+                - [GSX1000, NINJA400, 1/5]
+                - [SS950, NINJA400, 1/7]
+
+            DECISOR2:
+              pairwise:
+                - [CBR650, GSX1000, 4]
+                - [CBR650, SS950, 5]
+                - [CBR650, NINJA400, 1/2]
+                - [GSX1000, SS950, 2]
+                - [GSX1000, NINJA400, 1/4]
+                - [SS950, NINJA400, 1/6]
+
+          children: *alternatives
+        Manutenção:
+          preferences:
+            DECISOR1:
+              pairwise:
+                - [CBR650, GSX1000, 7]
+                - [CBR650, SS950, 9]
+                - [CBR650, NINJA400, 3]
+                - [GSX1000, SS950, 3]
+                - [GSX1000, NINJA400, 1/3]
+                - [SS950, NINJA400, 1/5]
+
+            DECISOR2:
+              pairwise:
+                - [CBR650, GSX1000, 5]
+                - [CBR650, SS950, 9]
+                - [CBR650, NINJA400, 1/3]
+                - [GSX1000, SS950, 2]
+                - [GSX1000, NINJA400, 1/3]
+                - [SS950, NINJA400, 1/9]
+          children: *alternatives  
+  
+    Cilindrada:
+      preferences:
+        DECISOR1:
+          pairwise:
+            - [CBR650, GSX1000, 1/7]
+            - [CBR650, SS950, 1/6]
+            - [CBR650, NINJA400, 3]
+            - [GSX1000, SS950, 2]
+            - [GSX1000, NINJA400, 7]
+            - [SS950, NINJA400, 6]
+
+        DECISOR2:
+          pairwise:
+            - [CBR650, GSX1000, 1/7]
+            - [CBR650, SS950, 1/6]
+            - [CBR650, NINJA400, 3]
+            - [GSX1000, SS950, 2]
+            - [GSX1000, NINJA400, 9]
+            - [SS950, NINJA400, 8]
+
+      children: *alternatives
+    Esportividade:
+      preferences:
+        DECISOR1:
+          pairwise:
+            - [CBR650, GSX1000, 1/3]
+            - [CBR650, SS950, 1/5]
+            - [CBR650, NINJA400, 1/7]
+            - [GSX1000, SS950, 1/3]
+            - [GSX1000, NINJA400, 1/5]
+            - [SS950, NINJA400, 1/3]
+
+        DECISOR2:
+          pairwise:
+            - [CBR650, GSX1000, 3]
+            - [CBR650, SS950, 5]
+            - [CBR650, NINJA400, 7]
+            - [GSX1000, SS950, 3]
+            - [GSX1000, NINJA400, 5]
+            - [SS950, NINJA400, 3]
+
+      children: *alternatives
+
+#      children: *alternatives
