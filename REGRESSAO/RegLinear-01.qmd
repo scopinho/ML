@@ -1,0 +1,147 @@
+---
+title: "Regressão Linear"
+execute: 
+  warning: false
+format:
+  html:
+    toc: true
+    html-math-method: katex
+    css: styles.css
+editor_options: 
+  chunk_output_type: inline
+---
+
+```{r}
+library(tidyverse) 
+library(janitor)
+library(nortest)
+# library(gt)
+library(DataExplorer)
+# library(plotly)
+# library(kableExtra)
+library(ggrepel)
+library (plotly)
+# library(factoextra)
+```
+
+# Base de Dados
+
+```{r}
+# Selecionar variáveis quantitativas
+df <- mtcars |> 
+  rownames_to_column(var = "name")
+```
+
+# Variável dependente
+
+```{r}
+# Teste de normalidade Shapiro-Francia
+# p-valor <= 0.5 é não-normal, ou seja, maior a variável é normal
+sf.test(df$mpg)
+```
+
+Visualizando a variável dependente:
+
+```{r}
+df |> 
+  ggplot(aes(x=mpg)) +
+  geom_histogram(binwidth = 2)
+```
+
+# Regressão univariada
+
+```{r}
+# Variável explicativa escolhida = hp
+
+cor(df$mpg, df$hp)
+DataExplorer::plot_correlation(df[c("mpg", "hp")])
+```
+
+Correlação alta (0.78) e negativa (-).
+
+Visualizando as variáveis:
+
+```{r}
+df |> 
+  ggplot(aes(x = hp, y= mpg)) +
+  geom_point() +
+  geom_text_repel(aes(label = name), size = 2, color = "darkgray")
+```
+
+Ajustando o modelo linear:
+
+$\hat{y} = \alpha + \beta \* x1$
+
+```{r}
+#Função lm para obter os coeficientes alpha e beta
+modelo_uni <- lm(df$mpg ~ df$hp)
+modelo_uni
+```
+
+Neste caso, nosssa função ficaria:
+
+$\hat{y} = (30.09886) + [(-0.06823) * x1]$
+
+ou seja, se quisermos prever o consumo (mpg) à partir apenas da variável explicativa potencia (hp), faríamos:
+
+$(30.09886) + [(-0.06823) * hp]$
+
+Por exemplo, de acordo com nosso modelo, para um veículo com 190 de potência, teremos:
+
+$(30.09886) + [(-0.06823) * 190]$ $(30.09886) - 12.9637 = \textbf{17.13516}$
+
+Ou seja, nosso modelo prevê um consumo de 17.13 milhas por galão se um veículo tiver 190 de potência.
+
+Visualizando:
+
+```{r}
+df |> 
+  ggplot(aes(x = hp, y= mpg)) +
+  geom_point() +
+  geom_text_repel(aes(label = name), size = 2, color = "darkgray")+
+  geom_point(aes(x = 190, y = 17.13),color = "red", size = 3)
+
+```
+
+Coeficiente de ajuste do modelo $R^2$:
+
+```{r}
+#Obtendo o R2
+summary(modelo_uni)$r.squared
+
+#Validando o R2, extraindo a raiz, deve bater com a correlação anterior.
+sqrt(summary(modelo_uni)$r.squared)
+```
+
+# Regressão multivariada
+
+Adicionando outra variável explicativa (cilindros)
+
+Visualizando as correlações
+
+```{r}
+df |> select(mpg, hp, cyl) |> 
+DataExplorer::plot_correlation()
+```
+
+Visualizando
+
+```{r}
+fig <-  plot_ly(df, x = ~hp, y = ~mpg, z = ~cyl, color = ~mpg, colors = c('darkred', 'green'), size = 1) |> 
+  add_markers()
+
+fig
+```
+
+Criando o modelo
+
+```{r}
+
+modelo_multi <- lm(df$mpg ~ df$hp + df$cyl)
+summary (modelo_multi)
+  
+```
+
+Observe que apesar o R2 ser maior, agora a variável hp não é estatísticamente significante. Isto acontece devido à multicolinearidade de hp e cyl.
+
+A função "lm" já faz o procedimento step-wise para escolha com AIC mais adequado.
