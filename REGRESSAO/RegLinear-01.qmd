@@ -74,7 +74,7 @@ $\hat{y} = \alpha + \beta \* x1$
 
 ```{r}
 #Função lm para obter os coeficientes alpha e beta
-modelo_uni <- lm(df$mpg ~ df$hp)
+modelo_uni <- lm(mpg ~ hp, data = df)
 modelo_uni
 ```
 
@@ -101,6 +101,15 @@ df |>
   geom_text_repel(aes(label = name), size = 2, color = "darkgray")+
   geom_point(aes(x = 190, y = 17.13),color = "red", size = 3)
 
+```
+
+Usando a função predict().
+
+Podemos utilizar a função predict para obter inferências do modelo criado ao invés do cálculo manual como fizemos anteriormente:
+
+```{r}
+df_previsao = tibble("hp" = 190)
+predict(modelo_uni, newdata = df_previsao)
 ```
 
 Coeficiente de ajuste do modelo $R^2$:
@@ -133,15 +142,108 @@ fig <-  plot_ly(df, x = ~hp, y = ~mpg, z = ~cyl, color = ~mpg, colors = c('darkr
 fig
 ```
 
-Criando o modelo
+Criando o modelo (ERRADO)
+
+Este modelo é errado, pois a variável "cyl" é qualitativa. Portanto, suas proporções deveriam ser:
+
+```{r}
+table(df$cyl)
+```
+
+Como na tabela df, ela está como double, a função lm, está tratando seus valores numéricos, ou seja, as diferenças entre 4, 6 e 8.
+
+Rodando o modelo ERRADO!
 
 ```{r}
 
-modelo_multi <- lm(df$mpg ~ df$hp + df$cyl)
-summary (modelo_multi)
+modelo_multi_errado <- lm(mpg ~ hp + cyl, df)
+summary (modelo_multi_errado)
   
 ```
 
-Observe que apesar o R2 ser maior, agora a variável hp não é estatísticamente significante. Isto acontece devido à multicolinearidade de hp e cyl.
+Veja que ele gera um beta para a variável "cyl".
 
-A função "lm" já faz o procedimento step-wise para escolha com AIC mais adequado.
+Vendo as médias adequadas quando mudamos a variável como qualitativa:
+
+```{r}
+df_cyl_medias <- df |> mutate (cyl = as_factor(cyl)) |> 
+  group_by(cyl) |> summarise(media = mean(mpg))
+df_cyl_medias
+```
+
+Visualizando o modelo errado (com ponderação arbitrária de 1,2 e 3 e as médias certas (em vermelho):
+
+```{r}
+df |> 
+  ggplot(aes(x=cyl, y=mpg))+
+  geom_point()+
+  geom_text_repel(aes(label=name))+
+  geom_smooth(method="lm", se=F)+
+  geom_point(data = df_cyl_medias, aes(x=parse_number(levels(cyl)), y=media), color = "red")
+```
+
+Criando o modelo (CERTO)
+
+Ajustando a variável de double para factor:
+
+```{r}
+df_fct <- df |> mutate (cyl = as_factor(cyl))
+
+
+```
+
+Rodando o modelo:
+
+```{r}
+#OBS: Não precisamos montar as dummys de forma manual, pois a função já faz estes procedimento. Ele também já faz o step-wise:
+
+modelo_multi_certo <- lm(mpg ~ hp + cyl, df_fct)
+summary (modelo_multi_certo)
+
+```
+
+Visualizando o modelo certo:
+
+```{r}
+df_fct |> 
+  ggplot(aes(x=cyl, y=mpg))+
+  geom_point()+
+  geom_text_repel(aes(label=name))+
+  geom_line(data = df_cyl_medias, aes(x=cyl, y=media,group =1), size =1.2,color = "blue")+
+  geom_point(data = df_cyl_medias, aes(x=cyl, y=media), color = "red")
+```
+
+Comparando os modelos uni e multi-variado com variável dummy:
+
+```{r}
+summary(modelo_uni)$adj.r.squared
+summary(modelo_multi_certo)$adj.r.squared
+```
+
+Observamos que o R2 ajustado (para comparação de modelos) é bem maior quando dicionamos a variável cyl.
+
+Estimativa final do modelo multivariádo:
+
+```{r}
+df_pred <- tibble(hp = 190, cyl = as_factor(8))  
+
+fit <- predict(modelo_multi_certo, df_pred)
+df_pred |> mutate (fit = fit)
+
+```
+
+```{r}
+df_fct |> 
+  ggplot(aes(x=cyl, y=mpg))+
+  geom_point()+
+  geom_text_repel(aes(label=name))+
+  geom_point(data = df_pred, aes(x = cyl, y=fit), color = "blue", size = 4)+
+  geom_label_repel(data = df_pred, 
+                  aes(x = cyl, y=fit, 
+                      label=paste("Previsto:", "cyl=", cyl, "hp=", hp)), 
+                  color = "blue", 
+                  size = 4, 
+                  nudge_x = 4,
+                  nudge_y = 9)
+```
+
