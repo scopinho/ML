@@ -30,25 +30,34 @@ library (plotly)
 # Selecionar variáveis quantitativas
 df <- mtcars |> 
   rownames_to_column(var = "name")
+df
 ```
 
 # Variável dependente
+Iremos selecionar como variável dependente o consumo (mpg).
+Fazendo uma análise da natureza da variável, vendo seu histograma e sua aderência à normalidade com o teste shapiro-francia:
 
-```{r}
-# Teste de normalidade Shapiro-Francia
-# p-valor <= 0.5 é não-normal, ou seja, maior a variável é normal
-sf.test(df$mpg)
-```
 
 Visualizando a variável dependente:
 
 ```{r}
 df |> 
   ggplot(aes(x=mpg)) +
-  geom_histogram(binwidth = 2)
+  geom_histogram(binwidth = 2) 
+```
+
+Teste de Normalidade Shapiro-Francia:
+```{r}
+# Teste de normalidade Shapiro-Francia
+# p-valor <= 0.5 é não-normal, ou seja, maior a variável é normal
+sf.test(df$mpg)
 ```
 
 # Regressão univariada
+
+Como variável explicativa, iremos selecionar a potência (hp).
+
+Fazendo uma análise de correlação:
 
 ```{r}
 # Variável explicativa escolhida = hp
@@ -57,9 +66,9 @@ cor(df$mpg, df$hp)
 DataExplorer::plot_correlation(df[c("mpg", "hp")])
 ```
 
-Correlação alta (0.78) e negativa (-).
+Correlação alta (0.78) e negativa (-), ou seja, quanto menor a potência, maior o consumo.
 
-Visualizando as variáveis:
+Visualizando as variáveis graficamente:
 
 ```{r}
 df |> 
@@ -68,8 +77,9 @@ df |>
   geom_text_repel(aes(label = name), size = 2, color = "darkgray")
 ```
 
-Ajustando o modelo linear:
+Criando um modelo linear simples:
 
+Função: 
 $\hat{y} = \alpha + \beta \* x1$
 
 ```{r}
@@ -92,7 +102,7 @@ $(30.09886) + [(-0.06823) * 190]$ $(30.09886) - 12.9637 = \textbf{17.13516}$
 
 Ou seja, nosso modelo prevê um consumo de 17.13 milhas por galão se um veículo tiver 190 de potência.
 
-Visualizando:
+Visualizando a inferência:
 
 ```{r}
 df |> 
@@ -124,35 +134,41 @@ sqrt(summary(modelo_uni)$r.squared)
 
 # Regressão multivariada
 
-Adicionando outra variável explicativa (cilindros)
+Adicionando outra variável explicativa (cilindros).
 
-Visualizando as correlações
+## Visualizando as correlações (ERRADO)
+A seguir, iremos analisar as correlações e criar um modelo linear de forma similar à que fizemos até aqui. 
+
+:::callout-warning
+CUIDADO!!! Estamos fazendo este procedimento de forma INCORRETA para mostrar alguns pontos importantes logo adiante.
+:::
 
 ```{r}
 df |> select(mpg, hp, cyl) |> 
 DataExplorer::plot_correlation()
 ```
 
-Visualizando
-
 ```{r}
-fig <-  plot_ly(df, x = ~hp, y = ~mpg, z = ~cyl, color = ~mpg, colors = c('darkred', 'green'), size = 1) |> 
-  add_markers()
+#fig <-  plot_ly(df, x = ~hp, y = ~mpg, z = ~cyl, color = ~mpg, colors = c('darkred', 'green'), size = 1) |> 
+#  add_markers()
 
-fig
+#fig
 ```
 
-Criando o modelo (ERRADO)
+## Criando o modelo (ERRADO)
 
-Este modelo é errado, pois a variável "cyl" é qualitativa. Portanto, suas proporções deveriam ser:
+Este modelo é errado, pois a variável "cyl", apesar de em nosso dataset estar configurada como "double" (quatitativa), ela é apenas um label para definir o tipo de cilindro é o automável, portanto é qualitativa. PNeste caso, suas proporções são:
 
 ```{r}
+#Frequencia absoluta:
 table(df$cyl)
+#Frequencia Relativa:
+prop.table(table(df$cyl))
 ```
 
-Como na tabela df, ela está como double, a função lm, está tratando seus valores numéricos, ou seja, as diferenças entre 4, 6 e 8.
+Como na tabela df, ela está como double, a função lm(), está tratando seus valores numéricos, ou seja, as diferenças entre 4, 6 e 8.
 
-Rodando o modelo ERRADO!
+## Rodando o modelo ERRADO!
 
 ```{r}
 
@@ -161,9 +177,16 @@ summary (modelo_multi_errado)
   
 ```
 
-Veja que ele gera um beta para a variável "cyl".
+Aqui vale algumas observações. A primeira é que a variável "hp", deixa de ser estatisticamente significante (a 95% de confiança) após a introdução da variável "cyl". Veremos mais sobre este ponto a seguir.
 
-Vendo as médias adequadas quando mudamos a variável como qualitativa:
+Veja também que ele gera um beta para a variável "cyl". Sabemos que isto não significa nada, pois estamos ainda lidando com a variável cilindros como quantitativa, o que está incorreto!
+
+## Ponderação Arbitrária:
+
+Para entender melhor, veja o que está acontencendo. Sabemos que devemos mudar a variável "cyl" que está originalmente quantitativa (4,6 e 8) para qualitativa.
+Porém, é um procedimento comum e incorreto atribuir valores de forma arbitrária, sendo estes, 1,2 e 3 ou 4,6 e 8, etc. Estes números são apenas "labels" para representar categorias desta variável.
+
+Veja as médias adequadas quando mudamos a variável "cyl" como qualitativa:
 
 ```{r}
 df_cyl_medias <- df |> mutate (cyl = as_factor(cyl)) |> 
@@ -171,6 +194,7 @@ df_cyl_medias <- df |> mutate (cyl = as_factor(cyl)) |>
 df_cyl_medias
 ```
 
+### Visualizando as diferenças com ponderação arbitrária
 Visualizando o modelo errado (com ponderação arbitrária de 1,2 e 3 e as médias certas (em vermelho):
 
 ```{r}
@@ -182,68 +206,241 @@ df |>
   geom_point(data = df_cyl_medias, aes(x=parse_number(levels(cyl)), y=media), color = "red")
 ```
 
-Criando o modelo (CERTO)
-
-Ajustando a variável de double para factor:
+Observe como seria a inclinação dos betas considerando a frenquência média de cada categoria na variável cyl:
 
 ```{r}
-df_fct <- df |> mutate (cyl = as_factor(cyl))
-
-
-```
-
-Rodando o modelo:
-
-```{r}
-#OBS: Não precisamos montar as dummys de forma manual, pois a função já faz estes procedimento. Ele também já faz o step-wise:
-
-modelo_multi_certo <- lm(mpg ~ hp + cyl, df_fct)
-summary (modelo_multi_certo)
-
-```
-
-Visualizando o modelo certo:
-
-```{r}
-df_fct |> 
-  ggplot(aes(x=cyl, y=mpg))+
+df |> 
+  ggplot(aes(x=as_factor(cyl), y=mpg))+
   geom_point()+
   geom_text_repel(aes(label=name))+
   geom_line(data = df_cyl_medias, aes(x=cyl, y=media,group =1), size =1.2,color = "blue")+
   geom_point(data = df_cyl_medias, aes(x=cyl, y=media), color = "red")
 ```
 
+:::callout-note
+É por estre motivo que não podemos fazer a penderação arbitrária de valores para variáveis categóricas. Existe um procedimento adequado para lidar com esta situação que veremos a seguir.
+:::
+
+# Ajuste das variáveis qualitativas
+
+Para adequar devidamente variáveis explicativas (x) categóricas para utilizarmos em modelos OLS, devemos criar variáveis adicionais "dummys".
+Faremos isto através da função dummy_columns:
+
+```{r}
+df_fct <- df |> mutate (cyl = as_factor(cyl))
+df_fct_dummy <- fastDummies::dummy_columns(df_fct, select_columns = "cyl",
+                                   remove_selected_columns = T,
+                                   remove_first_dummy = T)
+df_fct_dummy 
+```
+Neste caso, ele atribui a existência (1) ou não existência (0) para cada categoria da variável quantitativa -1. Ou seja, no caso da variável cilindro, teremos 2 novas variáveis dummys (cyl_6 e cyl_8), sendo que a categoria de referência (cyl_4) é incluída no alpha da equação.
+
+# Criando o modelo com as dummys
+
+Agora com a variável "cyl" devidamente "dummizada" podemos rodar o modelo:
+
+Rodando o modelo com dummy:
+
+```{r}
+modelo_multi_dummy <- lm(mpg ~ hp + cyl_6 + cyl_8, df_fct_dummy)
+summary (modelo_multi_dummy)
+
+```
+Apesar de termos feito o processo de dummys, saiba que a função lm() é inteligente o suficiente e já faz este processo quando recebe uma variável factor. Veja:
+
+```{r}
+#OBS: Não precisamos montar as dummys de forma manual, pois a função já faz estes procedimento. 
+modelo_multi_fct <- lm(mpg ~ hp + cyl, df_fct)
+summary (modelo_multi_fct)
+```
+## Variáveis Explicativas Estatisticamente Significantes
+
+Observe que apesar de no modelo com dummy, termos um p-valor para a estatística F, a estatística T da variável "hp" não é mais estatisticamente significante à 95% de nível de confiança. Isto pode se dar por 3 fatores:
+
+1-) Esta variável sozinha não é estatisticamente significante para explicar a variável y. Já vimos que isto não é verdade, pois ela passa quando fazemos um modelo com ela sozinha (p-valor = 0.000000179):
+
+```{r}
+summary(modelo_uni)
+```
+
+2-) Quando há multicolinearidade entre ela e outra variável explicativa.
+No exemplo abaixo, vemos uma forte correlação entre "cilindro" com "hp"
+
+```{r}
+df_fct_dummy |> 
+  select (mpg, hp, cyl_6, cyl_8) |> 
+  correlation::correlation(method = "pearson") |>  plot()
+```
+Neste caso, ao adicionar a variável cilindros (cyl), a variável "hp" deve ser removida do modelo, pois não é mais estatisticamente significante à 95% de confiança.
+
+## Stepwise
+
+Poderíamos remover manualmente a variável "hp", porém em alguns casos, a troca de variáveis explicativas, faz com que níveis de significâncias se alterem dependendo da combinação, pois eventualmente, uma variável pode ser proxy de outra, etc.
+Neste caso, podemos utilizar um algoritmo "stepwise" a um nível de significância de 5% para que tenhamos as melhores combinações de variáveis para o modelo.
+
+```{r}
+modelo_multi_dummy_step <- step(modelo_multi_dummy, 
+                                      k = qchisq(p = 0.05, df = 1, lower.tail = F))
+
+summary(modelo_multi_dummy_step)
+```
+## Normalidade dos Resíduos
+
+Para verificar a normalidade dos resíduos iremos utilizar novamente o teste shapiro-francia. 
+
+```{r}
+sf.test(modelo_uni$residuals)
+sf.test(modelo_multi_dummy$residuals)
+sf.test(modelo_multi_dummy_step$residuals)
+```
+
+Neste caso, observamos que os resíduos no modelo univariado não passa no teste de normalidade, já nos modelos multivariados ele passa. 
+Porém, há alguns cenários onde a variável dependente é não linear. Neste caso, temos uma terceira possibilidade que veremos a seguir.
+
+Visualizando o modelo certo:
+Vamos agora incluir os valores estimados em nossa tabela de treinamento:
+
+```{r}
+#df_fct$fit_1 <- modelo_uni$fitted.values
+#df_fct$fit_2 <- modelo_multi_dummy$fitted.values
+df_fct$fit_3 <- modelo_multi_dummy_step$fitted.values
+
+df_fct |> 
+  ggplot(aes(x=mpg, y=mpg))+
+  geom_smooth(aes(y = mpg), method = "lm", 
+              color = "green", size = 1.05,
+              linetype = "longdash") +
+ # geom_point(aes(y=fit_1), color = "blue") +
+ # geom_point(aes(y=fit_2), color = "orange") +
+  geom_point(aes(y=fit_3), color = "darkgray") 
+  
+```
+Apesar dos resíduos do modelo após o stepwise serem aderentes à normalidade, iremos seguir com o terceiro cenário, apenas para ilusrtar o procedimento de quando isso não tivesse acontecido.
+
+3-) Quando a variável Y apresenta uma forma não linear.
+
+Quando a variável dependende apresentar uma forma funcional não linear nosso modelo pode apresentar resíduosque não atendem à uma distribuição. 
+Quando isto acontece, podemos tentar fazer uma transformação (ex: box-cox) para ajustar o modelo.
+
+
+Por exemplo:
+
+```{r}
+#Estimando o lambda de BoxCox
+lambda_BC <- car::powerTransform(df_fct$mpg)
+lambda_BC
+
+#Adicionando na base de dados:
+df_fct_dummy$mpg_bc <- (((df_fct$mpg ^ lambda_BC$lambda) - 1) / 
+                                      lambda_BC$lambda)
+```
+
+Agora, rodamos um modelo à partir da variável normalizada
+
+```{r}
+modelo_multi_dummy_bc <- lm(mpg_bc ~ hp + cyl_6 + cyl_8, data = df_fct_dummy)
+summary(modelo_multi_dummy_bc)
+```
+Aplicamos o stepwise:
+
+```{r}
+modelo_multi_dummy_bc_step <- step(modelo_multi_dummy_bc,k = 3.841459)
+summary(modelo_multi_dummy_bc_step)
+```
+Agora, podemos validar os resíduos à normalidade:
+
+```{r}
+sf.test(modelo_multi_dummy_bc_step$residuals)
+```
+
+Adicoinamos os fitted na base e comparando os residuos:
+
+```{r}
+df_fct_dummy$fit <- modelo_multi_dummy_bc_step$fitted.values
+df_fct_dummy$residuos <- modelo_multi_dummy_bc_step$residuals
+
+  df_fct_dummy |> 
+  ggplot(aes(x = residuos)) +
+  geom_histogram(aes(y = ..density..), 
+                 color = "grey50", 
+                 fill = "grey90", 
+                 bins = 30,
+                 alpha = 0.6) +
+  stat_function(fun = dnorm, 
+                args = list(mean = mean(modelo_multi_dummy_bc_step$residuals),
+                            sd = sd(modelo_multi_dummy_bc_step$residuals)),
+                aes(color = "Curva Normal Teórica"),
+                size = 2) +
+  scale_color_manual("Legenda:",
+                     values = "#FDE725FF") +
+  labs(x = "Resíduos",
+       y = "Frequência") +
+  theme(panel.background = element_rect("white"),
+        panel.grid = element_line("grey95"),
+        panel.border = element_rect(NA),
+        legend.position = "bottom")
+```
+Salvando os fitted na base:
+
+```{r}
+df_fct_dummy$fit_bc_step <- (((modelo_multi_dummy_bc_step$fitted.values*(lambda_BC$lambda))+
+                                    1))^(1/(lambda_BC$lambda))
+```
+
+Visualizando:
+
+```{r}
+df_fct_dummy |> 
+  ggplot(aes(x=mpg, y=mpg))+
+  geom_smooth(aes(y = mpg), method = "lm", 
+              color = "green", size = 1.05,
+              linetype = "longdash") +
+ # geom_point(aes(y=fit_1), color = "blue") +
+ # geom_point(aes(y=fit_2), color = "orange") +
+  geom_point(aes(y=fit_bc_step), color = "darkgray") 
+```
+
 Comparando os modelos uni e multi-variado com variável dummy:
 
 ```{r}
 summary(modelo_uni)$adj.r.squared
-summary(modelo_multi_certo)$adj.r.squared
+summary(modelo_multi_dummy_step)$adj.r.squared
+summary(modelo_multi_dummy_bc_step)$adj.r.squared
 ```
 
 Observamos que o R2 ajustado (para comparação de modelos) é bem maior quando dicionamos a variável cyl.
 
-Estimativa final do modelo multivariádo:
+#Modelo multi-nivel
+
+Agora veremos uma abordagem multi-nivel, onde os betas são estimados em relação à grupos que adicionam 
 
 ```{r}
-df_pred <- tibble(hp = 190, cyl = as_factor(8))  
+df_pred <- tibble(hp = 190, cyl_6 = 0, cyl_8 = 1)  
 
-fit <- predict(modelo_multi_certo, df_pred)
-df_pred |> mutate (fit = fit)
+
+fit <- predict(modelo_multi_dummy_bc_step, df_pred)
+df_pred <- df_pred |> mutate (fit = ((fit * lambda_BC$lambda) + 1)^(1/(lambda_BC$lambda)))
+
+df_pred 
 
 ```
 
 ```{r}
-df_fct |> 
+df_fct_dummy$cyl <- df_fct$cyl
+df_fct_dummy |> 
   ggplot(aes(x=cyl, y=mpg))+
   geom_point()+
   geom_text_repel(aes(label=name))+
-  geom_point(data = df_pred, aes(x = cyl, y=fit), color = "blue", size = 4)+
-  geom_label_repel(data = df_pred, 
-                  aes(x = cyl, y=fit, 
-                      label=paste("Previsto:", "cyl=", cyl, "hp=", hp)), 
-                  color = "blue", 
-                  size = 4, 
-                  nudge_x = 4,
-                  nudge_y = 9)
+  geom_jitter(aes(y=fit_bc_step), color = "blue")
 ```
 
+# Teste de Heterocedasticidade:
+
+```{r}
+#Diagnóstico de Heterocedasticidade para o Modelo Stepwise com Box-Cox
+olsrr::ols_test_breusch_pagan(modelo_multi_dummy_bc_step)
+```
+
+# Analise multi-nível
+
+TBD

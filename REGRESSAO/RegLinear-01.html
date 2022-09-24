@@ -91,14 +91,6 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <script src="RegLinear-01_files/libs/bootstrap/bootstrap.min.js"></script>
 <link href="RegLinear-01_files/libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
 <link href="RegLinear-01_files/libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
-<script src="RegLinear-01_files/libs/htmlwidgets-1.5.4/htmlwidgets.js"></script>
-<script src="RegLinear-01_files/libs/plotly-binding-4.10.0/plotly.js"></script>
-<script src="RegLinear-01_files/libs/typedarray-0.1/typedarray.min.js"></script>
-<script src="RegLinear-01_files/libs/jquery-3.5.1/jquery.min.js"></script>
-<link href="RegLinear-01_files/libs/crosstalk-1.2.0/css/crosstalk.min.css" rel="stylesheet">
-<script src="RegLinear-01_files/libs/crosstalk-1.2.0/js/crosstalk.min.js"></script>
-<link href="RegLinear-01_files/libs/plotly-htmlwidgets-css-2.5.1/plotly-htmlwidgets.css" rel="stylesheet">
-<script src="RegLinear-01_files/libs/plotly-main-2.5.1/plotly-latest.min.js"></script>
 
   <script>window.backupDefine = window.define; window.define = undefined;</script><script src="https://cdn.jsdelivr.net/npm/katex@0.15.1/dist/katex.min.js"></script>
   <script>document.addEventListener("DOMContentLoaded", function () {
@@ -131,7 +123,25 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
   <li><a href="#base-de-dados" id="toc-base-de-dados" class="nav-link active" data-scroll-target="#base-de-dados">Base de Dados</a></li>
   <li><a href="#variável-dependente" id="toc-variável-dependente" class="nav-link" data-scroll-target="#variável-dependente">Variável dependente</a></li>
   <li><a href="#regressão-univariada" id="toc-regressão-univariada" class="nav-link" data-scroll-target="#regressão-univariada">Regressão univariada</a></li>
-  <li><a href="#regressão-multivariada" id="toc-regressão-multivariada" class="nav-link" data-scroll-target="#regressão-multivariada">Regressão multivariada</a></li>
+  <li><a href="#regressão-multivariada" id="toc-regressão-multivariada" class="nav-link" data-scroll-target="#regressão-multivariada">Regressão multivariada</a>
+  <ul class="collapse">
+  <li><a href="#visualizando-as-correlações-errado" id="toc-visualizando-as-correlações-errado" class="nav-link" data-scroll-target="#visualizando-as-correlações-errado">Visualizando as correlações (ERRADO)</a></li>
+  <li><a href="#criando-o-modelo-errado" id="toc-criando-o-modelo-errado" class="nav-link" data-scroll-target="#criando-o-modelo-errado">Criando o modelo (ERRADO)</a></li>
+  <li><a href="#rodando-o-modelo-errado" id="toc-rodando-o-modelo-errado" class="nav-link" data-scroll-target="#rodando-o-modelo-errado">Rodando o modelo ERRADO!</a></li>
+  <li><a href="#ponderação-arbitrária" id="toc-ponderação-arbitrária" class="nav-link" data-scroll-target="#ponderação-arbitrária">Ponderação Arbitrária:</a>
+  <ul class="collapse">
+  <li><a href="#visualizando-as-diferenças-com-ponderação-arbitrária" id="toc-visualizando-as-diferenças-com-ponderação-arbitrária" class="nav-link" data-scroll-target="#visualizando-as-diferenças-com-ponderação-arbitrária">Visualizando as diferenças com ponderação arbitrária</a></li>
+  </ul></li>
+  </ul></li>
+  <li><a href="#ajuste-das-variáveis-qualitativas" id="toc-ajuste-das-variáveis-qualitativas" class="nav-link" data-scroll-target="#ajuste-das-variáveis-qualitativas">Ajuste das variáveis qualitativas</a></li>
+  <li><a href="#criando-o-modelo-com-as-dummys" id="toc-criando-o-modelo-com-as-dummys" class="nav-link" data-scroll-target="#criando-o-modelo-com-as-dummys">Criando o modelo com as dummys</a>
+  <ul class="collapse">
+  <li><a href="#variáveis-explicativas-estatisticamente-significantes" id="toc-variáveis-explicativas-estatisticamente-significantes" class="nav-link" data-scroll-target="#variáveis-explicativas-estatisticamente-significantes">Variáveis Explicativas Estatisticamente Significantes</a></li>
+  <li><a href="#stepwise" id="toc-stepwise" class="nav-link" data-scroll-target="#stepwise">Stepwise</a></li>
+  <li><a href="#normalidade-dos-resíduos" id="toc-normalidade-dos-resíduos" class="nav-link" data-scroll-target="#normalidade-dos-resíduos">Normalidade dos Resíduos</a></li>
+  </ul></li>
+  <li><a href="#teste-de-heterocedasticidade" id="toc-teste-de-heterocedasticidade" class="nav-link" data-scroll-target="#teste-de-heterocedasticidade">Teste de Heterocedasticidade:</a></li>
+  <li><a href="#analise-multi-nível" id="toc-analise-multi-nível" class="nav-link" data-scroll-target="#analise-multi-nível">Analise multi-nível</a></li>
   </ul>
 </nav>
 </div>
@@ -170,15 +180,62 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <div class="cell">
 <div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Selecionar variáveis quantitativas</span></span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>df <span class="ot">&lt;-</span> mtcars <span class="sc">|&gt;</span> </span>
-<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rownames_to_column</span>(<span class="at">var =</span> <span class="st">"name"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rownames_to_column</span>(<span class="at">var =</span> <span class="st">"name"</span>)</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>df</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>                  name  mpg cyl  disp  hp drat    wt  qsec vs am gear carb
+1            Mazda RX4 21.0   6 160.0 110 3.90 2.620 16.46  0  1    4    4
+2        Mazda RX4 Wag 21.0   6 160.0 110 3.90 2.875 17.02  0  1    4    4
+3           Datsun 710 22.8   4 108.0  93 3.85 2.320 18.61  1  1    4    1
+4       Hornet 4 Drive 21.4   6 258.0 110 3.08 3.215 19.44  1  0    3    1
+5    Hornet Sportabout 18.7   8 360.0 175 3.15 3.440 17.02  0  0    3    2
+6              Valiant 18.1   6 225.0 105 2.76 3.460 20.22  1  0    3    1
+7           Duster 360 14.3   8 360.0 245 3.21 3.570 15.84  0  0    3    4
+8            Merc 240D 24.4   4 146.7  62 3.69 3.190 20.00  1  0    4    2
+9             Merc 230 22.8   4 140.8  95 3.92 3.150 22.90  1  0    4    2
+10            Merc 280 19.2   6 167.6 123 3.92 3.440 18.30  1  0    4    4
+11           Merc 280C 17.8   6 167.6 123 3.92 3.440 18.90  1  0    4    4
+12          Merc 450SE 16.4   8 275.8 180 3.07 4.070 17.40  0  0    3    3
+13          Merc 450SL 17.3   8 275.8 180 3.07 3.730 17.60  0  0    3    3
+14         Merc 450SLC 15.2   8 275.8 180 3.07 3.780 18.00  0  0    3    3
+15  Cadillac Fleetwood 10.4   8 472.0 205 2.93 5.250 17.98  0  0    3    4
+16 Lincoln Continental 10.4   8 460.0 215 3.00 5.424 17.82  0  0    3    4
+17   Chrysler Imperial 14.7   8 440.0 230 3.23 5.345 17.42  0  0    3    4
+18            Fiat 128 32.4   4  78.7  66 4.08 2.200 19.47  1  1    4    1
+19         Honda Civic 30.4   4  75.7  52 4.93 1.615 18.52  1  1    4    2
+20      Toyota Corolla 33.9   4  71.1  65 4.22 1.835 19.90  1  1    4    1
+21       Toyota Corona 21.5   4 120.1  97 3.70 2.465 20.01  1  0    3    1
+22    Dodge Challenger 15.5   8 318.0 150 2.76 3.520 16.87  0  0    3    2
+23         AMC Javelin 15.2   8 304.0 150 3.15 3.435 17.30  0  0    3    2
+24          Camaro Z28 13.3   8 350.0 245 3.73 3.840 15.41  0  0    3    4
+25    Pontiac Firebird 19.2   8 400.0 175 3.08 3.845 17.05  0  0    3    2
+26           Fiat X1-9 27.3   4  79.0  66 4.08 1.935 18.90  1  1    4    1
+27       Porsche 914-2 26.0   4 120.3  91 4.43 2.140 16.70  0  1    5    2
+28        Lotus Europa 30.4   4  95.1 113 3.77 1.513 16.90  1  1    5    2
+29      Ford Pantera L 15.8   8 351.0 264 4.22 3.170 14.50  0  1    5    4
+30        Ferrari Dino 19.7   6 145.0 175 3.62 2.770 15.50  0  1    5    6
+31       Maserati Bora 15.0   8 301.0 335 3.54 3.570 14.60  0  1    5    8
+32          Volvo 142E 21.4   4 121.0 109 4.11 2.780 18.60  1  1    4    2</code></pre>
+</div>
 </div>
 </section>
 <section id="variável-dependente" class="level1">
 <h1>Variável dependente</h1>
+<p>Iremos selecionar como variável dependente o consumo (mpg). Fazendo uma análise da natureza da variável, vendo seu histograma e sua aderência à normalidade com o teste shapiro-francia:</p>
+<p>Visualizando a variável dependente:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Teste de normalidade Shapiro-Francia</span></span>
-<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="co"># p-valor &lt;= 0.5 é não-normal, ou seja, maior a variável é normal</span></span>
-<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="fu">sf.test</span>(df<span class="sc">$</span>mpg)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>df <span class="sc">|&gt;</span> </span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x=</span>mpg)) <span class="sc">+</span></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_histogram</span>(<span class="at">binwidth =</span> <span class="dv">2</span>) </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="RegLinear-01_files/figure-html/unnamed-chunk-3-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<p>Teste de Normalidade Shapiro-Francia:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Teste de normalidade Shapiro-Francia</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="co"># p-valor &lt;= 0.5 é não-normal, ou seja, maior a variável é normal</span></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="fu">sf.test</span>(df<span class="sc">$</span>mpg)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>
     Shapiro-Francia normality test
@@ -187,47 +244,40 @@ data:  df$mpg
 W = 0.95247, p-value = 0.1495</code></pre>
 </div>
 </div>
-<p>Visualizando a variável dependente:</p>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>df <span class="sc">|&gt;</span> </span>
-<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x=</span>mpg)) <span class="sc">+</span></span>
-<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_histogram</span>(<span class="at">binwidth =</span> <span class="dv">2</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output-display">
-<p><img src="RegLinear-01_files/figure-html/unnamed-chunk-4-1.png" class="img-fluid" width="672"></p>
-</div>
-</div>
 </section>
 <section id="regressão-univariada" class="level1">
 <h1>Regressão univariada</h1>
+<p>Como variável explicativa, iremos selecionar a potência (hp).</p>
+<p>Fazendo uma análise de correlação:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Variável explicativa escolhida = hp</span></span>
-<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a><span class="fu">cor</span>(df<span class="sc">$</span>mpg, df<span class="sc">$</span>hp)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Variável explicativa escolhida = hp</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a><span class="fu">cor</span>(df<span class="sc">$</span>mpg, df<span class="sc">$</span>hp)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] -0.7761684</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>DataExplorer<span class="sc">::</span><span class="fu">plot_correlation</span>(df[<span class="fu">c</span>(<span class="st">"mpg"</span>, <span class="st">"hp"</span>)])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>DataExplorer<span class="sc">::</span><span class="fu">plot_correlation</span>(df[<span class="fu">c</span>(<span class="st">"mpg"</span>, <span class="st">"hp"</span>)])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <p><img src="RegLinear-01_files/figure-html/unnamed-chunk-5-1.png" class="img-fluid" width="672"></p>
 </div>
 </div>
-<p>Correlação alta (0.78) e negativa (-).</p>
-<p>Visualizando as variáveis:</p>
+<p>Correlação alta (0.78) e negativa (-), ou seja, quanto menor a potência, maior o consumo.</p>
+<p>Visualizando as variáveis graficamente:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>df <span class="sc">|&gt;</span> </span>
-<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> hp, <span class="at">y=</span> mpg)) <span class="sc">+</span></span>
-<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>() <span class="sc">+</span></span>
-<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_text_repel</span>(<span class="fu">aes</span>(<span class="at">label =</span> name), <span class="at">size =</span> <span class="dv">2</span>, <span class="at">color =</span> <span class="st">"darkgray"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>df <span class="sc">|&gt;</span> </span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> hp, <span class="at">y=</span> mpg)) <span class="sc">+</span></span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>() <span class="sc">+</span></span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_text_repel</span>(<span class="fu">aes</span>(<span class="at">label =</span> name), <span class="at">size =</span> <span class="dv">2</span>, <span class="at">color =</span> <span class="st">"darkgray"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <p><img src="RegLinear-01_files/figure-html/unnamed-chunk-6-1.png" class="img-fluid" width="672"></p>
 </div>
 </div>
-<p>Ajustando o modelo linear:</p>
-<p><span class="math inline">\hat{y} = \alpha + \beta \* x1</span></p>
+<p>Criando um modelo linear simples:</p>
+<p>Função: <span class="math inline">\hat{y} = \alpha + \beta \* x1</span></p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="co">#Função lm para obter os coeficientes alpha e beta</span></span>
-<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>modelo_uni <span class="ot">&lt;-</span> <span class="fu">lm</span>(mpg <span class="sc">~</span> hp, <span class="at">data =</span> df)</span>
-<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>modelo_uni</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="co">#Função lm para obter os coeficientes alpha e beta</span></span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>modelo_uni <span class="ot">&lt;-</span> <span class="fu">lm</span>(mpg <span class="sc">~</span> hp, <span class="at">data =</span> df)</span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>modelo_uni</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>
 Call:
@@ -245,13 +295,13 @@ Coefficients:
 <p>Por exemplo, de acordo com nosso modelo, para um veículo com 190 de potência, teremos:</p>
 <p><span class="math inline">(30.09886) + [(-0.06823) * 190]</span> <span class="math inline">(30.09886) - 12.9637 = \textbf{17.13516}</span></p>
 <p>Ou seja, nosso modelo prevê um consumo de 17.13 milhas por galão se um veículo tiver 190 de potência.</p>
-<p>Visualizando:</p>
+<p>Visualizando a inferência:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>df <span class="sc">|&gt;</span> </span>
-<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> hp, <span class="at">y=</span> mpg)) <span class="sc">+</span></span>
-<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>() <span class="sc">+</span></span>
-<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_text_repel</span>(<span class="fu">aes</span>(<span class="at">label =</span> name), <span class="at">size =</span> <span class="dv">2</span>, <span class="at">color =</span> <span class="st">"darkgray"</span>)<span class="sc">+</span></span>
-<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="fu">aes</span>(<span class="at">x =</span> <span class="dv">190</span>, <span class="at">y =</span> <span class="fl">17.13</span>),<span class="at">color =</span> <span class="st">"red"</span>, <span class="at">size =</span> <span class="dv">3</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>df <span class="sc">|&gt;</span> </span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> hp, <span class="at">y=</span> mpg)) <span class="sc">+</span></span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>() <span class="sc">+</span></span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_text_repel</span>(<span class="fu">aes</span>(<span class="at">label =</span> name), <span class="at">size =</span> <span class="dv">2</span>, <span class="at">color =</span> <span class="st">"darkgray"</span>)<span class="sc">+</span></span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="fu">aes</span>(<span class="at">x =</span> <span class="dv">190</span>, <span class="at">y =</span> <span class="fl">17.13</span>),<span class="at">color =</span> <span class="st">"red"</span>, <span class="at">size =</span> <span class="dv">3</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <p><img src="RegLinear-01_files/figure-html/unnamed-chunk-8-1.png" class="img-fluid" width="672"></p>
 </div>
@@ -259,8 +309,8 @@ Coefficients:
 <p>Usando a função predict().</p>
 <p>Podemos utilizar a função predict para obter inferências do modelo criado ao invés do cálculo manual como fizemos anteriormente:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>df_previsao <span class="ot">=</span> <span class="fu">tibble</span>(<span class="st">"hp"</span> <span class="ot">=</span> <span class="dv">190</span>)</span>
-<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a><span class="fu">predict</span>(modelo_uni, <span class="at">newdata =</span> df_previsao)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>df_previsao <span class="ot">=</span> <span class="fu">tibble</span>(<span class="st">"hp"</span> <span class="ot">=</span> <span class="dv">190</span>)</span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a><span class="fu">predict</span>(modelo_uni, <span class="at">newdata =</span> df_previsao)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>       1 
 17.13549 </code></pre>
@@ -268,13 +318,13 @@ Coefficients:
 </div>
 <p>Coeficiente de ajuste do modelo <span class="math inline">R^2</span>:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="co">#Obtendo o R2</span></span>
-<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(modelo_uni)<span class="sc">$</span>r.squared</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="co">#Obtendo o R2</span></span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(modelo_uni)<span class="sc">$</span>r.squared</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] 0.6024373</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="co">#Validando o R2, extraindo a raiz, deve bater com a correlação anterior.</span></span>
-<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a><span class="fu">sqrt</span>(<span class="fu">summary</span>(modelo_uni)<span class="sc">$</span>r.squared)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="co">#Validando o R2, extraindo a raiz, deve bater com a correlação anterior.</span></span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a><span class="fu">sqrt</span>(<span class="fu">summary</span>(modelo_uni)<span class="sc">$</span>r.squared)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] 0.7761684</code></pre>
 </div>
@@ -282,41 +332,63 @@ Coefficients:
 </section>
 <section id="regressão-multivariada" class="level1">
 <h1>Regressão multivariada</h1>
-<p>Adicionando outra variável explicativa (cilindros)</p>
-<p>Visualizando as correlações</p>
+<p>Adicionando outra variável explicativa (cilindros).</p>
+<section id="visualizando-as-correlações-errado" class="level2">
+<h2 class="anchored" data-anchor-id="visualizando-as-correlações-errado">Visualizando as correlações (ERRADO)</h2>
+<p>A seguir, iremos analisar as correlações e criar um modelo linear de forma similar à que fizemos até aqui.</p>
+<div class="callout-warning callout callout-style-default callout-captioned">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-caption-container flex-fill">
+Warning
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>CUIDADO!!! Estamos fazendo este procedimento de forma INCORRETA para mostrar alguns pontos importantes logo adiante.</p>
+</div>
+</div>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a>df <span class="sc">|&gt;</span> <span class="fu">select</span>(mpg, hp, cyl) <span class="sc">|&gt;</span> </span>
-<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a>DataExplorer<span class="sc">::</span><span class="fu">plot_correlation</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a>df <span class="sc">|&gt;</span> <span class="fu">select</span>(mpg, hp, cyl) <span class="sc">|&gt;</span> </span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a>DataExplorer<span class="sc">::</span><span class="fu">plot_correlation</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <p><img src="RegLinear-01_files/figure-html/unnamed-chunk-11-1.png" class="img-fluid" width="672"></p>
 </div>
 </div>
-<p>Visualizando</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a>fig <span class="ot">&lt;-</span>  <span class="fu">plot_ly</span>(df, <span class="at">x =</span> <span class="sc">~</span>hp, <span class="at">y =</span> <span class="sc">~</span>mpg, <span class="at">z =</span> <span class="sc">~</span>cyl, <span class="at">color =</span> <span class="sc">~</span>mpg, <span class="at">colors =</span> <span class="fu">c</span>(<span class="st">'darkred'</span>, <span class="st">'green'</span>), <span class="at">size =</span> <span class="dv">1</span>) <span class="sc">|&gt;</span> </span>
-<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">add_markers</span>()</span>
-<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a>fig</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output-display">
-<div id="htmlwidget-c722221b88a279f77613" style="width:100%;height:464px;" class="plotly html-widget"></div>
-<script type="application/json" data-for="htmlwidget-c722221b88a279f77613">{"x":{"visdat":{"6736e1d46c694":["function () ","plotlyVisDat"]},"cur_data":"6736e1d46c694","attrs":{"6736e1d46c694":{"x":{},"y":{},"z":{},"color":{},"size":1,"colors":["darkred","green"],"alpha_stroke":1,"sizes":[10,100],"spans":[1,20],"type":"scatter3d","mode":"markers","inherit":true}},"layout":{"margin":{"b":40,"l":60,"t":25,"r":10},"scene":{"xaxis":{"title":"hp"},"yaxis":{"title":"mpg"},"zaxis":{"title":"cyl"}},"hovermode":"closest","showlegend":false,"legend":{"yanchor":"top","y":0.5}},"source":"A","config":{"modeBarButtonsToAdd":["hoverclosest","hovercompare"],"showSendToCloud":false},"data":[{"x":[110,110,93,110,175,105,245,62,95,123,123,180,180,180,205,215,230,66,52,65,97,150,150,245,175,66,91,113,264,175,335,109],"y":[21,21,22.8,21.4,18.7,18.1,14.3,24.4,22.8,19.2,17.8,16.4,17.3,15.2,10.4,10.4,14.7,32.4,30.4,33.9,21.5,15.5,15.2,13.3,19.2,27.3,26,30.4,15.8,19.7,15,21.4],"z":[6,6,4,6,8,6,8,4,4,6,6,8,8,8,8,8,8,4,4,4,4,8,8,8,8,4,4,4,8,6,8,4],"type":"scatter3d","mode":"markers","marker":{"colorbar":{"title":"mpg","ticklen":2},"cmin":10.4,"cmax":33.9,"colorscale":[["0","rgba(139,0,0,1)"],["0.0416666666666666","rgba(140,28,1,1)"],["0.0833333333333334","rgba(142,44,1,1)"],["0.125","rgba(143,57,0,1)"],["0.166666666666667","rgba(143,69,0,1)"],["0.208333333333333","rgba(144,79,0,1)"],["0.25","rgba(144,89,0,1)"],["0.291666666666667","rgba(144,99,0,1)"],["0.333333333333333","rgba(144,109,0,1)"],["0.375","rgba(143,118,0,1)"],["0.416666666666667","rgba(142,127,0,1)"],["0.458333333333333","rgba(140,137,0,1)"],["0.5","rgba(138,146,0,1)"],["0.541666666666667","rgba(136,155,0,1)"],["0.583333333333333","rgba(133,164,0,1)"],["0.625","rgba(129,173,0,1)"],["0.666666666666667","rgba(125,182,0,1)"],["0.708333333333333","rgba(120,191,0,1)"],["0.75","rgba(114,200,0,1)"],["0.791666666666667","rgba(107,209,0,1)"],["0.833333333333333","rgba(98,218,0,1)"],["0.875","rgba(87,227,0,1)"],["0.916666666666667","rgba(73,237,0,1)"],["0.958333333333333","rgba(52,246,0,1)"],["1","rgba(0,255,0,1)"]],"showscale":false,"color":[21,21,22.8,21.4,18.7,18.1,14.3,24.4,22.8,19.2,17.8,16.4,17.3,15.2,10.4,10.4,14.7,32.4,30.4,33.9,21.5,15.5,15.2,13.3,19.2,27.3,26,30.4,15.8,19.7,15,21.4],"size":[55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55,55],"sizemode":"area","line":{"colorbar":{"title":"","ticklen":2},"cmin":10.4,"cmax":33.9,"colorscale":[["0","rgba(139,0,0,1)"],["0.0416666666666666","rgba(140,28,1,1)"],["0.0833333333333334","rgba(142,44,1,1)"],["0.125","rgba(143,57,0,1)"],["0.166666666666667","rgba(143,69,0,1)"],["0.208333333333333","rgba(144,79,0,1)"],["0.25","rgba(144,89,0,1)"],["0.291666666666667","rgba(144,99,0,1)"],["0.333333333333333","rgba(144,109,0,1)"],["0.375","rgba(143,118,0,1)"],["0.416666666666667","rgba(142,127,0,1)"],["0.458333333333333","rgba(140,137,0,1)"],["0.5","rgba(138,146,0,1)"],["0.541666666666667","rgba(136,155,0,1)"],["0.583333333333333","rgba(133,164,0,1)"],["0.625","rgba(129,173,0,1)"],["0.666666666666667","rgba(125,182,0,1)"],["0.708333333333333","rgba(120,191,0,1)"],["0.75","rgba(114,200,0,1)"],["0.791666666666667","rgba(107,209,0,1)"],["0.833333333333333","rgba(98,218,0,1)"],["0.875","rgba(87,227,0,1)"],["0.916666666666667","rgba(73,237,0,1)"],["0.958333333333333","rgba(52,246,0,1)"],["1","rgba(0,255,0,1)"]],"showscale":false,"color":[21,21,22.8,21.4,18.7,18.1,14.3,24.4,22.8,19.2,17.8,16.4,17.3,15.2,10.4,10.4,14.7,32.4,30.4,33.9,21.5,15.5,15.2,13.3,19.2,27.3,26,30.4,15.8,19.7,15,21.4]}},"textfont":{"size":55},"error_y":{"width":55},"error_x":{"width":55},"line":{"width":55},"frame":null},{"x":[52,335],"y":[10.4,33.9],"type":"scatter3d","mode":"markers","opacity":0,"hoverinfo":"none","showlegend":false,"marker":{"colorbar":{"title":"mpg","ticklen":2,"len":0.5,"lenmode":"fraction","y":1,"yanchor":"top"},"cmin":10.4,"cmax":33.9,"colorscale":[["0","rgba(139,0,0,1)"],["0.0416666666666666","rgba(140,28,1,1)"],["0.0833333333333334","rgba(142,44,1,1)"],["0.125","rgba(143,57,0,1)"],["0.166666666666667","rgba(143,69,0,1)"],["0.208333333333333","rgba(144,79,0,1)"],["0.25","rgba(144,89,0,1)"],["0.291666666666667","rgba(144,99,0,1)"],["0.333333333333333","rgba(144,109,0,1)"],["0.375","rgba(143,118,0,1)"],["0.416666666666667","rgba(142,127,0,1)"],["0.458333333333333","rgba(140,137,0,1)"],["0.5","rgba(138,146,0,1)"],["0.541666666666667","rgba(136,155,0,1)"],["0.583333333333333","rgba(133,164,0,1)"],["0.625","rgba(129,173,0,1)"],["0.666666666666667","rgba(125,182,0,1)"],["0.708333333333333","rgba(120,191,0,1)"],["0.75","rgba(114,200,0,1)"],["0.791666666666667","rgba(107,209,0,1)"],["0.833333333333333","rgba(98,218,0,1)"],["0.875","rgba(87,227,0,1)"],["0.916666666666667","rgba(73,237,0,1)"],["0.958333333333333","rgba(52,246,0,1)"],["1","rgba(0,255,0,1)"]],"showscale":true,"color":[10.4,33.9],"line":{"color":"rgba(255,127,14,1)"}},"z":[4,8],"frame":null}],"highlight":{"on":"plotly_click","persistent":false,"dynamic":false,"selectize":false,"opacityDim":0.2,"selected":{"opacity":1},"debounce":0},"shinyEvents":["plotly_hover","plotly_click","plotly_selected","plotly_relayout","plotly_brushed","plotly_brushing","plotly_clickannotation","plotly_doubleclick","plotly_deselect","plotly_afterplot","plotly_sunburstclick"],"base_url":"https://plot.ly"},"evals":[],"jsHooks":[]}</script>
+<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="co">#fig &lt;-  plot_ly(df, x = ~hp, y = ~mpg, z = ~cyl, color = ~mpg, colors = c('darkred', 'green'), size = 1) |&gt; </span></span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a><span class="co">#  add_markers()</span></span>
+<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a><span class="co">#fig</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-</div>
-<p>Criando o modelo (ERRADO)</p>
-<p>Este modelo é errado, pois a variável “cyl” é qualitativa. Portanto, suas proporções deveriam ser:</p>
+</section>
+<section id="criando-o-modelo-errado" class="level2">
+<h2 class="anchored" data-anchor-id="criando-o-modelo-errado">Criando o modelo (ERRADO)</h2>
+<p>Este modelo é errado, pois a variável “cyl”, apesar de em nosso dataset estar configurada como “double” (quatitativa), ela é apenas um label para definir o tipo de cilindro é o automável, portanto é qualitativa. PNeste caso, suas proporções são:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="fu">table</span>(df<span class="sc">$</span>cyl)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="co">#Frequencia absoluta:</span></span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a><span class="fu">table</span>(df<span class="sc">$</span>cyl)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>
  4  6  8 
 11  7 14 </code></pre>
 </div>
+<div class="sourceCode cell-code" id="cb24"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="co">#Frequencia Relativa:</span></span>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a><span class="fu">prop.table</span>(<span class="fu">table</span>(df<span class="sc">$</span>cyl))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+      4       6       8 
+0.34375 0.21875 0.43750 </code></pre>
 </div>
-<p>Como na tabela df, ela está como double, a função lm, está tratando seus valores numéricos, ou seja, as diferenças entre 4, 6 e 8.</p>
-<p>Rodando o modelo ERRADO!</p>
+</div>
+<p>Como na tabela df, ela está como double, a função lm(), está tratando seus valores numéricos, ou seja, as diferenças entre 4, 6 e 8.</p>
+</section>
+<section id="rodando-o-modelo-errado" class="level2">
+<h2 class="anchored" data-anchor-id="rodando-o-modelo-errado">Rodando o modelo ERRADO!</h2>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb23"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a>modelo_multi_errado <span class="ot">&lt;-</span> <span class="fu">lm</span>(mpg <span class="sc">~</span> hp <span class="sc">+</span> cyl, df)</span>
-<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span> (modelo_multi_errado)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb26"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a>modelo_multi_errado <span class="ot">&lt;-</span> <span class="fu">lm</span>(mpg <span class="sc">~</span> hp <span class="sc">+</span> cyl, df)</span>
+<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span> (modelo_multi_errado)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>
 Call:
@@ -339,12 +411,17 @@ Multiple R-squared:  0.7407,    Adjusted R-squared:  0.7228
 F-statistic: 41.42 on 2 and 29 DF,  p-value: 3.162e-09</code></pre>
 </div>
 </div>
-<p>Veja que ele gera um beta para a variável “cyl”.</p>
-<p>Vendo as médias adequadas quando mudamos a variável como qualitativa:</p>
+<p>Aqui vale algumas observações. A primeira é que a variável “hp”, deixa de ser estatisticamente significante (a 95% de confiança) após a introdução da variável “cyl”. Veremos mais sobre este ponto a seguir.</p>
+<p>Veja também que ele gera um beta para a variável “cyl”. Sabemos que isto não significa nada, pois estamos ainda lidando com a variável cilindros como quantitativa, o que está incorreto!</p>
+</section>
+<section id="ponderação-arbitrária" class="level2">
+<h2 class="anchored" data-anchor-id="ponderação-arbitrária">Ponderação Arbitrária:</h2>
+<p>Para entender melhor, veja o que está acontencendo. Sabemos que devemos mudar a variável “cyl” que está originalmente quantitativa (4,6 e 8) para qualitativa. Porém, é um procedimento comum e incorreto atribuir valores de forma arbitrária, sendo estes, 1,2 e 3 ou 4,6 e 8, etc. Estes números são apenas “labels” para representar categorias desta variável.</p>
+<p>Veja as médias adequadas quando mudamos a variável “cyl” como qualitativa:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb25"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a>df_cyl_medias <span class="ot">&lt;-</span> df <span class="sc">|&gt;</span> <span class="fu">mutate</span> (<span class="at">cyl =</span> <span class="fu">as_factor</span>(cyl)) <span class="sc">|&gt;</span> </span>
-<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(cyl) <span class="sc">|&gt;</span> <span class="fu">summarise</span>(<span class="at">media =</span> <span class="fu">mean</span>(mpg))</span>
-<span id="cb25-3"><a href="#cb25-3" aria-hidden="true" tabindex="-1"></a>df_cyl_medias</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb28"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a>df_cyl_medias <span class="ot">&lt;-</span> df <span class="sc">|&gt;</span> <span class="fu">mutate</span> (<span class="at">cyl =</span> <span class="fu">as_factor</span>(cyl)) <span class="sc">|&gt;</span> </span>
+<span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(cyl) <span class="sc">|&gt;</span> <span class="fu">summarise</span>(<span class="at">media =</span> <span class="fu">mean</span>(mpg))</span>
+<span id="cb28-3"><a href="#cb28-3" aria-hidden="true" tabindex="-1"></a>df_cyl_medias</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 3 × 2
   cyl   media
@@ -354,29 +431,163 @@ F-statistic: 41.42 on 2 and 29 DF,  p-value: 3.162e-09</code></pre>
 3 8      15.1</code></pre>
 </div>
 </div>
+<section id="visualizando-as-diferenças-com-ponderação-arbitrária" class="level3">
+<h3 class="anchored" data-anchor-id="visualizando-as-diferenças-com-ponderação-arbitrária">Visualizando as diferenças com ponderação arbitrária</h3>
 <p>Visualizando o modelo errado (com ponderação arbitrária de 1,2 e 3 e as médias certas (em vermelho):</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb27"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a>df <span class="sc">|&gt;</span> </span>
-<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x=</span>cyl, <span class="at">y=</span>mpg))<span class="sc">+</span></span>
-<span id="cb27-3"><a href="#cb27-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>()<span class="sc">+</span></span>
-<span id="cb27-4"><a href="#cb27-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_text_repel</span>(<span class="fu">aes</span>(<span class="at">label=</span>name))<span class="sc">+</span></span>
-<span id="cb27-5"><a href="#cb27-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_smooth</span>(<span class="at">method=</span><span class="st">"lm"</span>, <span class="at">se=</span>F)<span class="sc">+</span></span>
-<span id="cb27-6"><a href="#cb27-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">data =</span> df_cyl_medias, <span class="fu">aes</span>(<span class="at">x=</span><span class="fu">parse_number</span>(<span class="fu">levels</span>(cyl)), <span class="at">y=</span>media), <span class="at">color =</span> <span class="st">"red"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb30"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a>df <span class="sc">|&gt;</span> </span>
+<span id="cb30-2"><a href="#cb30-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x=</span>cyl, <span class="at">y=</span>mpg))<span class="sc">+</span></span>
+<span id="cb30-3"><a href="#cb30-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>()<span class="sc">+</span></span>
+<span id="cb30-4"><a href="#cb30-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_text_repel</span>(<span class="fu">aes</span>(<span class="at">label=</span>name))<span class="sc">+</span></span>
+<span id="cb30-5"><a href="#cb30-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_smooth</span>(<span class="at">method=</span><span class="st">"lm"</span>, <span class="at">se=</span>F)<span class="sc">+</span></span>
+<span id="cb30-6"><a href="#cb30-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">data =</span> df_cyl_medias, <span class="fu">aes</span>(<span class="at">x=</span><span class="fu">parse_number</span>(<span class="fu">levels</span>(cyl)), <span class="at">y=</span>media), <span class="at">color =</span> <span class="st">"red"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <p><img src="RegLinear-01_files/figure-html/unnamed-chunk-16-1.png" class="img-fluid" width="672"></p>
 </div>
 </div>
-<p>Criando o modelo (CERTO)</p>
-<p>Ajustando a variável de double para factor:</p>
+<p>Observe como seria a inclinação dos betas considerando a frenquência média de cada categoria na variável cyl:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb28"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a>df_fct <span class="ot">&lt;-</span> df <span class="sc">|&gt;</span> <span class="fu">mutate</span> (<span class="at">cyl =</span> <span class="fu">as_factor</span>(cyl))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb31"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a>df <span class="sc">|&gt;</span> </span>
+<span id="cb31-2"><a href="#cb31-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x=</span><span class="fu">as_factor</span>(cyl), <span class="at">y=</span>mpg))<span class="sc">+</span></span>
+<span id="cb31-3"><a href="#cb31-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>()<span class="sc">+</span></span>
+<span id="cb31-4"><a href="#cb31-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_text_repel</span>(<span class="fu">aes</span>(<span class="at">label=</span>name))<span class="sc">+</span></span>
+<span id="cb31-5"><a href="#cb31-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="at">data =</span> df_cyl_medias, <span class="fu">aes</span>(<span class="at">x=</span>cyl, <span class="at">y=</span>media,<span class="at">group =</span><span class="dv">1</span>), <span class="at">size =</span><span class="fl">1.2</span>,<span class="at">color =</span> <span class="st">"blue"</span>)<span class="sc">+</span></span>
+<span id="cb31-6"><a href="#cb31-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">data =</span> df_cyl_medias, <span class="fu">aes</span>(<span class="at">x=</span>cyl, <span class="at">y=</span>media), <span class="at">color =</span> <span class="st">"red"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="RegLinear-01_files/figure-html/unnamed-chunk-17-1.png" class="img-fluid" width="672"></p>
 </div>
-<p>Rodando o modelo:</p>
+</div>
+<div class="callout-note callout callout-style-default callout-captioned">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-caption-container flex-fill">
+Note
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>É por estre motivo que não podemos fazer a penderação arbitrária de valores para variáveis categóricas. Existe um procedimento adequado para lidar com esta situação que veremos a seguir.</p>
+</div>
+</div>
+</section>
+</section>
+</section>
+<section id="ajuste-das-variáveis-qualitativas" class="level1">
+<h1>Ajuste das variáveis qualitativas</h1>
+<p>Para adequar devidamente variáveis explicativas (x) categóricas para utilizarmos em modelos OLS, devemos criar variáveis adicionais “dummys”. Faremos isto através da função dummy_columns:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb29"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a><span class="co">#OBS: Não precisamos montar as dummys de forma manual, pois a função já faz estes procedimento. Ele também já faz o step-wise:</span></span>
-<span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb29-3"><a href="#cb29-3" aria-hidden="true" tabindex="-1"></a>modelo_multi_certo <span class="ot">&lt;-</span> <span class="fu">lm</span>(mpg <span class="sc">~</span> hp <span class="sc">+</span> cyl, df_fct)</span>
-<span id="cb29-4"><a href="#cb29-4" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span> (modelo_multi_certo)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb32"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a>df_fct <span class="ot">&lt;-</span> df <span class="sc">|&gt;</span> <span class="fu">mutate</span> (<span class="at">cyl =</span> <span class="fu">as_factor</span>(cyl))</span>
+<span id="cb32-2"><a href="#cb32-2" aria-hidden="true" tabindex="-1"></a>df_fct_dummy <span class="ot">&lt;-</span> fastDummies<span class="sc">::</span><span class="fu">dummy_columns</span>(df_fct, <span class="at">select_columns =</span> <span class="st">"cyl"</span>,</span>
+<span id="cb32-3"><a href="#cb32-3" aria-hidden="true" tabindex="-1"></a>                                   <span class="at">remove_selected_columns =</span> T,</span>
+<span id="cb32-4"><a href="#cb32-4" aria-hidden="true" tabindex="-1"></a>                                   <span class="at">remove_first_dummy =</span> T)</span>
+<span id="cb32-5"><a href="#cb32-5" aria-hidden="true" tabindex="-1"></a>df_fct_dummy </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>                  name  mpg  disp  hp drat    wt  qsec vs am gear carb cyl_6
+1            Mazda RX4 21.0 160.0 110 3.90 2.620 16.46  0  1    4    4     1
+2        Mazda RX4 Wag 21.0 160.0 110 3.90 2.875 17.02  0  1    4    4     1
+3           Datsun 710 22.8 108.0  93 3.85 2.320 18.61  1  1    4    1     0
+4       Hornet 4 Drive 21.4 258.0 110 3.08 3.215 19.44  1  0    3    1     1
+5    Hornet Sportabout 18.7 360.0 175 3.15 3.440 17.02  0  0    3    2     0
+6              Valiant 18.1 225.0 105 2.76 3.460 20.22  1  0    3    1     1
+7           Duster 360 14.3 360.0 245 3.21 3.570 15.84  0  0    3    4     0
+8            Merc 240D 24.4 146.7  62 3.69 3.190 20.00  1  0    4    2     0
+9             Merc 230 22.8 140.8  95 3.92 3.150 22.90  1  0    4    2     0
+10            Merc 280 19.2 167.6 123 3.92 3.440 18.30  1  0    4    4     1
+11           Merc 280C 17.8 167.6 123 3.92 3.440 18.90  1  0    4    4     1
+12          Merc 450SE 16.4 275.8 180 3.07 4.070 17.40  0  0    3    3     0
+13          Merc 450SL 17.3 275.8 180 3.07 3.730 17.60  0  0    3    3     0
+14         Merc 450SLC 15.2 275.8 180 3.07 3.780 18.00  0  0    3    3     0
+15  Cadillac Fleetwood 10.4 472.0 205 2.93 5.250 17.98  0  0    3    4     0
+16 Lincoln Continental 10.4 460.0 215 3.00 5.424 17.82  0  0    3    4     0
+17   Chrysler Imperial 14.7 440.0 230 3.23 5.345 17.42  0  0    3    4     0
+18            Fiat 128 32.4  78.7  66 4.08 2.200 19.47  1  1    4    1     0
+19         Honda Civic 30.4  75.7  52 4.93 1.615 18.52  1  1    4    2     0
+20      Toyota Corolla 33.9  71.1  65 4.22 1.835 19.90  1  1    4    1     0
+21       Toyota Corona 21.5 120.1  97 3.70 2.465 20.01  1  0    3    1     0
+22    Dodge Challenger 15.5 318.0 150 2.76 3.520 16.87  0  0    3    2     0
+23         AMC Javelin 15.2 304.0 150 3.15 3.435 17.30  0  0    3    2     0
+24          Camaro Z28 13.3 350.0 245 3.73 3.840 15.41  0  0    3    4     0
+25    Pontiac Firebird 19.2 400.0 175 3.08 3.845 17.05  0  0    3    2     0
+26           Fiat X1-9 27.3  79.0  66 4.08 1.935 18.90  1  1    4    1     0
+27       Porsche 914-2 26.0 120.3  91 4.43 2.140 16.70  0  1    5    2     0
+28        Lotus Europa 30.4  95.1 113 3.77 1.513 16.90  1  1    5    2     0
+29      Ford Pantera L 15.8 351.0 264 4.22 3.170 14.50  0  1    5    4     0
+30        Ferrari Dino 19.7 145.0 175 3.62 2.770 15.50  0  1    5    6     1
+31       Maserati Bora 15.0 301.0 335 3.54 3.570 14.60  0  1    5    8     0
+32          Volvo 142E 21.4 121.0 109 4.11 2.780 18.60  1  1    4    2     0
+   cyl_8
+1      0
+2      0
+3      0
+4      0
+5      1
+6      0
+7      1
+8      0
+9      0
+10     0
+11     0
+12     1
+13     1
+14     1
+15     1
+16     1
+17     1
+18     0
+19     0
+20     0
+21     0
+22     1
+23     1
+24     1
+25     1
+26     0
+27     0
+28     0
+29     1
+30     0
+31     1
+32     0</code></pre>
+</div>
+</div>
+<p>Neste caso, ele atribui a existência (1) ou não existência (0) para cada categoria da variável quantitativa -1. Ou seja, no caso da variável cilindro, teremos 2 novas variáveis dummys (cyl_6 e cyl_8), sendo que a categoria de referência (cyl_4) é incluída no alpha da equação.</p>
+</section>
+<section id="criando-o-modelo-com-as-dummys" class="level1">
+<h1>Criando o modelo com as dummys</h1>
+<p>Agora com a variável “cyl” devidamente “dummizada” podemos rodar o modelo:</p>
+<p>Rodando o modelo com dummy:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb34"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a>modelo_multi_dummy <span class="ot">&lt;-</span> <span class="fu">lm</span>(mpg <span class="sc">~</span> hp <span class="sc">+</span> cyl_6 <span class="sc">+</span> cyl_8, df_fct_dummy)</span>
+<span id="cb34-2"><a href="#cb34-2" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span> (modelo_multi_dummy)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Call:
+lm(formula = mpg ~ hp + cyl_6 + cyl_8, data = df_fct_dummy)
+
+Residuals:
+   Min     1Q Median     3Q    Max 
+-4.818 -1.959  0.080  1.627  6.812 
+
+Coefficients:
+            Estimate Std. Error t value Pr(&gt;|t|)    
+(Intercept) 28.65012    1.58779  18.044  &lt; 2e-16 ***
+hp          -0.02404    0.01541  -1.560  0.12995    
+cyl_6       -5.96766    1.63928  -3.640  0.00109 ** 
+cyl_8       -8.52085    2.32607  -3.663  0.00103 ** 
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+Residual standard error: 3.146 on 28 degrees of freedom
+Multiple R-squared:  0.7539,    Adjusted R-squared:  0.7275 
+F-statistic: 28.59 on 3 and 28 DF,  p-value: 1.14e-08</code></pre>
+</div>
+</div>
+<p>Apesar de termos feito o processo de dummys, saiba que a função lm() é inteligente o suficiente e já faz este processo quando recebe uma variável factor. Veja:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb36"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a><span class="co">#OBS: Não precisamos montar as dummys de forma manual, pois a função já faz estes procedimento. </span></span>
+<span id="cb36-2"><a href="#cb36-2" aria-hidden="true" tabindex="-1"></a>modelo_multi_fct <span class="ot">&lt;-</span> <span class="fu">lm</span>(mpg <span class="sc">~</span> hp <span class="sc">+</span> cyl, df_fct)</span>
+<span id="cb36-3"><a href="#cb36-3" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span> (modelo_multi_fct)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>
 Call:
@@ -400,60 +611,361 @@ Multiple R-squared:  0.7539,    Adjusted R-squared:  0.7275
 F-statistic: 28.59 on 3 and 28 DF,  p-value: 1.14e-08</code></pre>
 </div>
 </div>
-<p>Visualizando o modelo certo:</p>
+<section id="variáveis-explicativas-estatisticamente-significantes" class="level2">
+<h2 class="anchored" data-anchor-id="variáveis-explicativas-estatisticamente-significantes">Variáveis Explicativas Estatisticamente Significantes</h2>
+<p>Observe que apesar de no modelo com dummy, termos um p-valor para a estatística F, a estatística T da variável “hp” não é mais estatisticamente significante à 95% de nível de confiança. Isto pode se dar por 3 fatores:</p>
+<p>1-) Esta variável sozinha não é estatisticamente significante para explicar a variável y. Já vimos que isto não é verdade, pois ela passa quando fazemos um modelo com ela sozinha (p-valor = 0.000000179):</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb31"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a>df_fct <span class="sc">|&gt;</span> </span>
-<span id="cb31-2"><a href="#cb31-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x=</span>cyl, <span class="at">y=</span>mpg))<span class="sc">+</span></span>
-<span id="cb31-3"><a href="#cb31-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>()<span class="sc">+</span></span>
-<span id="cb31-4"><a href="#cb31-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_text_repel</span>(<span class="fu">aes</span>(<span class="at">label=</span>name))<span class="sc">+</span></span>
-<span id="cb31-5"><a href="#cb31-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="at">data =</span> df_cyl_medias, <span class="fu">aes</span>(<span class="at">x=</span>cyl, <span class="at">y=</span>media,<span class="at">group =</span><span class="dv">1</span>), <span class="at">size =</span><span class="fl">1.2</span>,<span class="at">color =</span> <span class="st">"blue"</span>)<span class="sc">+</span></span>
-<span id="cb31-6"><a href="#cb31-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">data =</span> df_cyl_medias, <span class="fu">aes</span>(<span class="at">x=</span>cyl, <span class="at">y=</span>media), <span class="at">color =</span> <span class="st">"red"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output-display">
-<p><img src="RegLinear-01_files/figure-html/unnamed-chunk-19-1.png" class="img-fluid" width="672"></p>
-</div>
-</div>
-<p>Comparando os modelos uni e multi-variado com variável dummy:</p>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb32"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(modelo_uni)<span class="sc">$</span>adj.r.squared</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb38"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb38-1"><a href="#cb38-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(modelo_uni)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>[1] 0.5891853</code></pre>
+<pre><code>
+Call:
+lm(formula = mpg ~ hp, data = df)
+
+Residuals:
+    Min      1Q  Median      3Q     Max 
+-5.7121 -2.1122 -0.8854  1.5819  8.2360 
+
+Coefficients:
+            Estimate Std. Error t value Pr(&gt;|t|)    
+(Intercept) 30.09886    1.63392  18.421  &lt; 2e-16 ***
+hp          -0.06823    0.01012  -6.742 1.79e-07 ***
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+Residual standard error: 3.863 on 30 degrees of freedom
+Multiple R-squared:  0.6024,    Adjusted R-squared:  0.5892 
+F-statistic: 45.46 on 1 and 30 DF,  p-value: 1.788e-07</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb34"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(modelo_multi_certo)<span class="sc">$</span>adj.r.squared</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>[1] 0.7274854</code></pre>
 </div>
-</div>
-<p>Observamos que o R2 ajustado (para comparação de modelos) é bem maior quando dicionamos a variável cyl.</p>
-<p>Estimativa final do modelo multivariádo:</p>
+<p>2-) Quando há multicolinearidade entre ela e outra variável explicativa. No exemplo abaixo, vemos uma forte correlação entre “cilindro” com “hp”</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb36"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a>df_pred <span class="ot">&lt;-</span> <span class="fu">tibble</span>(<span class="at">hp =</span> <span class="dv">190</span>, <span class="at">cyl =</span> <span class="fu">as_factor</span>(<span class="dv">8</span>))  </span>
-<span id="cb36-2"><a href="#cb36-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb36-3"><a href="#cb36-3" aria-hidden="true" tabindex="-1"></a>fit <span class="ot">&lt;-</span> <span class="fu">predict</span>(modelo_multi_certo, df_pred)</span>
-<span id="cb36-4"><a href="#cb36-4" aria-hidden="true" tabindex="-1"></a>df_pred <span class="sc">|&gt;</span> <span class="fu">mutate</span> (<span class="at">fit =</span> fit)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code># A tibble: 1 × 3
-     hp cyl     fit
-  &lt;dbl&gt; &lt;fct&gt; &lt;dbl&gt;
-1   190 8      15.6</code></pre>
-</div>
-</div>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb38"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb38-1"><a href="#cb38-1" aria-hidden="true" tabindex="-1"></a>df_fct <span class="sc">|&gt;</span> </span>
-<span id="cb38-2"><a href="#cb38-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x=</span>cyl, <span class="at">y=</span>mpg))<span class="sc">+</span></span>
-<span id="cb38-3"><a href="#cb38-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>()<span class="sc">+</span></span>
-<span id="cb38-4"><a href="#cb38-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_text_repel</span>(<span class="fu">aes</span>(<span class="at">label=</span>name))<span class="sc">+</span></span>
-<span id="cb38-5"><a href="#cb38-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">data =</span> df_pred, <span class="fu">aes</span>(<span class="at">x =</span> cyl, <span class="at">y=</span>fit), <span class="at">color =</span> <span class="st">"blue"</span>, <span class="at">size =</span> <span class="dv">4</span>)<span class="sc">+</span></span>
-<span id="cb38-6"><a href="#cb38-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_label_repel</span>(<span class="at">data =</span> df_pred, </span>
-<span id="cb38-7"><a href="#cb38-7" aria-hidden="true" tabindex="-1"></a>                  <span class="fu">aes</span>(<span class="at">x =</span> cyl, <span class="at">y=</span>fit, </span>
-<span id="cb38-8"><a href="#cb38-8" aria-hidden="true" tabindex="-1"></a>                      <span class="at">label=</span><span class="fu">paste</span>(<span class="st">"Previsto:"</span>, <span class="st">"cyl="</span>, cyl, <span class="st">"hp="</span>, hp)), </span>
-<span id="cb38-9"><a href="#cb38-9" aria-hidden="true" tabindex="-1"></a>                  <span class="at">color =</span> <span class="st">"blue"</span>, </span>
-<span id="cb38-10"><a href="#cb38-10" aria-hidden="true" tabindex="-1"></a>                  <span class="at">size =</span> <span class="dv">4</span>, </span>
-<span id="cb38-11"><a href="#cb38-11" aria-hidden="true" tabindex="-1"></a>                  <span class="at">nudge_x =</span> <span class="dv">4</span>,</span>
-<span id="cb38-12"><a href="#cb38-12" aria-hidden="true" tabindex="-1"></a>                  <span class="at">nudge_y =</span> <span class="dv">9</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb40"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb40-1"><a href="#cb40-1" aria-hidden="true" tabindex="-1"></a>df_fct_dummy <span class="sc">|&gt;</span> </span>
+<span id="cb40-2"><a href="#cb40-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span> (mpg, hp, cyl_6, cyl_8) <span class="sc">|&gt;</span> </span>
+<span id="cb40-3"><a href="#cb40-3" aria-hidden="true" tabindex="-1"></a>  correlation<span class="sc">::</span><span class="fu">correlation</span>(<span class="at">method =</span> <span class="st">"pearson"</span>) <span class="sc">|&gt;</span>  <span class="fu">plot</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <p><img src="RegLinear-01_files/figure-html/unnamed-chunk-22-1.png" class="img-fluid" width="672"></p>
 </div>
 </div>
+<p>Neste caso, ao adicionar a variável cilindros (cyl), a variável “hp” deve ser removida do modelo, pois não é mais estatisticamente significante à 95% de confiança.</p>
+</section>
+<section id="stepwise" class="level2">
+<h2 class="anchored" data-anchor-id="stepwise">Stepwise</h2>
+<p>Poderíamos remover manualmente a variável “hp”, porém em alguns casos, a troca de variáveis explicativas, faz com que níveis de significâncias se alterem dependendo da combinação, pois eventualmente, uma variável pode ser proxy de outra, etc. Neste caso, podemos utilizar um algoritmo “stepwise” a um nível de significância de 5% para que tenhamos as melhores combinações de variáveis para o modelo.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb41"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb41-1"><a href="#cb41-1" aria-hidden="true" tabindex="-1"></a>modelo_multi_dummy_step <span class="ot">&lt;-</span> <span class="fu">step</span>(modelo_multi_dummy, </span>
+<span id="cb41-2"><a href="#cb41-2" aria-hidden="true" tabindex="-1"></a>                                      <span class="at">k =</span> <span class="fu">qchisq</span>(<span class="at">p =</span> <span class="fl">0.05</span>, <span class="at">df =</span> <span class="dv">1</span>, <span class="at">lower.tail =</span> F))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Start:  AIC=84.45
+mpg ~ hp + cyl_6 + cyl_8
+
+        Df Sum of Sq    RSS    AIC
+- hp     1    24.095 301.26 83.276
+&lt;none&gt;               277.17 84.450
+- cyl_6  1   131.186 408.35 93.009
+- cyl_8  1   132.832 410.00 93.138
+
+Step:  AIC=83.28
+mpg ~ cyl_6 + cyl_8
+
+        Df Sum of Sq     RSS     AIC
+&lt;none&gt;                301.26  83.276
+- cyl_6  1    204.89  506.16  96.038
+- cyl_8  1    823.70 1124.96 121.596</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb43"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb43-1"><a href="#cb43-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(modelo_multi_dummy_step)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Call:
+lm(formula = mpg ~ cyl_6 + cyl_8, data = df_fct_dummy)
+
+Residuals:
+    Min      1Q  Median      3Q     Max 
+-5.2636 -1.8357  0.0286  1.3893  7.2364 
+
+Coefficients:
+            Estimate Std. Error t value Pr(&gt;|t|)    
+(Intercept)  26.6636     0.9718  27.437  &lt; 2e-16 ***
+cyl_6        -6.9208     1.5583  -4.441 0.000119 ***
+cyl_8       -11.5636     1.2986  -8.905 8.57e-10 ***
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+Residual standard error: 3.223 on 29 degrees of freedom
+Multiple R-squared:  0.7325,    Adjusted R-squared:  0.714 
+F-statistic:  39.7 on 2 and 29 DF,  p-value: 4.979e-09</code></pre>
+</div>
+</div>
+</section>
+<section id="normalidade-dos-resíduos" class="level2">
+<h2 class="anchored" data-anchor-id="normalidade-dos-resíduos">Normalidade dos Resíduos</h2>
+<p>Para verificar a normalidade dos resíduos iremos utilizar novamente o teste shapiro-francia.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb45"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb45-1"><a href="#cb45-1" aria-hidden="true" tabindex="-1"></a><span class="fu">sf.test</span>(modelo_uni<span class="sc">$</span>residuals)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+    Shapiro-Francia normality test
+
+data:  modelo_uni$residuals
+W = 0.93092, p-value = 0.04218</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb47"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb47-1"><a href="#cb47-1" aria-hidden="true" tabindex="-1"></a><span class="fu">sf.test</span>(modelo_multi_dummy<span class="sc">$</span>residuals)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+    Shapiro-Francia normality test
+
+data:  modelo_multi_dummy$residuals
+W = 0.98125, p-value = 0.7493</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb49"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb49-1"><a href="#cb49-1" aria-hidden="true" tabindex="-1"></a><span class="fu">sf.test</span>(modelo_multi_dummy_step<span class="sc">$</span>residuals)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+    Shapiro-Francia normality test
+
+data:  modelo_multi_dummy_step$residuals
+W = 0.97503, p-value = 0.5578</code></pre>
+</div>
+</div>
+<p>Neste caso, observamos que os resíduos no modelo univariado não passa no teste de normalidade, já nos modelos multivariados ele passa. Porém, há alguns cenários onde a variável dependente é não linear. Neste caso, temos uma terceira possibilidade que veremos a seguir.</p>
+<p>Visualizando o modelo certo: Vamos agora incluir os valores estimados em nossa tabela de treinamento:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb51"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb51-1"><a href="#cb51-1" aria-hidden="true" tabindex="-1"></a><span class="co">#df_fct$fit_1 &lt;- modelo_uni$fitted.values</span></span>
+<span id="cb51-2"><a href="#cb51-2" aria-hidden="true" tabindex="-1"></a><span class="co">#df_fct$fit_2 &lt;- modelo_multi_dummy$fitted.values</span></span>
+<span id="cb51-3"><a href="#cb51-3" aria-hidden="true" tabindex="-1"></a>df_fct<span class="sc">$</span>fit_3 <span class="ot">&lt;-</span> modelo_multi_dummy_step<span class="sc">$</span>fitted.values</span>
+<span id="cb51-4"><a href="#cb51-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb51-5"><a href="#cb51-5" aria-hidden="true" tabindex="-1"></a>df_fct <span class="sc">|&gt;</span> </span>
+<span id="cb51-6"><a href="#cb51-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x=</span>mpg, <span class="at">y=</span>mpg))<span class="sc">+</span></span>
+<span id="cb51-7"><a href="#cb51-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_smooth</span>(<span class="fu">aes</span>(<span class="at">y =</span> mpg), <span class="at">method =</span> <span class="st">"lm"</span>, </span>
+<span id="cb51-8"><a href="#cb51-8" aria-hidden="true" tabindex="-1"></a>              <span class="at">color =</span> <span class="st">"green"</span>, <span class="at">size =</span> <span class="fl">1.05</span>,</span>
+<span id="cb51-9"><a href="#cb51-9" aria-hidden="true" tabindex="-1"></a>              <span class="at">linetype =</span> <span class="st">"longdash"</span>) <span class="sc">+</span></span>
+<span id="cb51-10"><a href="#cb51-10" aria-hidden="true" tabindex="-1"></a> <span class="co"># geom_point(aes(y=fit_1), color = "blue") +</span></span>
+<span id="cb51-11"><a href="#cb51-11" aria-hidden="true" tabindex="-1"></a> <span class="co"># geom_point(aes(y=fit_2), color = "orange") +</span></span>
+<span id="cb51-12"><a href="#cb51-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="fu">aes</span>(<span class="at">y=</span>fit_3), <span class="at">color =</span> <span class="st">"darkgray"</span>) </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="RegLinear-01_files/figure-html/unnamed-chunk-25-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<p>Apesar dos resíduos do modelo após o stepwise serem aderentes à normalidade, iremos seguir com o terceiro cenário, apenas para ilusrtar o procedimento de quando isso não tivesse acontecido.</p>
+<p>3-) Quando a variável Y apresenta uma forma não linear.</p>
+<p>Quando a variável dependende apresentar uma forma funcional não linear nosso modelo pode apresentar resíduosque não atendem à uma distribuição. Quando isto acontece, podemos tentar fazer uma transformação (ex: box-cox) para ajustar o modelo.</p>
+<p>Por exemplo:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb52"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb52-1"><a href="#cb52-1" aria-hidden="true" tabindex="-1"></a><span class="co">#Estimando o lambda de BoxCox</span></span>
+<span id="cb52-2"><a href="#cb52-2" aria-hidden="true" tabindex="-1"></a>lambda_BC <span class="ot">&lt;-</span> car<span class="sc">::</span><span class="fu">powerTransform</span>(df_fct<span class="sc">$</span>mpg)</span>
+<span id="cb52-3"><a href="#cb52-3" aria-hidden="true" tabindex="-1"></a>lambda_BC</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Estimated transformation parameter 
+df_fct$mpg 
+0.02956537 </code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb54"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb54-1"><a href="#cb54-1" aria-hidden="true" tabindex="-1"></a><span class="co">#Adicionando na base de dados:</span></span>
+<span id="cb54-2"><a href="#cb54-2" aria-hidden="true" tabindex="-1"></a>df_fct_dummy<span class="sc">$</span>mpg_bc <span class="ot">&lt;-</span> (((df_fct<span class="sc">$</span>mpg <span class="sc">^</span> lambda_BC<span class="sc">$</span>lambda) <span class="sc">-</span> <span class="dv">1</span>) <span class="sc">/</span> </span>
+<span id="cb54-3"><a href="#cb54-3" aria-hidden="true" tabindex="-1"></a>                                      lambda_BC<span class="sc">$</span>lambda)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Agora, rodamos um modelo à partir da variável normalizada</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb55"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb55-1"><a href="#cb55-1" aria-hidden="true" tabindex="-1"></a>modelo_multi_dummy_bc <span class="ot">&lt;-</span> <span class="fu">lm</span>(mpg_bc <span class="sc">~</span> hp <span class="sc">+</span> cyl_6 <span class="sc">+</span> cyl_8, <span class="at">data =</span> df_fct_dummy)</span>
+<span id="cb55-2"><a href="#cb55-2" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(modelo_multi_dummy_bc)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Call:
+lm(formula = mpg_bc ~ hp + cyl_6 + cyl_8, data = df_fct_dummy)
+
+Residuals:
+     Min       1Q   Median       3Q      Max 
+-0.39210 -0.10988  0.00825  0.12000  0.25619 
+
+Coefficients:
+              Estimate Std. Error t value Pr(&gt;|t|)    
+(Intercept)  3.5423440  0.0857082  41.330  &lt; 2e-16 ***
+hp          -0.0013086  0.0008317  -1.573  0.12686    
+cyl_6       -0.2665453  0.0884876  -3.012  0.00545 ** 
+cyl_8       -0.4571997  0.1255607  -3.641  0.00109 ** 
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+Residual standard error: 0.1698 on 28 degrees of freedom
+Multiple R-squared:  0.7533,    Adjusted R-squared:  0.7269 
+F-statistic:  28.5 on 3 and 28 DF,  p-value: 1.176e-08</code></pre>
+</div>
+</div>
+<p>Aplicamos o stepwise:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb57"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb57-1"><a href="#cb57-1" aria-hidden="true" tabindex="-1"></a>modelo_multi_dummy_bc_step <span class="ot">&lt;-</span> <span class="fu">step</span>(modelo_multi_dummy_bc,<span class="at">k =</span> <span class="fl">3.841459</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Start:  AIC=-102.38
+mpg_bc ~ hp + cyl_6 + cyl_8
+
+        Df Sum of Sq     RSS      AIC
+- hp     1   0.07140 0.87901 -103.506
+&lt;none&gt;               0.80761 -102.375
+- cyl_6  1   0.26171 1.06932  -97.234
+- cyl_8  1   0.38243 1.19004  -93.812
+
+Step:  AIC=-103.51
+mpg_bc ~ cyl_6 + cyl_8
+
+        Df Sum of Sq    RSS      AIC
+&lt;none&gt;               0.8790 -103.506
+- cyl_6  1   0.43376 1.3128  -94.512
+- cyl_8  1   2.38966 3.2687  -65.320</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb59"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb59-1"><a href="#cb59-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(modelo_multi_dummy_bc_step)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Call:
+lm(formula = mpg_bc ~ cyl_6 + cyl_8, data = df_fct_dummy)
+
+Residuals:
+     Min       1Q   Median       3Q      Max 
+-0.38659 -0.09683  0.01522  0.09418  0.27927 
+
+Coefficients:
+            Estimate Std. Error t value Pr(&gt;|t|)    
+(Intercept)  3.43421    0.05249  65.422  &lt; 2e-16 ***
+cyl_6       -0.31843    0.08418  -3.783 0.000719 ***
+cyl_8       -0.62284    0.07015  -8.879 9.11e-10 ***
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+Residual standard error: 0.1741 on 29 degrees of freedom
+Multiple R-squared:  0.7315,    Adjusted R-squared:  0.713 
+F-statistic:  39.5 on 2 and 29 DF,  p-value: 5.246e-09</code></pre>
+</div>
+</div>
+<p>Agora, podemos validar os resíduos à normalidade:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb61"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb61-1"><a href="#cb61-1" aria-hidden="true" tabindex="-1"></a><span class="fu">sf.test</span>(modelo_multi_dummy_bc_step<span class="sc">$</span>residuals)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+    Shapiro-Francia normality test
+
+data:  modelo_multi_dummy_bc_step$residuals
+W = 0.97015, p-value = 0.4273</code></pre>
+</div>
+</div>
+<p>Adicoinamos os fitted na base e comparando os residuos:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb63"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb63-1"><a href="#cb63-1" aria-hidden="true" tabindex="-1"></a>df_fct_dummy<span class="sc">$</span>fit <span class="ot">&lt;-</span> modelo_multi_dummy_bc_step<span class="sc">$</span>fitted.values</span>
+<span id="cb63-2"><a href="#cb63-2" aria-hidden="true" tabindex="-1"></a>df_fct_dummy<span class="sc">$</span>residuos <span class="ot">&lt;-</span> modelo_multi_dummy_bc_step<span class="sc">$</span>residuals</span>
+<span id="cb63-3"><a href="#cb63-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb63-4"><a href="#cb63-4" aria-hidden="true" tabindex="-1"></a>  df_fct_dummy <span class="sc">|&gt;</span> </span>
+<span id="cb63-5"><a href="#cb63-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> residuos)) <span class="sc">+</span></span>
+<span id="cb63-6"><a href="#cb63-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_histogram</span>(<span class="fu">aes</span>(<span class="at">y =</span> ..density..), </span>
+<span id="cb63-7"><a href="#cb63-7" aria-hidden="true" tabindex="-1"></a>                 <span class="at">color =</span> <span class="st">"grey50"</span>, </span>
+<span id="cb63-8"><a href="#cb63-8" aria-hidden="true" tabindex="-1"></a>                 <span class="at">fill =</span> <span class="st">"grey90"</span>, </span>
+<span id="cb63-9"><a href="#cb63-9" aria-hidden="true" tabindex="-1"></a>                 <span class="at">bins =</span> <span class="dv">30</span>,</span>
+<span id="cb63-10"><a href="#cb63-10" aria-hidden="true" tabindex="-1"></a>                 <span class="at">alpha =</span> <span class="fl">0.6</span>) <span class="sc">+</span></span>
+<span id="cb63-11"><a href="#cb63-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">stat_function</span>(<span class="at">fun =</span> dnorm, </span>
+<span id="cb63-12"><a href="#cb63-12" aria-hidden="true" tabindex="-1"></a>                <span class="at">args =</span> <span class="fu">list</span>(<span class="at">mean =</span> <span class="fu">mean</span>(modelo_multi_dummy_bc_step<span class="sc">$</span>residuals),</span>
+<span id="cb63-13"><a href="#cb63-13" aria-hidden="true" tabindex="-1"></a>                            <span class="at">sd =</span> <span class="fu">sd</span>(modelo_multi_dummy_bc_step<span class="sc">$</span>residuals)),</span>
+<span id="cb63-14"><a href="#cb63-14" aria-hidden="true" tabindex="-1"></a>                <span class="fu">aes</span>(<span class="at">color =</span> <span class="st">"Curva Normal Teórica"</span>),</span>
+<span id="cb63-15"><a href="#cb63-15" aria-hidden="true" tabindex="-1"></a>                <span class="at">size =</span> <span class="dv">2</span>) <span class="sc">+</span></span>
+<span id="cb63-16"><a href="#cb63-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_color_manual</span>(<span class="st">"Legenda:"</span>,</span>
+<span id="cb63-17"><a href="#cb63-17" aria-hidden="true" tabindex="-1"></a>                     <span class="at">values =</span> <span class="st">"#FDE725FF"</span>) <span class="sc">+</span></span>
+<span id="cb63-18"><a href="#cb63-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">"Resíduos"</span>,</span>
+<span id="cb63-19"><a href="#cb63-19" aria-hidden="true" tabindex="-1"></a>       <span class="at">y =</span> <span class="st">"Frequência"</span>) <span class="sc">+</span></span>
+<span id="cb63-20"><a href="#cb63-20" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">panel.background =</span> <span class="fu">element_rect</span>(<span class="st">"white"</span>),</span>
+<span id="cb63-21"><a href="#cb63-21" aria-hidden="true" tabindex="-1"></a>        <span class="at">panel.grid =</span> <span class="fu">element_line</span>(<span class="st">"grey95"</span>),</span>
+<span id="cb63-22"><a href="#cb63-22" aria-hidden="true" tabindex="-1"></a>        <span class="at">panel.border =</span> <span class="fu">element_rect</span>(<span class="cn">NA</span>),</span>
+<span id="cb63-23"><a href="#cb63-23" aria-hidden="true" tabindex="-1"></a>        <span class="at">legend.position =</span> <span class="st">"bottom"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="RegLinear-01_files/figure-html/unnamed-chunk-30-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<p>Salvando os fitted na base:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb64"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb64-1"><a href="#cb64-1" aria-hidden="true" tabindex="-1"></a>df_fct_dummy<span class="sc">$</span>fit_bc_step <span class="ot">&lt;-</span> (((modelo_multi_dummy_bc_step<span class="sc">$</span>fitted.values<span class="sc">*</span>(lambda_BC<span class="sc">$</span>lambda))<span class="sc">+</span></span>
+<span id="cb64-2"><a href="#cb64-2" aria-hidden="true" tabindex="-1"></a>                                    <span class="dv">1</span>))<span class="sc">^</span>(<span class="dv">1</span><span class="sc">/</span>(lambda_BC<span class="sc">$</span>lambda))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Visualizando:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb65"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb65-1"><a href="#cb65-1" aria-hidden="true" tabindex="-1"></a>df_fct_dummy <span class="sc">|&gt;</span> </span>
+<span id="cb65-2"><a href="#cb65-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x=</span>mpg, <span class="at">y=</span>mpg))<span class="sc">+</span></span>
+<span id="cb65-3"><a href="#cb65-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_smooth</span>(<span class="fu">aes</span>(<span class="at">y =</span> mpg), <span class="at">method =</span> <span class="st">"lm"</span>, </span>
+<span id="cb65-4"><a href="#cb65-4" aria-hidden="true" tabindex="-1"></a>              <span class="at">color =</span> <span class="st">"green"</span>, <span class="at">size =</span> <span class="fl">1.05</span>,</span>
+<span id="cb65-5"><a href="#cb65-5" aria-hidden="true" tabindex="-1"></a>              <span class="at">linetype =</span> <span class="st">"longdash"</span>) <span class="sc">+</span></span>
+<span id="cb65-6"><a href="#cb65-6" aria-hidden="true" tabindex="-1"></a> <span class="co"># geom_point(aes(y=fit_1), color = "blue") +</span></span>
+<span id="cb65-7"><a href="#cb65-7" aria-hidden="true" tabindex="-1"></a> <span class="co"># geom_point(aes(y=fit_2), color = "orange") +</span></span>
+<span id="cb65-8"><a href="#cb65-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="fu">aes</span>(<span class="at">y=</span>fit_bc_step), <span class="at">color =</span> <span class="st">"darkgray"</span>) </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="RegLinear-01_files/figure-html/unnamed-chunk-32-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<p>Comparando os modelos uni e multi-variado com variável dummy:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb66"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb66-1"><a href="#cb66-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(modelo_uni)<span class="sc">$</span>adj.r.squared</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 0.5891853</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb68"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb68-1"><a href="#cb68-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(modelo_multi_dummy_step)<span class="sc">$</span>adj.r.squared</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 0.714009</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb70"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb70-1"><a href="#cb70-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(modelo_multi_dummy_bc_step)<span class="sc">$</span>adj.r.squared</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 0.7129751</code></pre>
+</div>
+</div>
+<p>Observamos que o R2 ajustado (para comparação de modelos) é bem maior quando dicionamos a variável cyl.</p>
+<p>#Modelo multi-nivel</p>
+<p>Agora veremos uma abordagem multi-nivel, onde os betas são estimados em relação à grupos que adicionam</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb72"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb72-1"><a href="#cb72-1" aria-hidden="true" tabindex="-1"></a>df_pred <span class="ot">&lt;-</span> <span class="fu">tibble</span>(<span class="at">hp =</span> <span class="dv">190</span>, <span class="at">cyl_6 =</span> <span class="dv">0</span>, <span class="at">cyl_8 =</span> <span class="dv">1</span>)  </span>
+<span id="cb72-2"><a href="#cb72-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb72-3"><a href="#cb72-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb72-4"><a href="#cb72-4" aria-hidden="true" tabindex="-1"></a>fit <span class="ot">&lt;-</span> <span class="fu">predict</span>(modelo_multi_dummy_bc_step, df_pred)</span>
+<span id="cb72-5"><a href="#cb72-5" aria-hidden="true" tabindex="-1"></a>df_pred <span class="ot">&lt;-</span> df_pred <span class="sc">|&gt;</span> <span class="fu">mutate</span> (<span class="at">fit =</span> ((fit <span class="sc">*</span> lambda_BC<span class="sc">$</span>lambda) <span class="sc">+</span> <span class="dv">1</span>)<span class="sc">^</span>(<span class="dv">1</span><span class="sc">/</span>(lambda_BC<span class="sc">$</span>lambda)))</span>
+<span id="cb72-6"><a href="#cb72-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb72-7"><a href="#cb72-7" aria-hidden="true" tabindex="-1"></a>df_pred </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 1 × 4
+     hp cyl_6 cyl_8   fit
+  &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt;
+1   190     0     1  14.9</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb74"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb74-1"><a href="#cb74-1" aria-hidden="true" tabindex="-1"></a>df_fct_dummy<span class="sc">$</span>cyl <span class="ot">&lt;-</span> df_fct<span class="sc">$</span>cyl</span>
+<span id="cb74-2"><a href="#cb74-2" aria-hidden="true" tabindex="-1"></a>df_fct_dummy <span class="sc">|&gt;</span> </span>
+<span id="cb74-3"><a href="#cb74-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x=</span>cyl, <span class="at">y=</span>mpg))<span class="sc">+</span></span>
+<span id="cb74-4"><a href="#cb74-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>()<span class="sc">+</span></span>
+<span id="cb74-5"><a href="#cb74-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_text_repel</span>(<span class="fu">aes</span>(<span class="at">label=</span>name))<span class="sc">+</span></span>
+<span id="cb74-6"><a href="#cb74-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_jitter</span>(<span class="fu">aes</span>(<span class="at">y=</span>fit_bc_step), <span class="at">color =</span> <span class="st">"blue"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="RegLinear-01_files/figure-html/unnamed-chunk-35-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+</section>
+</section>
+<section id="teste-de-heterocedasticidade" class="level1">
+<h1>Teste de Heterocedasticidade:</h1>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb75"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb75-1"><a href="#cb75-1" aria-hidden="true" tabindex="-1"></a><span class="co">#Diagnóstico de Heterocedasticidade para o Modelo Stepwise com Box-Cox</span></span>
+<span id="cb75-2"><a href="#cb75-2" aria-hidden="true" tabindex="-1"></a>olsrr<span class="sc">::</span><span class="fu">ols_test_breusch_pagan</span>(modelo_multi_dummy_bc_step)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+ Breusch Pagan Test for Heteroskedasticity
+ -----------------------------------------
+ Ho: the variance is constant            
+ Ha: the variance is not constant        
+
+               Data                
+ ----------------------------------
+ Response : mpg_bc 
+ Variables: fitted values of mpg_bc 
+
+        Test Summary         
+ ----------------------------
+ DF            =    1 
+ Chi2          =    0.1363347 
+ Prob &gt; Chi2   =    0.7119523 </code></pre>
+</div>
+</div>
+</section>
+<section id="analise-multi-nível" class="level1">
+<h1>Analise multi-nível</h1>
+<p>TBD</p>
 </section>
 
 </main>
