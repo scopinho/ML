@@ -7,8 +7,6 @@ format:
     toc: true
     html-math-method: katex
     css: styles.css
-editor_options: 
-  chunk_output_type: inline
 ---
 
 ```{r}
@@ -29,7 +27,8 @@ library(car)
 ```{r}
 # Selecionar base mtcars e criar uma coluna com os nomes dos modelos
 df <- mtcars |> 
-  rownames_to_column(var = "name")
+  rownames_to_column(var = "name") |> as_tibble()
+
 df
 ```
 
@@ -45,7 +44,7 @@ df |>
 ```
 
 ## Teste de Normalidade Shapiro-Francia
-Veja que este NÃO é uma premissa para usa da técnica, isso é geralmente na validação dos resíduos. Estamos apenas apresentando como fazer o teste e analisando a variável dependente.
+Veja que este **NÃO** é uma premissa para uso da técnica, isso é geralmente na validação dos resíduos conforme veremos mais adiante. Estamos apenas apresentando como fazer o teste e analisando a variável dependente.
 
 
 ```{r}
@@ -94,7 +93,7 @@ df |>
 No caso de uma regressão linear simples, temos a seguinte equação:
 
 Função: 
-$\hat{y} = \alpha + \beta \* x1$
+$\hat{y} = \alpha + \beta * X1$
 
 O código abaixo, através da função "lm" irá criar um modelo de regressão linear simples, estimando os parâmetros para a equação de nossa reta.
 Não iremos cobrir os detalhes deste processo, mas há diversos métodos para encontrar estes coeficientes, como Mínimos Quadrados Ordinários (OLS), Máxima Verossimilhança (MLE), entre outros.
@@ -105,11 +104,11 @@ modelo_uni <- lm(mpg ~ hp, data = df)
 modelo_uni
 ```
 
-Onde, o $\hat{y}$ representa o valor previsto de nosso modelo, o $\alpha$ o intercepto da reta e o $\beta$ a inclinação da reta. $\* x1$ neste caso seria nossa variável explicativa (hp).
+Onde, o $\hat{y}$ representa o valor previsto de nosso modelo, o $\alpha$ o intercepto da reta e o $\beta$ a inclinação da reta. $X1$ neste caso seria nossa variável explicativa (hp).
 
 Neste caso, nosssa função ficaria:
 
-$\hat{y} = (30.09886) + [(-0.06823) * x1]$
+$\hat{y} = (30.09886) + [(-0.06823) * X1]$
 
 Ou seja, se quisermos prever o consumo (mpg) à partir apenas da variável explicativa potencia (hp), faríamos:
 
@@ -353,15 +352,19 @@ previsao <- predict(modelo_multi_2_bc, newdata = df_previsao_bc)
 
 ## Visualizando a inferência:
 
-
 Neste caso, como temos duas variáveis explicativas, iremos criar um gráfico 3D para visualizar o hiper-plano da regressão:
 
-
 ```{r}
-grafico <- scatterplot3d::scatterplot3d(df2$mpg_bc ~ df2$hp + df$wt,
-                                        angle = 35, color = "steelblue",box=F)
-grafico$plane3d(modelo_multi_2_bc, col="black", draw_polygon = T)
+plot_ly(df2, x= ~mpg, y=~hp, z=~wt) |> 
+  add_markers(name = "Dados Treino") |> 
+  add_markers(x = 18.83, y = 190, z = 3.0, 
+              name = "Previsao") 
 ```
+
+
+:::callout-warning
+Observe que até o momento, utilziamos variáveis explicativas quantitativas. Caso precise utilizar variáveis, você precisará fazer um processo transformando a variável qualitativa em variáveis "dummy".
+:::
 
 <!-- ## Visualizando as correlações (ERRADO) -->
 <!-- A seguir, iremos analisar as correlações e criar um modelo linear de forma similar à que fizemos até aqui.  -->
