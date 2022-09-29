@@ -717,7 +717,13 @@ Como podemos observar, nosso modelo não quebra as premissas para este tipo de t
 
 Este modelo seria representado pela seguinte equação:
 
-$mpg = 5.1418 +(-0.2912 *log(hp))+(-0.1952*wt)$
+$mpg = ((5.1418 +(-0.2912 *log(hp))+(-0.1952*wt)*0.0296)+1)^{(1/0.02956537)}$
+
+Para um veículo com hp = 190 e wt = 2.62, sabendo que o lambda de Box-Cox é de 0.02956537, teríamos:
+
+$mpg = (((5.1418  - (0.2912 * log(110)) - (0.1952 * 2.62)) * 0.02956537) + 1)^{(1/0.02956537)}$
+
+$mpg = 22.5$
 
 ## Bônus
 
@@ -725,7 +731,9 @@ Para finalizar, deixaremos um código exemplo de como utilzar a função **stepA
 
 $AIC =2K-2ln(L)$ onde:
 
-$K$ é o número de variáveis explicativas e $L$ é a estimativa de máxima verossimilhança.
+$K$ é o número de variáveis explicativas no modelo e $L$ é a estimativa de máxima verossimilhança do modelo.
+
+Quanto **menor** o AIC **melhor** o ajuste do modelo.
 
 ```{r}
 df_fct <- df |> mutate (cyl = as_factor(cyl),
@@ -739,4 +747,13 @@ mod.nulo <- lm(mpg ~ 1, df_fct)
 MASS::stepAIC(mod.inicial, scope = list(upper=mod.inicial,
                                         lower=mod.nulo),
               direction = "backward")
+```
+
+Veja, que por esse método, porém sem as transformações, o AIC escolhido seria de 61.65. Nosso modelo final ficou com um AIC de:
+
+```{r}
+#Usando a função AIC e o número de parâmetro do modelo
+AIC(modelo_multi_4_hp_log, k=2)
+# ou usando a função glance do pacote broom:
+broom::glance(modelo_multi_4_hp_log)
 ```

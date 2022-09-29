@@ -794,7 +794,7 @@ W = 0.92792, p-value = 0.03427</code></pre>
 <span id="cb53-4"><a href="#cb53-4" aria-hidden="true" tabindex="-1"></a>car<span class="sc">::</span><span class="fu">durbinWatsonTest</span>(modelo_multi_1)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code> lag Autocorrelation D-W Statistic p-value
-   1       0.2954091      1.362399   0.044
+   1       0.2954091      1.362399   0.036
  Alternative hypothesis: rho != 0</code></pre>
 </div>
 </div>
@@ -894,7 +894,7 @@ W = 0.95845, p-value = 0.2145</code></pre>
 <span id="cb66-4"><a href="#cb66-4" aria-hidden="true" tabindex="-1"></a>car<span class="sc">::</span><span class="fu">durbinWatsonTest</span>(modelo_multi_2_bc)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code> lag Autocorrelation D-W Statistic p-value
-   1       0.1855612      1.601514   0.186
+   1       0.1855612      1.601514   0.194
  Alternative hypothesis: rho != 0</code></pre>
 </div>
 </div>
@@ -956,8 +956,8 @@ BP = 3.2947, df = 2, p-value = 0.1926</code></pre>
 <span id="cb77-3"><a href="#cb77-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">add_markers</span>(<span class="at">x =</span> <span class="fl">18.83</span>, <span class="at">y =</span> <span class="dv">190</span>, <span class="at">z =</span> <span class="fl">3.0</span>, </span>
 <span id="cb77-4"><a href="#cb77-4" aria-hidden="true" tabindex="-1"></a>              <span class="at">name =</span> <span class="st">"Previsao"</span>) </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
-<div id="htmlwidget-7efb194d6a6c89562e59" style="width:100%;height:464px;" class="plotly html-widget"></div>
-<script type="application/json" data-for="htmlwidget-7efb194d6a6c89562e59">{"x":{"visdat":{"13bd261e05595":["function () ","plotlyVisDat"]},"cur_data":"13bd261e05595","attrs":{"13bd261e05595":{"x":{},"y":{},"z":{},"alpha_stroke":1,"sizes":[10,100],"spans":[1,20],"type":"scatter3d","mode":"markers","name":"Dados Treino","inherit":true},"13bd261e05595.1":{"x":18.83,"y":190,"z":3,"alpha_stroke":1,"sizes":[10,100],"spans":[1,20],"type":"scatter3d","mode":"markers","name":"Previsao","inherit":true}},"layout":{"margin":{"b":40,"l":60,"t":25,"r":10},"scene":{"xaxis":{"title":"mpg"},"yaxis":{"title":"hp"},"zaxis":{"title":"wt"}},"hovermode":"closest","showlegend":true},"source":"A","config":{"modeBarButtonsToAdd":["hoverclosest","hovercompare"],"showSendToCloud":false},"data":[{"x":[21,21,22.8,21.4,18.7,18.1,14.3,24.4,22.8,19.2,17.8,16.4,17.3,15.2,10.4,10.4,14.7,32.4,30.4,33.9,21.5,15.5,15.2,13.3,19.2,27.3,26,30.4,15.8,19.7,15,21.4],"y":[110,110,93,110,175,105,245,62,95,123,123,180,180,180,205,215,230,66,52,65,97,150,150,245,175,66,91,113,264,175,335,109],"z":[2.62,2.875,2.32,3.215,3.44,3.46,3.57,3.19,3.15,3.44,3.44,4.07,3.73,3.78,5.25,5.424,5.345,2.2,1.615,1.835,2.465,3.52,3.435,3.84,3.845,1.935,2.14,1.513,3.17,2.77,3.57,2.78],"type":"scatter3d","mode":"markers","name":"Dados Treino","marker":{"color":"rgba(31,119,180,1)","line":{"color":"rgba(31,119,180,1)"}},"error_y":{"color":"rgba(31,119,180,1)"},"error_x":{"color":"rgba(31,119,180,1)"},"line":{"color":"rgba(31,119,180,1)"},"frame":null},{"x":[18.83],"y":[190],"z":[3],"type":"scatter3d","mode":"markers","name":"Previsao","marker":{"color":"rgba(255,127,14,1)","line":{"color":"rgba(255,127,14,1)"}},"error_y":{"color":"rgba(255,127,14,1)"},"error_x":{"color":"rgba(255,127,14,1)"},"line":{"color":"rgba(255,127,14,1)"},"frame":null}],"highlight":{"on":"plotly_click","persistent":false,"dynamic":false,"selectize":false,"opacityDim":0.2,"selected":{"opacity":1},"debounce":0},"shinyEvents":["plotly_hover","plotly_click","plotly_selected","plotly_relayout","plotly_brushed","plotly_brushing","plotly_clickannotation","plotly_doubleclick","plotly_deselect","plotly_afterplot","plotly_sunburstclick"],"base_url":"https://plot.ly"},"evals":[],"jsHooks":[]}</script>
+<div id="htmlwidget-43c03cebd5bd19796558" style="width:100%;height:464px;" class="plotly html-widget"></div>
+<script type="application/json" data-for="htmlwidget-43c03cebd5bd19796558">{"x":{"visdat":{"151f86064897f":["function () ","plotlyVisDat"]},"cur_data":"151f86064897f","attrs":{"151f86064897f":{"x":{},"y":{},"z":{},"alpha_stroke":1,"sizes":[10,100],"spans":[1,20],"type":"scatter3d","mode":"markers","name":"Dados Treino","inherit":true},"151f86064897f.1":{"x":18.83,"y":190,"z":3,"alpha_stroke":1,"sizes":[10,100],"spans":[1,20],"type":"scatter3d","mode":"markers","name":"Previsao","inherit":true}},"layout":{"margin":{"b":40,"l":60,"t":25,"r":10},"scene":{"xaxis":{"title":"mpg"},"yaxis":{"title":"hp"},"zaxis":{"title":"wt"}},"hovermode":"closest","showlegend":true},"source":"A","config":{"modeBarButtonsToAdd":["hoverclosest","hovercompare"],"showSendToCloud":false},"data":[{"x":[21,21,22.8,21.4,18.7,18.1,14.3,24.4,22.8,19.2,17.8,16.4,17.3,15.2,10.4,10.4,14.7,32.4,30.4,33.9,21.5,15.5,15.2,13.3,19.2,27.3,26,30.4,15.8,19.7,15,21.4],"y":[110,110,93,110,175,105,245,62,95,123,123,180,180,180,205,215,230,66,52,65,97,150,150,245,175,66,91,113,264,175,335,109],"z":[2.62,2.875,2.32,3.215,3.44,3.46,3.57,3.19,3.15,3.44,3.44,4.07,3.73,3.78,5.25,5.424,5.345,2.2,1.615,1.835,2.465,3.52,3.435,3.84,3.845,1.935,2.14,1.513,3.17,2.77,3.57,2.78],"type":"scatter3d","mode":"markers","name":"Dados Treino","marker":{"color":"rgba(31,119,180,1)","line":{"color":"rgba(31,119,180,1)"}},"error_y":{"color":"rgba(31,119,180,1)"},"error_x":{"color":"rgba(31,119,180,1)"},"line":{"color":"rgba(31,119,180,1)"},"frame":null},{"x":[18.83],"y":[190],"z":[3],"type":"scatter3d","mode":"markers","name":"Previsao","marker":{"color":"rgba(255,127,14,1)","line":{"color":"rgba(255,127,14,1)"}},"error_y":{"color":"rgba(255,127,14,1)"},"error_x":{"color":"rgba(255,127,14,1)"},"line":{"color":"rgba(255,127,14,1)"},"frame":null}],"highlight":{"on":"plotly_click","persistent":false,"dynamic":false,"selectize":false,"opacityDim":0.2,"selected":{"opacity":1},"debounce":0},"shinyEvents":["plotly_hover","plotly_click","plotly_selected","plotly_relayout","plotly_brushed","plotly_brushing","plotly_clickannotation","plotly_doubleclick","plotly_deselect","plotly_afterplot","plotly_sunburstclick"],"base_url":"https://plot.ly"},"evals":[],"jsHooks":[]}</script>
 </div>
 </div>
 </section>
@@ -1214,14 +1214,18 @@ F-statistic: 111.9 on 2 and 29 DF,  p-value: 2.306e-14</code></pre>
 <p><br>
 Como podemos observar, nosso modelo não quebra as premissas para este tipo de técnica.</p>
 <p>Este modelo seria representado pela seguinte equação:</p>
-<p><span class="math inline">mpg = 5.1418 +(-0.2912 *log(hp))+(-0.1952*wt)</span></p>
+<p><span class="math inline">mpg = ((5.1418 +(-0.2912 *log(hp))+(-0.1952*wt)*0.0296)+1)^{(1/0.02956537)}</span></p>
+<p>Para um veículo com hp = 190 e wt = 2.62, sabendo que o lambda de Box-Cox é de 0.02956537, teríamos:</p>
+<p><span class="math inline">mpg = (((5.1418 - (0.2912 * log(110)) - (0.1952 * 2.62)) * 0.02956537) + 1)^{(1/0.02956537)}</span></p>
+<p><span class="math inline">mpg = 22.5</span></p>
 </section>
 </section>
 <section id="bônus" class="level2">
 <h2 class="anchored" data-anchor-id="bônus">Bônus</h2>
 <p>Para finalizar, deixaremos um código exemplo de como utilzar a função <strong>stepAIC</strong>()do pacote MASS, que realiza o algoritmo stepwise tentando encontrar o melhor modelo, baseado na métrica AIC (Akaike information criteria):</p>
 <p><span class="math inline">AIC =2K-2ln(L)</span> onde:</p>
-<p><span class="math inline">K</span> é o número de variáveis explicativas e <span class="math inline">L</span> é a estimativa de máxima verossimilhança.</p>
+<p><span class="math inline">K</span> é o número de variáveis explicativas no modelo e <span class="math inline">L</span> é a estimativa de máxima verossimilhança do modelo.</p>
+<p>Quanto <strong>menor</strong> o AIC <strong>melhor</strong> o ajuste do modelo.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb102"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb102-1"><a href="#cb102-1" aria-hidden="true" tabindex="-1"></a>df_fct <span class="ot">&lt;-</span> df <span class="sc">|&gt;</span> <span class="fu">mutate</span> (<span class="at">cyl =</span> <span class="fu">as_factor</span>(cyl),</span>
 <span id="cb102-2"><a href="#cb102-2" aria-hidden="true" tabindex="-1"></a>                    <span class="at">vs =</span> <span class="fu">as_factor</span>(vs),</span>
@@ -1335,6 +1339,24 @@ lm(formula = mpg ~ cyl + hp + wt + am, data = df_fct)
 Coefficients:
 (Intercept)         cyl6         cyl8           hp           wt          am1  
    33.70832     -3.03134     -2.16368     -0.03211     -2.49683      1.80921  </code></pre>
+</div>
+</div>
+<p>Veja, que por esse método, porém sem as transformações, o AIC escolhido seria de 61.65. Nosso modelo final ficou com um AIC de:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb105"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb105-1"><a href="#cb105-1" aria-hidden="true" tabindex="-1"></a><span class="co">#Usando a função AIC e o número de parâmetro do modelo</span></span>
+<span id="cb105-2"><a href="#cb105-2" aria-hidden="true" tabindex="-1"></a><span class="fu">AIC</span>(modelo_multi_4_hp_log, <span class="at">k=</span><span class="dv">2</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] -43.43992</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb107"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb107-1"><a href="#cb107-1" aria-hidden="true" tabindex="-1"></a><span class="co"># ou usando a função glance do pacote broom:</span></span>
+<span id="cb107-2"><a href="#cb107-2" aria-hidden="true" tabindex="-1"></a>broom<span class="sc">::</span><span class="fu">glance</span>(modelo_multi_4_hp_log)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+
+<div data-pagedtable="false">
+  <script data-pagedtable-source="" type="application/json">
+{"columns":[{"label":["r.squared"],"name":[1],"type":["dbl"],"align":["right"]},{"label":["adj.r.squared"],"name":[2],"type":["dbl"],"align":["right"]},{"label":["sigma"],"name":[3],"type":["dbl"],"align":["right"]},{"label":["statistic"],"name":[4],"type":["dbl"],"align":["right"]},{"label":["p.value"],"name":[5],"type":["dbl"],"align":["right"]},{"label":["df"],"name":[6],"type":["dbl"],"align":["right"]},{"label":["logLik"],"name":[7],"type":["dbl"],"align":["right"]},{"label":["AIC"],"name":[8],"type":["dbl"],"align":["right"]},{"label":["BIC"],"name":[9],"type":["dbl"],"align":["right"]},{"label":["deviance"],"name":[10],"type":["dbl"],"align":["right"]},{"label":["df.residual"],"name":[11],"type":["int"],"align":["right"]},{"label":["nobs"],"name":[12],"type":["int"],"align":["right"]}],"data":[{"1":"0.8853147","2":"0.8774053","3":"0.1137824","4":"111.9329","5":"2.306031e-14","6":"2","7":"25.71996","8":"-43.43992","9":"-37.57698","10":"0.3754467","11":"29","12":"32"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+  </script>
+</div>
 </div>
 </div>
 </section>
