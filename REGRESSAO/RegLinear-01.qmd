@@ -712,8 +712,26 @@ df3_fct |>
   
 ```
 
-\
-Como podemos observar, nosso modelo não quebra as premissas para este tipo de técnica.
+```{r}
+df3_plot <- df3 |> 
+  dplyr::select(model=name, orig = mpg, fitted = mpg_bc_fitted, hp) |> 
+  mutate(hp = exp(hp)) |> 
+  pivot_longer(cols = c("fitted", "orig")) |> 
+  dplyr::rename (categoria = name, mpg = value) |> 
+  mutate (categoria = as_factor(categoria))
+
+df3_plot_sub <- df3_plot |> 
+  filter(categoria =="orig")
+
+df3_plot |> 
+  group_by(categoria) |> 
+  ggplot(aes(x = hp, y = mpg, color = categoria)) +
+  geom_point(size = 3, alpha = 0.6) +
+  geom_text_repel(data = df3_plot_sub, aes(x = hp, y = mpg, color = categoria,label=model), color="gray", size=2) +
+  theme(legend.position = "bottom") +
+  labs(title="Modelo Final apresentando os \nvalores originais e estimados")
+```
+
 
 Este modelo seria representado pela seguinte equação:
 
@@ -757,3 +775,4 @@ AIC(modelo_multi_4_hp_log, k=2)
 # ou usando a função glance do pacote broom:
 broom::glance(modelo_multi_4_hp_log)
 ```
+
