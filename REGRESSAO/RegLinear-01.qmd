@@ -20,6 +20,7 @@ library (plotly)
 library(MASS)
 library(rgl)
 library(car)
+library(nlme)
 
 ```
 
@@ -37,21 +38,53 @@ df
 
 # Variável dependente
 
-Para nossos experimentos, iremos selecionar como variável dependente o consumo (mpg). Ou seja, tentaremos criar modelo preditivos que, com base em variáveis explicativas, tentarão prever o valor do consumo (mpg) de um automóvel.
+Para nossos experimentos, iremos selecionar como variável dependente o consumo dos veículos por distância rodada (milhas por galão ou mpg). Ou seja, tentaremos criar modelo preditivo que, com base em variáveis explicativas presentes em nossa amostra de dados, tentarão prever o valor do consumo (mpg) de um automóvel.
 
 ## Visualizando a variável dependente
 
-Apenas para começar, vamos dar uma breve olhada em um histograma da variável dependente.
+Apenas para começar, vamos dar uma breve olhada em nossa variável dependente: 
 
 ```{r}
+summary(mtcars$mpg)
+```
+
+Aqui, vemos que temos um consumo mínimo de 10.4 e máximo de 33.9. Vemos também que, a média é de 20.09.
+
+Vejamos agora um histograma da variável dependente.
+
+```{r}
+#| layout-ncol: 2
+
 df |> 
   ggplot(aes(x=mpg)) +
   geom_histogram(binwidth = 2) 
+
+df |> 
+  ggplot(aes(x=mpg)) +
+  geom_histogram(aes(y=after_stat(density)), binwidth = 2) +
+  geom_density()
 ```
+O gráfico da esquerda, nos mostra um histograma da variável dependente (mpg), ou seja, como as observações são distribuídas nas classes dentre os seus valores. 
+Já o gráfico da direita, nos mostra também a estimativa de densidade kernel, que é uma forma não paramétrica de estimar a função de densidade de probabilidade (FDP) de uma vaiável. No eixo y, vemos valores que vão de 0 até 1, ou seja, de 0% até 100% de probabilidade.
+
 
 ## Teste de Normalidade Shapiro-Francia
 
-Veja que este **NÃO** é uma premissa para uso da técnica de regressão linear, isso é geralmente na validação dos resíduos conforme veremos mais adiante. Estamos apenas apresentando como fazer o teste e analisando a variável dependente.
+Podemos também, adicionar uma variável que segue a curva normal e adicioná-la ao gráfico anterior:
+
+```{r}
+set.seed(123)
+df$fp <- rnorm(rnorm(32), mean = mean(df$mpg), sd = sd(df$mpg))
+
+df |> 
+  ggplot(aes(x=mpg))+
+  geom_histogram(aes(y=after_stat(density)), binwidth = 2) +
+  geom_density() +
+  stat_function(aes(x=fp), fun = dnorm, args = list(mean = mean(df$fp), sd = sd(df$fp)),color = "blue")
+```
+Aqui, observamos que nossa estimativa de densidade kernel (em preto) se aproxima de uma função distribuíção de probabilidade de uma curva normal (em azul). Apenas para sabermos se podemos afirmar que nossa variável dependente segue uma distribuíção normal, vamos fazer o teste estatístico de Shapiro-Francia.  
+
+Veja que esta **NÃO** é uma premissa para uso da técnica de regressão linear, isso é geralmente na validação dos resíduos conforme veremos mais adiante. Estamos apenas apresentando como fazer o teste e analisando a variável dependente.
 
 ```{r}
 # Teste de normalidade Shapiro-Francia
@@ -59,15 +92,18 @@ Veja que este **NÃO** é uma premissa para uso da técnica de regressão linear
 sf.test(df$mpg)
 ```
 
-Neste caso, observamos que nossa variável dependente tem uma forma funcional normal.
+Neste caso, observamos que nossa variável dependente tem uma forma funcional aderente à uma normal.
 
-# Regressão univariada
+# Regressão Simples
 
-Como já temos nossa variável dependente o consumo (mpg), iremos agora definir como variável explicativa, a potência (hp). A idéia é tentar criar um modelo preditivo em função desta variável explicativa.
+Como já temos nossa variável dependente o consumo (mpg), iremos agora definir como variável explicativa, a potência (hp). A idéia é tentar criar um modelo preditivo em função apenas desta variável explicativa.
 
 ## Correlação
 
-Iremos inicialmente entender como a variável dependente (mpg) está relacionada com a variável explicativa (hp). Por se tratar de duas variáveis quantitativas, iremos utilizar a correlação de **Pearson**. Este é um coeficiente que informa o quão forte é esta correlação, variando de -1 até 1. Sendo: - Negativa (-1) - Quanto **maior** a variável dependente **menor** a variável explicativa - Neutra (0) - Não há correlação entre as variáveis - Positiva (1) - Quanto **maior** a variável dependente **maior** a variável
+Iremos inicialmente entender como a variável dependente (mpg) está relacionada com a variável explicativa (hp). Por se tratar de duas variáveis quantitativas, iremos utilizar a correlação de **Pearson**. Este é um coeficiente que informa o quão forte é esta correlação, variando de -1 até 1. Sendo: 
+- **Negativa** (-1) - Quanto **maior** a variável dependente **menor** a variável explicativa 
+- **Neutra** (0) - Não há correlação entre as variáveis 
+- **Positiva** (1) - Quanto **maior** a variável dependente **maior** a variável
 
 ```{r}
 # Variável explicativa escolhida = hp
@@ -76,11 +112,11 @@ cor(df$mpg, df$hp)
 DataExplorer::plot_correlation(df[c("mpg", "hp")])
 ```
 
-Nesta caso temos uma considerável correlação negativa (-0.78), ou seja, quanto menor a potência, maior o consumo.
+Nesta caso temos uma considerável correlação negativa (-0.78), ou seja, quanto maior a potência (hp), menor a quantidade de milhas por galão (mpg).
 
-## Gráfico de dispersão:
+## Gráfico de dispersão
 
-Através do gráfico abaixo, podemos ter uma intuição visual do que representa a correlação de -0.78. Veja que se traçarmos uma reta atráves dos pontos, quanto maior o valor de mpg, menor o valor de hp e vice versa.
+Através do gráfico abaixo, podemos ter uma intuição visual do que representa a correlação de -0.78. Veja que se traçarmos uma reta atráves dos pontos, quanto maior o valor de mpg, menor o valor de hp e vice versa. Cada ponto no gráfico representa uma observação em nossa tabela de dados.
 
 ```{r}
 df |> 
@@ -92,9 +128,10 @@ df |>
 
 ## Criando um modelo linear simples
 
-No caso de uma regressão linear simples, temos a seguinte equação:
+No caso de uma regressão linear simples, temos a seguinte equação que define a **melhor reta** entre os pontos do gráfico anterior.
+Entende-se como **melhor reta** aquela que apresenta a somatória dos resíduos deve ser igual à zero e a somatória dos resíduos ao quadrado for a mínima possível.
 
-Função: $\hat{y} = \alpha + \beta * X1$
+Função: $\hat{Y}_i = \alpha + \beta * X1_i$
 
 O código abaixo, através da função "lm" irá criar um modelo de regressão linear simples, estimando os parâmetros para a equação de nossa reta. Neste caso, iremos utilizar o método "OLS" (Ordinary Least Square) para estimativa dos parâmetros desta equação. Não iremos cobrir os detalhes deste processo, mas há diversos métodos para encontrar estes coeficientes, como Mínimos Quadrados Ordinários (OLS), Máxima Verossimilhança (MLE), entre outros.
 
@@ -104,13 +141,13 @@ modelo_uni <- lm(mpg ~ hp, data = df)
 modelo_uni
 ```
 
-Onde, o $\hat{y}$ representa o valor previsto de nosso modelo, o $\alpha$ o intercepto da reta, ou seja, que valor teórico termos caso a variável explicativa fosse zero. Temos também o $\beta$ que é inclinação da reta, ou seja, o quanto da variável explicativa é impactada em uma unidade. $X1$ neste caso, é o valor da nossa variável explicativa (hp).
+Onde, o $\hat{Y}$ representa o valor previsto de nosso modelo, o $\alpha$ o intercepto da reta, ou seja, que valor teórico teremos caso a variável explicativa fosse zero. Temos também o $\beta$ que é inclinação da reta, ou seja, o quanto da variável explicativa é impactada em uma unidade. $X1$ neste caso, é o valor da nossa variável explicativa (hp).
 
 Olhando estes coeficientes, podemos dizer que a cada 0.07 reduzida no valor da potência, aumentamos em uma milha por galão nosso consumo (mpg=miles per galon).
 
 Neste caso, nossa função ficaria:
 
-$\hat{y} = (30.09886) + [(-0.06823) * X1]$
+$\hat{Y} = (30.09886) + [(-0.06823) * X1]$
 
 Ou seja, se quisermos prever o consumo (mpg) à partir apenas da variável explicativa potencia (hp), faríamos:
 
@@ -124,7 +161,7 @@ Ou seja, nosso modelo prevê um consumo de **17.13** milhas por galão se um ve�
 
 ## Analizando o Modelo
 
-Com o modelo criado anteriormente, podemos juntar nossas estimativas (fitted values) à base de dados originais e comparar nossos resultados:
+Com o modelo criado anteriormente, podemos juntar nossas estimativas (aka fitted values) à base de dados originais e comparar nossos resultados:
 
 ```{r}
 media_mpg = round(summarise(df, m = mean(mpg))[[1]],1)
@@ -156,11 +193,11 @@ Com o modelo criado anteriormente, podemos também utilizar a função **summary
 summary(modelo_uni)
 ```
 
-Há diversos resultados a serem observados, dentre eles, podemos observar que a estatística F, com p-value menor que 0.05 basicamente nos indica que nosso modelo é estatisticamente melhor que um modelo onde não temos uma variável explicativa, ou seja, melhor que apenas usando a média dos valores conforme vimos anteriormente em nosso gráfico.
+Há diversos resultados a serem observados, dentre eles, podemos observar que a estatística F, com valor de p (p-value) menor que 0.05 basicamente nos indica que nosso modelo é estatisticamente melhor que um modelo onde não temos uma variável explicativa, ou seja, melhor que apenas usando a média dos valores conforme vimos anteriormente em nosso gráfico.
 
 Observamos também que a cada -0.06823 de redução da potência (hp), temos uma economia de uma unidade de consumo (mpg).
 
-A estatística T, também se mostra significante à 5% de significância para a variável (hp). Isto faz sentido, já que temos apenas esta variável em nosso modelo e já vimos que tínhamos modelo atraǘes da estatística F.
+A estatística T, também se mostra significante à 5% de significância para a variável (hp). Isto faz sentido, já que temos apenas esta variável em nosso modelo e já vimos que tínhamos modelo através da estatística F.
 
 Usando a função **predict**().
 
@@ -195,7 +232,7 @@ Coeficiente de ajuste do modelo $R^2$
 
 O coeficiente $R^2$ é também chamado de coeficiente de ajuste do modelo, ou seja, o quanto da variância da variável dependente pode ser explicada pela variável explicativa.
 
-Utilizamos a função summary para obter seu valor. Também podemos utilizar a correlação de Pearson calculada anteriormente para calculá-lo, pois seu valor é a correlação de Pearson $R$ ao quadrado.
+Utilizamos a função **summary**() para obter seu valor. Também podemos utilizar a correlação de Pearson calculada anteriormente para calculá-lo, pois seu valor é a correlação de Pearson $R$ ao quadrado.
 
 ```{r}
 #Obtendo o R2
@@ -207,9 +244,9 @@ sqrt(summary(modelo_uni)$r.squared)
 
 # Variável Explicativa Qualitativa
 
-Até o momento, criamos um modelo, onde a variável explicativa (X), era quantitativa. Mas e quando temos uma variável explicativa (X) qualitativa.
+Até o momento, criamos um modelo, onde a variável explicativa (X), era quantitativa. Mas e quando temos uma variável explicativa (X) qualitativa?
 
-Digamos que iremos tentar prever nossa variável dependente (mpg) através da variável de números de cilindros (cyl). Se seguirmos os passos vistos até aqui, faríamos algo como, verificar sua correlação e depois criar um modelo univariado. Vejamos o que poderia ocorrer:
+Digamos que iremos tentar prever nossa variável dependente (mpg) através da variável de números de cilindros (cyl). Se seguirmos os passos vistos até aqui, faríamos algo como, verificar sua correlação e depois criar um modelo de regressão simples. Vejamos o que poderia ocorrer:
 
 ## Visualizando as correlações (ERRADO)
 
@@ -244,9 +281,9 @@ summary (modelo_uni_errado)
 
 Vemos que os testes F e T tem seus p-valores menores que 5% (portanto passam nos testes de significância estatísticas). Vemos também que o $R²$ nos diz que este modelo explica 73% da variância de nossa variável dependente.
 
-Se seguirmos com a análise de nossos resultados do modelo, vemos que o valor do $\beta$ está em -2.87. Isto, em tese, deveria nos dizer que, com uma redução de 2.87 cilindros, teríamos uma melhoria no consumo de uma unidade, ou seja, uma milha por galão (mpg). Oppssss...estranho, não é mesmo?
+Se seguirmos com a análise de nossos resultados do modelo, vemos que o valor do $\beta$ está em -2.87. Isto, em tese, deveria nos dizer que, com uma redução de 2.87 cilindros, teríamos uma melhoria no consumo de uma unidade, ou seja, uma milha por galão (mpg). Oppssss...estranho, pois temos a possibilidade real de termos veículos de 4, 6 ou 8 cilindros.
 
-Pode não ser tão evidente, mas o modelo criado é **incorreto**, pois a variável "cyl", apesar de em nosso dataset estar configurada como "double" (quatitativa), ela é apenas um "label" para definir o tipo de cilindro é o automóvel, portanto é qualitativa.
+Pode não ser tão evidente, mas o modelo criado é **incorreto**, pois a variável "cyl", apesar de em nosso dataset estar configurada como "double" (quatitativa), ela é apenas uma categoria ("label") para definir o tipo de cilindro é o automóvel, portanto é qualitativa.
 
 Quando temos uma variável **qualitativa**, não temos média ou outras estatísticas de variáveis quantitativas. No máximo, podemos montar uma **tabela frequência**. Veja abaixo como ficaria a tabela de frequência (absoluta e relativa) da variável "cyl"
 
@@ -262,7 +299,7 @@ as_tibble(table(df$cyl),
   
 ```
 
-Como nossa variável "cyl" na tabela, está como tipo double, a função lm(), está tratando seus valores numéricos, ou seja, as diferenças entre 4, 6 e 8 como se fosse uma variável quantitativa e isto está incorreto!!!
+Como nossa variável "cyl" na tabela, está como tipo double, a função lm(), está tratando seus valores numéricos, ou seja, as diferenças entre 4, 6 e 8 como se fosse uma variável quantitativa e isto está **incorreto**!!!
 
 ## Ponderação Arbitrária
 
@@ -282,7 +319,7 @@ Por exemplo: Veículos de 8 cilindros com diferença de 4.6 para os de 6 cilindr
 
 ### Visualizando as diferenças com ponderação arbitrária
 
-Visualizando o modelo errado (com ponderação arbitrária de 1, 2 e 3 e as médias corretas (em vermelho):
+Visualizando o **modelo errado** (com ponderação arbitrária de 1, 2 e 3 e as médias corretas (em vermelho):
 
 ```{r}
 df |>
@@ -312,7 +349,8 @@ A discrepância entre os valores lineares trazedos por uma ponderação arbitrá
 
 ## Ajuste das variáveis qualitativas
 
-Para adequar devidamente variáveis explicativas (x) categóricas para utilizarmos em modelos OLS, devemos criar variáveis adicionais "dummies". Apesar da função **lm**() conseguir lidar com variáveis qualitativas ao utilizarmos fatores, faremos isto através da função **dummy_columns**() para detalhar o processo por trás deste método. Iremos, a seguir, criar um data frame com a variável "cyl" como **fator** ao invés de double. Depois iremos utilzar a função **dummy_collumns** do pacote fastDummies para criar as variáveis dummies com base nos níveis dos fatores presentes:
+Para adequar devidamente variáveis explicativas (x) categóricas para utilizarmos em modelos OLS, devemos criar variáveis adicionais "dummies". Apesar da função **lm**() conseguir lidar com variáveis qualitativas ao utilizarmos fatores, faremos isto através da função **dummy_columns**() para detalhar o processo por trás deste método. 
+Iremos, a seguir, criar um data frame com a variável "cyl" como **fator** ao invés de double. Depois iremos utilzar a função **dummy_collumns** do pacote **fastDummies** para criar as variáveis dummies com base nos níveis dos fatores presentes:
 
 ```{r}
 df_fct <- df |> mutate (cyl = as_factor(cyl))
@@ -323,13 +361,13 @@ df_fct_dummy <- fastDummies::dummy_columns(df_fct, select_columns = "cyl",
 glimpse(df_fct_dummy)
 ```
 
-Neste caso, ele atribui a existência (1) ou não existência (0) para cada categoria da variável quantitativa -1. No caso da variável cilindro, teríamos 3 variáveis, uma para cada categoria. Porém, como sempre uma variável é resultante da ausência das demais, o valor final, será sempre $(1-n\;dummies)$. Em geral, utilizamos a categoria que possui a maior frequência (8 cilindros) como categoria de referência (parâmetro remove_most_frequent_dummy), apenas para exemplificar, escolhemos remover a primeira categoria (4 cilindros) com o parâmetro remove_first_dummy.
+Neste caso, ele atribui a existência (1) ou não existência (0) para cada categoria da variável quantitativa -1. No caso da variável cilindro (cyl), teríamos 3 variáveis, uma para cada categoria. Este procedimento é chamado de "**one-hot-encoding**". Porém, como sempre uma variável é resultante da ausência das demais, o valor final, será sempre $(1-n\;dummies)$. Em geral, utilizamos a categoria que possui a maior frequência (8 cilindros) como categoria de referência (parâmetro remove_most_frequent_dummy), apenas para exemplificar, escolhemos remover a primeira categoria (4 cilindros) com o parâmetro remove_first_dummy.
 
-Agora temos 2 novas variáveis dummys (cyl_6 e cyl_8), sendo que a categoria de referência (cyl_4) é incluída no alpha da equação.
+Agora temos 2 novas variáveis **dummies** (cyl_6 e cyl_8), sendo que a categoria de referência (cyl_4) é incluída no alpha da equação.
 
 Neste caso, nossa equação ficaria:
 
-$\hat y = \alpha + \beta_1 *cyl\_6+\beta_2*cyl\_8$
+$\hat y_i = \alpha + \beta_1 *cyl\_6_i+\beta_2*cyl\_8_i$
 
 Com isso, sempre que tivermos zeros para cyl_6 e cyl_8, automaticamente sabemos que a categoria correponde a cyl_4.
 
@@ -342,7 +380,7 @@ modelo_uni_dummy <- lm(mpg ~ cyl_6 + cyl_8, df_fct_dummy)
 summary (modelo_uni_dummy)
 ```
 
-Apesar de termos feito o processo de dummys, saiba que a função lm() é inteligente o suficiente e já faz este processo quando recebe uma variável factor. Veja:
+Apesar de termos feito o processo de dummies, saiba que a função lm() é inteligente o suficiente e já faz este processo quando recebe uma variável factor. Veja:
 
 ```{r}
 #A função lm() entende quando uma variável é factor como qualitativa e cria as dummies.
@@ -363,9 +401,9 @@ prev <- tribble(~cyl,
 predict(modelo_uni_fct, prev)
 ```
 
-# Regressão multivariada
+# Regressão Multivariada
 
-Adicionando outra variável explicativa peso (wt).
+Até aqui, sempre criamos um modelo de predição com base em apenas uma variável explicativa. Veremos como podemos adicionar mais variáveis explicativas para aumentar a acurácia de nosso modelo. Para exemplificar iremos adicionar a variável explicativa peso (wt). 
 
 ## Correlações
 
@@ -376,9 +414,14 @@ Por se tratar de outra variável quantitativa, iremos utilizar a correlação de
 PerformanceAnalytics::chart.Correlation(df[c("mpg", "hp", "wt")])
 ```
 
-Assim como a potência (hp), em nosso exemplo inicial, vemos que há uma considerável correlação negativa com a variável peso (wt).
+Assim como a potência (hp), em nosso exemplo inicial, vemos que há uma considerável correlação negativa com a variável peso (wt) de -0.87.
+
+Da mesma maneira que a regressão linear simples, também temos a equação que define uma regressão linear multivariada:
+
+Função: $\hat{Y}_i = \alpha + \beta_1 * X_{1i} + \beta_2 * X_{2i} + ...+\beta_{K} * X_{K_i}$
 
 ## Criando um modelo multivariado
+Iremos agora utilizar nossa função **lm**() para criar o modelo multivariado.
 
 ```{r}
 #Função lm para obter os coeficientes alpha e beta das duas variáveis (hp e wt)
@@ -394,14 +437,14 @@ summary(modelo_multi_1)
 
 ## Comparando os modelos
 
-Podemos utilizar o $R^2$ para comparar o coeficiente de ajuste dos modelos:
+Podemos utilizar o $R^2$ **ajustado** para comparar o coeficiente de ajuste dos modelos:
 
 ```{r}
-summary(modelo_uni)$r.squared
-summary(modelo_multi_1)$r.squared
+summary(modelo_uni)$adj.r.squared
+summary(modelo_multi_1)$adj.r.squared
 ```
 
-Neste caso, observamos que adicionando a variável peso, conseguimos explicar 82% da variância da variável dependente de consumo (mpg) ao invés dos 60% quando tínhamos apenas a variável pontência (hp).
+Neste caso, observamos que adicionando a variável peso, conseguimos explicar 81% da variância da variável dependente de consumo (mpg) ao invés dos 59% quando tínhamos apenas a variável pontência (hp).
 
 ## Resíduos e Homocedasticidade
 
@@ -409,13 +452,13 @@ A regressão linear possui algumas premissas que devem ser observadas. Os gráfi
 
 ```{r}
 par(mfrow=c(2,2))
-
 plot (modelo_multi_1)
 ```
 
 Para validar a leitura dos gráficos anteriores, podemos utilizar os testes estatísticos a seguir:
 
-**Normalidade dos resíduos**:
+**Normalidade dos resíduos**
+
 
 ```{r}
 # Teste sharpiro-francia (ou sharpiro-wilk para amostrar < 30)
@@ -514,7 +557,7 @@ lmtest::bptest(modelo_multi_2_bc)
 
 Salvando os fitted values Box-Cox:
 
-Como fizemos o modelo com os valores transformados, precisamos lembrar de aplicar a fórmula inversa para termos o valor de mpg adequado:
+Como fizemos o modelo com os valores transformados, precisamos lembrar de aplicar a fórmula inversa para termos o valor de **mpg** adequado:
 
 ```{r}
 df2$mpg_bc_fitted <- (((modelo_multi_2_bc$fitted.values*(lambda_BC$lambda))+
@@ -558,7 +601,7 @@ plot_ly(df2, x= ~mpg, y=~hp, z=~wt) |>
 
 Temos um importante ponto a ser discutido quando se trata de modelos multi-variados. Se trata da multi-colinearidade e também das significâncias das variáveis na presença de outras variáveis explicativas.
 
-Como vimos anteriormente, nosso modelo multi-variado, utilzando as variáveis **hp** e **wt**, teve um melhor ajuste que nosso modelo univariado utilzando apenas a variável **hp**. Digamos que agora, desejamos introduzir uma nova variável por acreditarmos que ela pode melhorar ainda mais nosso modelo. Ao olharmos as correlações com a variável dependente "mpg", observamos que a variável deslocamento "disp" tem forte correlação negativa com a variável dependente.
+Como vimos anteriormente, nosso modelo multivariado, utilzando as variáveis **hp** e **wt**, teve um melhor ajuste que nosso modelo simples utilzando apenas a variável **hp**. Digamos que agora, desejamos introduzir uma nova variável por acreditarmos que ela pode melhorar ainda mais nosso modelo. Ao olharmos as correlações com a variável dependente "mpg", observamos que a variável deslocamento "disp" tem forte correlação negativa com a variável dependente.
 
 ```{r}
 cor(df$mpg, df$disp)
@@ -570,14 +613,14 @@ Com isso, criamos um modelo simples, apenas com esta variável, e vemos que ela 
 summary(lm(mpg ~ disp, df))
 ```
 
-Com isso, decidimos introduzi-la em nosso modelo multi-variado, juntamente com as variaveis hp e wt com a intenção de deixá-lo ainda melhor.
+Com isso, decidimos introduzi-la em nosso modelo multivariado, juntamente com as variáveis **hp** e **wt** com a intenção de deixá-lo ainda melhor.
 
 ```{r}
 modelo_multi_3_autocor <- lm(mpg ~hp+wt+disp, df)
 summary(modelo_multi_3_autocor)
 ```
 
-Depois de analisar seu resultado através da função **summary**(), vemos que ela não passa em nosso test T, com p-value de 0.92851.
+Depois de analisar seu resultado através da função **summary**(), vemos que ela não passa em nosso teste T, com p-value de 0.92851.
 
 Isto ocorre, pois há uma forte correlação entre variáveis explicativas, neste caso entre disp e wt e um pouco menos forte entre disp e hp. Veja:
 
@@ -587,7 +630,7 @@ df |> dplyr::select (mpg, hp, wt, disp) |> correlation::correlation(method = "pe
 
 Devido à isto, a variável disp, se torna menos relevante na presença das demais.
 
-A função ols_vif_tol do pacote olsrr nos ajuda a fazer este disgnóstico de multi-colinearidade através do fator de inflação de variância (VIF) que vai de 1 até +(infinito) ou Tolerância (Tolerance) que vai de 0 até 1:
+A função **ols_vif_tol**() do pacote **olsrr** nos ajuda a fazer este disgnóstico de multi-colinearidade através do fator de **Inflação de Variância (VIF)** que vai de 1 até +(infinito) ou **Tolerância** (Tolerance) que vai de 0 até 1:
 
 ```{r}
 # Tol: quanto mais próximo de 1 melhor.
@@ -597,7 +640,7 @@ olsrr::ols_vif_tol(modelo_multi_3_autocor)
 
 Em modelos com muitas variáveis explicativas, pode ser bastante demandante fazer manualmente a troca de variáveis, pois como vimos, algumas que são significativamente relevante para o modelo, podem deixar de sê-lo na presença de outras.
 
-Para isto, há um algoritmo, chamado **stepwise** que remove as variáveis que não atingem o nível de significância definido e também já elemina às variáveis com alto nível de multicolinearidade. Vejamos como poderíamos utilzar em nosso modelo que contém a variável "disp":
+Para isto, há um algoritmo, chamado **stepwise** que remove as variáveis que não atingem o nível de significância definido e também já elemina às variáveis com alto nível de multicolinearidade. Vejamos como poderíamos utilizar em nosso modelo que contém a variável "disp":
 
 ```{r}
 modelo_multi_3_step <- step(modelo_multi_3_autocor, k = 3.841459)
@@ -612,7 +655,7 @@ Veja que o procedimento **stepwise** remove a variável "disp" automaticamente d
 
 ## Tranformações nas variáveis explicativas
 
-Em alguns casos, as variáveis explicativas, também podem ser transformadas de maneira a adequar melhor sua forma funcional. Por exemplo, podemos ter cenários, onde a variável $X$ pode ter uma forma quadrátiva ($X^2$), logartimica ($log(X)$), etc. Nestes casos, podemos lançar mão de estratégias de transformação também para as variáveis explicativas. Vejamos este caso:
+Em alguns casos, as variáveis explicativas, também podem ser transformadas de maneira a adequar melhor sua forma funcional. Por exemplo, podemos ter cenários, onde a variável $X$ pode ter uma forma quadrátiva ($X^2$), logaritmica ($log(X)$), etc. Nestes casos, podemos lançar mão de estratégias de transformação também para as variáveis explicativas. Vejamos este caso:
 
 Nossa variável hp, é tem sua cauda direita ligeriamente esticada:
 
@@ -624,7 +667,7 @@ df |> ggplot(aes(x=hp))+
   labs(title = "Variável hp ANTES da transformação")
 ```
 
-Se fizermos uma transformação logartimica, podemos deixá-la mais próxima de uma distribuição normal, veja:
+Se fizermos uma transformação logaritmica, podemos deixá-la mais próxima de uma distribuição normal, veja:
 
 ```{r}
 df |> ggplot(aes(x=log(hp)))+
@@ -634,9 +677,9 @@ df |> ggplot(aes(x=log(hp)))+
   labs(title = "Variável hp DEPOIS da transformação")
 ```
 
-Não entraremos em detalhes sobre estas transformações neste artigo, mas é importante saber que estas são técnicas muito importantes para a acurácia de modelos reais.
+Não entraremos em detalhes sobre estas transformações neste artigo, mas é importante saber que estas são técnicas muito importantes para melhoria da acurácia de modelos reais.
 
-Vejamos como ficaria um novo modelo, se implementássemos a transformação da variável explicativa (hp) juntamente com o modelo multi-variado com transformação de box-cox:
+Vejamos como ficaria um novo modelo, se implementássemos a transformação da variável explicativa (hp) juntamente com o modelo multivariado com transformação de box-cox:
 
 ```{r}
 #Transformação Logn da variável hp.
@@ -658,11 +701,11 @@ df3$mpg_bc_fitted <- (((modelo_multi_4_hp_log$fitted.values*(lambda_BC$lambda))+
                                     1))^(1/(lambda_BC$lambda))
 ```
 
-Observe que as variáveis explicativas se mantém relevantes e o $R^2$ ajustado foi maior que o modelo anterior.
+Observe que as variáveis explicativas se mantém relevantes e o $R^2$ **ajustado** foi maior que o modelo anterior.
 
 ## Comparando os modelos
 
-Para comparar os modelos iremos utilzar o $R²$ ajustado:
+Para comparar os modelos criados até aqui iremos utilizar o $R²$ **ajustado**:
 
 ```{r}
 modelos <- list(uni_hp = modelo_uni, 
@@ -670,7 +713,7 @@ modelos <- list(uni_hp = modelo_uni,
                 multi_hp_wt = modelo_multi_1, 
                 multi_hp_wt_bc = modelo_multi_2_bc,
                 multi_hp_wt_step = modelo_multi_3_step,
-                multi_hp_wt_log = modelo_multi_4_hp_log)
+                multi_hp_wt_log_bc = modelo_multi_4_hp_log)
 r2_ajustado <- map_dfr(modelos, ~ summary(.)$adj.r.squared) |> 
   pivot_longer(cols = everything(), names_to = "modelo", values_to = "R2_ajustado")
 r2_ajustado
@@ -684,14 +727,19 @@ r2_ajustado |>
   geom_col()+
   geom_label(aes(label = round(R2_ajustado,2)), vjust = 0, show.legend = F)+
   scale_y_continuous(limits = c(0, 1))+
-  labs(title = "R2 ajustados dos modelos",x="Modelo",y="R2 Ajustado")
+  labs(title = "R2 ajustados dos modelos",x="Modelo",y="R2 Ajustado")+
+  theme(axis.text.x = element_text(angle = 90))
 ```
 
-Com isto, temos o modelo multi-variado com transformação de Box-Cox na variável dependente e transformação logartimica na variável explicativa hp com o maior coeficiente de ajuste.
+Com isto, temos o modelo **multivariado** com transformação de **Box-Cox** na variável dependente e transformação **logaritmica** na variável explicativa hp com o maior coeficiente de ajuste.
+
+:::callout-note
+Há diversas outras técnicas de regressão como regressões **polinomiais**, modelos **multi-níveis**, etc que podem ser ainda mais adequados para encontrar ajustes melhores do modelo. Apresentamos aqui apenas uma breve introdução sobre o tema.
+:::
 
 ### Modelo Final
 
-Visualizando o modelo com maior R2 até aqui:
+Visualizando o modelo com maior R2:
 
 ```{r}
 # Ajustando os fatores e junto os fitted values do modelo:
@@ -732,6 +780,13 @@ df3_plot |>
   labs(title="Modelo Final apresentando os \nvalores originais e estimados")
 ```
 
+```{r}
+df3_fct |> 
+  ggplot(aes(x = mpg, y = mpg))+
+  geom_line(linetype = "dashed")+
+  geom_point(aes(y = mpg_bc_fitted), color = "blue", alpha = 0.6, size = 2)
+```
+
 
 Este modelo seria representado pela seguinte equação:
 
@@ -743,36 +798,65 @@ $mpg = (((5.1418  - (0.2912 * log(110)) - (0.1952 * 2.62)) * 0.02956537) + 1)^{(
 
 $mpg = 22.5$
 
-## Bônus
+<!-- ## Bônus -->
 
-Para finalizar, deixaremos um código exemplo de como utilzar a função **stepAIC**()do pacote MASS, que realiza o algoritmo stepwise tentando encontrar o melhor modelo, baseado na métrica AIC (Akaike information criteria):
+<!-- Para finalizar, deixaremos um código exemplo de como utilzar a função **stepAIC**()do pacote MASS, que realiza o algoritmo stepwise tentando encontrar o melhor modelo, baseado na métrica AIC (Akaike information criteria): -->
 
-$AIC =2K-2ln(L)$ onde:
+<!-- $AIC =2K-2ln(L)$ onde: -->
 
-$K$ é o número de variáveis explicativas no modelo e $L$ é a estimativa de máxima verossimilhança do modelo.
+<!-- $K$ é o número de variáveis explicativas no modelo e $L$ é a estimativa de máxima verossimilhança do modelo. -->
 
-Quanto **menor** o AIC **melhor** o ajuste do modelo.
+<!-- Quanto **menor** o AIC **melhor** o ajuste do modelo. -->
 
-```{r}
-df_fct <- df |> mutate (cyl = as_factor(cyl),
-                    vs = as_factor(vs),
-                    am = as_factor(am),
-                    gear = as_factor(gear),
-                    carb = as_factor(carb))
-mod.inicial <- lm(mpg ~ . - name, df_fct)
-mod.nulo <- lm(mpg ~ 1, df_fct)
+<!-- ```{r} -->
+<!-- df_fct <- df |> mutate (cyl = as_factor(cyl), -->
+<!--                     vs = as_factor(vs), -->
+<!--                     am = as_factor(am), -->
+<!--                     gear = as_factor(gear), -->
+<!--                     carb = as_factor(carb)) -->
+<!-- mod.inicial <- lm(mpg ~ . - name, df_fct) -->
+<!-- mod.nulo <- lm(mpg ~ 1, df_fct) -->
 
-MASS::stepAIC(mod.inicial, scope = list(upper=mod.inicial,
-                                        lower=mod.nulo),
-              direction = "backward")
-```
+<!-- MASS::stepAIC(mod.inicial, scope = list(upper=mod.inicial, -->
+<!--                                         lower=mod.nulo), -->
+<!--               direction = "backward") -->
+<!-- ``` -->
 
-Veja, que por esse método, porém sem as transformações, o AIC escolhido seria de 61.65. Nosso modelo final ficou com um AIC de:
+<!-- Veja, que por esse método, porém sem as transformações, o AIC escolhido seria de 61.65. Nosso modelo final ficou com um AIC de: -->
 
-```{r}
-#Usando a função AIC e o número de parâmetro do modelo
-AIC(modelo_multi_4_hp_log, k=2)
-# ou usando a função glance do pacote broom:
-broom::glance(modelo_multi_4_hp_log)
-```
+<!-- ```{r} -->
+<!-- #Usando a função AIC e o número de parâmetros do modelo -->
+<!-- AIC(modelo_multi_4_hp_log, k=2) -->
+<!-- # ou usando a função glance do pacote broom: -->
+<!-- broom::glance(modelo_multi_4_hp_log) -->
+<!-- ``` -->
+
+<!-- ```{r} -->
+<!-- # Mixed Model - Modelo Multi-nível -->
+<!-- # OLS Nulo -->
+<!-- modelo_ols_nulo <- lm (formula = mpg ~ 1, data = df3_fct) -->
+<!-- modelo_hml2_nulo <- nlme::lme(fixed = mpg ~ 1, random = ~ 1 | vs, data = df3_fct) -->
+
+<!-- modelo_hml2_intercepto <- nlme::lme(fixed = mpg ~ hp, random = ~ 1 | vs, data = df3_fct) -->
+
+<!-- ctrl <- lmeControl(msMaxIter = 50, -->
+<!--                    maxIter = 50, -->
+<!--                    msTol = 1e-07, -->
+<!--                    msMaxEval = 100,  -->
+<!--                    opt='optim') -->
+<!-- flow.lme <- lme(rate ~ nozzle, error= nozzle|operator, control=ctrl, data=Flow); -->
+<!-- modelo_hml2_inclinacao_hp <- nlme::lme(fixed = mpg ~ hp + wt, random = ~ wt + hp | cyl, -->
+<!--                                        control = ctrl,  -->
+<!--                                        data = df3_fct) -->
+
+
+
+<!-- summary (modelo_hml2_intercepto) -->
+<!-- stderr_nlme(modelo_hml2_intercepto) -->
+<!-- lmtest::lrtest(modelo_ols_nulo, modelo_hml2_nulo, modelo_hml2_nulo,modelo_hml2_intercepto, modelo_hml2_inclinacao_hp) -->
+
+<!-- summary (modelo_hml2_nulo) -->
+<!-- stderr_nlme(modelo_hml2_nulo) -->
+<!-- lmtest::lrtest(modelo_ols_nulo, modelo_hml2_nulo, modelo_hml2_intercepto) -->
+<!-- ``` -->
 
