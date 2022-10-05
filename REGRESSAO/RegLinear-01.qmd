@@ -129,7 +129,7 @@ df |>
 ## Criando um modelo linear simples
 
 No caso de uma regressão linear simples, temos a seguinte equação que define a **melhor reta** entre os pontos do gráfico anterior.
-Entende-se como **melhor reta** aquela que apresenta a somatória dos resíduos deve ser igual à zero e a somatória dos resíduos ao quadrado for a mínima possível.
+Entende-se como **melhor reta** aquela que apresenta a somatória dos resíduos deve ser igual à zero e a somatória dos resíduos ao quadrado for a mínima possível (Mean Square Error - MSE).
 
 Função: $\hat{Y}_i = \alpha + \beta * X1_i$
 
@@ -158,6 +158,20 @@ Por exemplo, de acordo com nosso modelo, para um veículo com 190 de potência, 
 $(30.09886) + [(-0.06823) * 190]$ = $(30.09886) - 12.9637 = \textbf{17.13516}$
 
 Ou seja, nosso modelo prevê um consumo de **17.13** milhas por galão se um veículo tiver **190** de potência.
+
+:::callout-tip
+Apenas como exemplo, vamos criar uma função que calcula a média das soma dos erros ao quadrado (Mean Square Error) e através da função **optim**() iremos buscar os valores de $\alpha$ e $\beta$ para que a soma dos erros ao quadrado seja menor possível.
+
+```{r}
+fr <- function(x){
+  alpha <- x[1]
+  beta1 <- x[2]
+  mean((df$mpg - (alpha + beta1 * df$hp))^2)
+}
+optim(par = c(0,0), fn = fr)
+```
+Veja que os coeficientes de $\alpha = 30.09$ e $\beta = -0.068$ são muito similares aos encontrados pela função **lm**(). 
+:::
 
 ## Analizando o Modelo
 

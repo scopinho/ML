@@ -1,0 +1,175 @@
+---
+title: "Regressão Logística Binária"
+execute: 
+  warning: false
+format:
+  html:
+    toc: true
+    html-math-method: katex
+    css: styles.css
+    df-print: paged
+---
+
+```{r}
+library(tidyverse) 
+library(janitor)
+library(nortest)
+library(DataExplorer)
+library(ggrepel)
+library (plotly)
+library(MASS)
+library(rgl)
+library(car)
+library(nlme)
+library(jtools)
+```
+
+# Introdução
+
+Diferente do que vimos no artigo sobre [Regressão Linear](./RegLinear-01.html) onde criamos um modelo de ML supervisionado para fazer inferências sobre um variável dependente contínua, neste artigo iremos criar modelos onde a variável dependente obedece à uma distribuição de **Bernoulli**. Neste caso, temos uma variável dependente dicotômica (0 ou 1), tendo a probabilidade de um evento ocorrer (p) e dele não ocorrer (1-p).
+
+# Base de Dados
+
+Para os próximos exemplos iremos utilizar a base de dados *TitanicSurvival* que possui informações sobre 1309 passageiros do navio Titanic. Usaremos a variável *survived* como variável dependente e as variáveis sexo, idade e classe como variáveis explicativas.
+
+```{r}
+# Selecionar base TitanicSurvival
+df <- TitanicSurvival |> as_tibble()
+df
+```
+
+:::callout-warning
+Veja que temos variaveis qualitativas tanto para a explicativa quanto para a variavel dependente. Devemos portanto, ou criar as variaveis dummies, conforme vimos no artigo de [Regressao Linear](./RegLinear-01.html), seja de forma manual ou saber exatamente como as funçoes lidam com tais cenarios. 
+:::
+# Variável dependente
+
+Para nossos experimentos, iremos selecionar como variável dependente a **survived** que indica se a pessoa sobreviveu ou não à tragédia do navio Titanic. Ou seja, iremos criar modelo preditivo que, com base em variáveis explicativas presentes (sexo, idade e classe do passageiro) em nossa amostra de dados, tentarão prever se uma pessoa sobreviveria ou não.
+
+## Visualizando a variável dependente
+
+Inicialmente, vejamos a tabela de frequência
+
+```{r}
+#Frequencia absoluta e relativa:
+as_tibble(table(df$survived), 
+          .name_repair = "unique") |>
+  bind_cols(
+    enframe(prop.table(
+    table(df$survived)))
+  ) |> dplyr::select(sobreviventes = name, freq_absoluta = n, freq_relativa=value) |> 
+  mutate (freq_relativa = scales::percent(as.numeric(freq_relativa)))
+```
+
+Aqui, apenas uma gráfico:
+
+```{r}
+df <- TitanicSurvival 
+
+df |> ggplot(aes(survived, fill = survived)) +
+  geom_bar() +
+  geom_label(stat = "count", 
+             aes(label=
+                   paste(..count.., "\n",scales::percent(after_stat(count/sum(count))))), 
+             show.legend = F,
+             position = position_nudge(y=-20))+
+  theme_minimal()
+```
+
+
+# Logito
+
+Diferente da regressão linear, onde a saída era um valor quantitativo definido pelas variáveis preditoras e respetivos parâmetros calculados para minimizar os erros do modelo, na regressão logística binomial, iremos calcular a **probabilidade**($p$) do evento **ocorrer** ou **não ocorrer** com base no comportamente das variáveis preditoras.
+
+Se definirmos um vetor $Z$ com as variáveis explicativas como:
+
+$Z_i = \alpha + \beta_1 * X_1 + \beta_2 * X_{2i} + \beta_k * X_{ki}$
+
+em que $Z$ é conhecido como *logito* e não representa a variável dependente, mas sim equivale ao logaritmo natural ($ln$) da *chance* (odds).
+
+**Chance** é um conceito estatístico definido por:
+
+$chance (odds)_{Y_i=1} = \dfrac{p_i}{1 - p_i}$
+
+Já que nosso objetivo é calcular a **probabilidade** *p* do evento **ocorrer**, temos então:
+
+$p_i = \dfrac{1}{1 + \mathrm{e}^{-Z_i}}$
+
+E a probailidade do evento **não ocorrer** é:
+
+$1 - p_i = \dfrac{1}{1 + \mathrm{e}^{Z_i}}$
+
+Ao criarmos um gráfico de um conjunto de logitos aleatório, por exemplo de -5 à +5, temos uma curva conhecida como "curva S" ou "sigmóide":
+
+```{r}
+tibble(Z = seq(-5,5)) |> 
+  mutate (p = 1/(1 + exp(1)^(Z*-1))) |> 
+  ggplot(aes(Z,p)) +
+  geom_point(size = 3) +
+  geom_line(linetype = "dashed")
+```
+
+Então, quando estimarmos o logito em função das variáveis explicativas, conseguiremos estimar a probabildade do evento ocorrer.
+
+# Máxima Verossimilhança
+
+Enquanto na regressão linear (OLS) fizemos às estimativas dos coeficientes através dos mínimos quadrados ordinários, iremos estimar os coeficientes **maximizando** a função de verossimilhança (MLE).
+
+$$LL=\sum_{n=i}^{n} [(Y_i) * ln(\dfrac {\mathrm{e}^{Z_i}} 
+{1 + \mathrm{e}^{Z_i}})] + [(1-Y_i) * ln(\dfrac {1} 
+{1 + \mathrm{e}^{Z_i}})] = máx$$
+
+# Modelo Logístico Binomial
+
+Usaremos a função **gml**() do R para criar o modelo.
+
+Vamos inicalmente criar um modelo logístico binomial bivariado, ou seja, com apenas a variável dependente (survived) e uma variável explicativa (sex).
+
+```{r}
+#Removendo missing values antes.
+df <- drop_na(TitanicSurvival)
+#Criando o modelo:
+modelo_log_bin_01 <- glm(formula = survived ~ sex, family = "binomial", data = df)
+```
+
+:::callout-important
+Observe o uso do parâmetro **family="binomial"** para que a função glm entenda que queremos uma distribuição de bernoulli. 
+:::
+
+Já que não fizemos a criação da variável dependen dummy manualmente, é importante sabermos o que estamos tratando como "evento", pois o "yes" e "no" da variável não necessariamente determina a probabildade do evento.
+
+Podemos definir manualmente 0 para o não evento e 1 para o evento em nosso dataset, mas como temos a variável do tipo fator (factor), o R pega o primeiro nível por ordem alfabética e define como não evento e o outro como evento. Veja:
+
+```{r}
+levels (df$survived)
+```
+
+Veja que os mesmos coeficientes do modelo são apresentados se ajustarmos manualmente a variável.
+
+```{r}
+df |> 
+  mutate (survived = case_when(survived == "no" ~ 0,
+                               TRUE ~ 1)) %>% 
+  glm(formula = survived ~ sex, family = "binomial", data = .) -> modelo_log_bin_02
+
+jtools::export_summs(modelo_log_01, modelo_log_bin_02, scale = F, digits = 4)
+```
+
+Observe também que a variável explicativa sexo (sex) deve ser "dummizada". Não fizemos este processo manualmente, pois a função glm() já entende este processo devido ao tipo da variável no dataset ser factor. Mas podemos confirmar que a variável referência foi a "female", devido à ordem no fator.
+
+# Comparando os valores previstos
+
+```{r}
+df$fit_bin_01 <- modelo_log_bin_01$fitted.values
+
+df |> 
+  ggplot(aes(x=survived, fill = sex)) +
+  geom_bar(stat = "count", aes(y=..prop..), position = "dodge2") +
+  geom_label(stat = "count", aes(group = sex,label = ..prop..)) +
+  geom_jitter(aes(y=as.numeric(survived)-1), color = "blue", width = 0.4, height = 0.05)
+```
+
+
+```{r}
+
+```
+
