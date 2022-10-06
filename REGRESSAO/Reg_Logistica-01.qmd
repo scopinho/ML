@@ -8,6 +8,8 @@ format:
     html-math-method: katex
     css: styles.css
     df-print: paged
+    code-fold: true
+    code-summary: "Mostrar código-fonte"
 ---
 
 ```{r}
@@ -22,6 +24,7 @@ library(rgl)
 library(car)
 library(nlme)
 library(jtools)
+library(questionr)
 ```
 
 # Introdução
@@ -60,10 +63,10 @@ as_tibble(table(df$survived),
   mutate (freq_relativa = scales::percent(as.numeric(freq_relativa)))
 ```
 
-Aqui, apenas uma gráfico:
+Aqui, apenas a tabela em forma gráfica. Vemos que apenas 38% das pessoas sobreviveram.
 
 ```{r}
-df <- TitanicSurvival 
+df <- TitanicSurvival
 
 df |> ggplot(aes(survived, fill = survived)) +
   geom_bar() +
@@ -74,21 +77,21 @@ df |> ggplot(aes(survived, fill = survived)) +
              position = position_nudge(y=-20))+
   theme_minimal()
 ```
-
-
 # Logito
 
-Diferente da regressão linear, onde a saída era um valor quantitativo definido pelas variáveis preditoras e respetivos parâmetros calculados para minimizar os erros do modelo, na regressão logística binomial, iremos calcular a **probabilidade**($p$) do evento **ocorrer** ou **não ocorrer** com base no comportamente das variáveis preditoras.
+Diferente da regressão linear, onde a saída era um valor quantitativo definido pelas variáveis preditoras e respetivos parâmetros calculados para minimizar os erros do modelo, na regressão logística binomial, iremos calcular a **probabilidade**($p$) do evento **ocorrer** ou **não ocorrer** com base no comportamente das variáveis preditoras. Ou seja, a variável dependente será categórica e **dicotômica** (zero ou um).
 
 Se definirmos um vetor $Z$ com as variáveis explicativas como:
 
-$Z_i = \alpha + \beta_1 * X_1 + \beta_2 * X_{2i} + \beta_k * X_{ki}$
+$Z_i = \alpha + \beta_1 * X_1 + \beta_2 * X_{2} + \beta_k * X_{k}$
 
 em que $Z$ é conhecido como *logito* e não representa a variável dependente, mas sim equivale ao logaritmo natural ($ln$) da *chance* (odds).
 
-**Chance** é um conceito estatístico definido por:
+:::callout-note
+**Chance** é um conceito estatístico definido pela razão do evento ocorrer e do evento não ocorrer:
 
 $chance (odds)_{Y_i=1} = \dfrac{p_i}{1 - p_i}$
+:::
 
 Já que nosso objetivo é calcular a **probabilidade** *p* do evento **ocorrer**, temos então:
 
@@ -107,16 +110,63 @@ tibble(Z = seq(-5,5)) |>
   geom_point(size = 3) +
   geom_line(linetype = "dashed")
 ```
+Tabela
 
-Então, quando estimarmos o logito em função das variáveis explicativas, conseguiremos estimar a probabildade do evento ocorrer.
+```{r}
+tibble(Z = seq(-5,5)) |> 
+  mutate (p = 1/(1 + exp(1)^(Z*-1)))
+```
+
+Então, quando calcularmos o logito em função das variáveis explicativas, conseguiremos estimar a probabildade do evento ocorrer.
 
 # Máxima Verossimilhança
 
-Enquanto na regressão linear (OLS) fizemos às estimativas dos coeficientes através dos mínimos quadrados ordinários, iremos estimar os coeficientes **maximizando** a função de verossimilhança (MLE).
+Enquanto na regressão linear (OLS) fizemos às estimativas dos coeficientes através dos mínimos quadrados ordinários, iremos estimar os coeficientes **maximizando** a função de verossimilhança (MLE). 
 
 $$LL=\sum_{n=i}^{n} [(Y_i) * ln(\dfrac {\mathrm{e}^{Z_i}} 
 {1 + \mathrm{e}^{Z_i}})] + [(1-Y_i) * ln(\dfrac {1} 
 {1 + \mathrm{e}^{Z_i}})] = máx$$
+
+Fazemos isto, pois queremos maximizar a probabildade do evento ocorrer em cada uma das observações da amostra. Isto gera uma função produtória, que após manupulações matemáticas, torna-se a função somatória apresentada anteriormente.
+É por isso que pretendemos maximizar a função logaritima de verossimilhança (log likelihood ou LL).
+
+O cáculo dos coeficientes alpha e betas para maximizar a função de verossimilhança é feito automaticamente quando criamos um modelo de regressão logística binária no R, porém, iremos apenas exemplificar, como isto poderia ser feito manualmente.
+
+:::callout-note
+Vamos criar uma função que calcula o log da verossimilhança e através da função **optim**() iremos buscar os valores de $\alpha$ e $\beta$ para que este log (log likelihood) seja maior possível.
+
+```{r}
+# Para simplificar, vamos criar uma função da sigmoid, ou seja, a partir do logito conseguimos calcular a probabilidade.
+
+sigmoid <- function (z) {
+  p <- 1/(1+exp((-z)))
+  return (p)
+}
+
+# Agora vamos definir a função de máxima verossimilhança (neste caso é também chamada de cost-função (ll) )
+
+LL <- function(X, y, par){
+  n <- length(y)
+  p <- sigmoid(X%*%par)
+  J1 <- (1/n) * sum((-y * log(p)) - ((1-y) * log((1-p)))) 
+  J2 <- sum((y * log(p)) + ((1-y) * log((1-p)))) 
+  return (J2)
+}
+
+# Definimos nossas variáveis explicativas em X (incluindo uma coluna com 1 do alpha e um vetor dependente em y. Definimos também valores inicias para o alpha e betas com zeros.
+
+X <- cbind(rep(1,length(df$sex)),as.numeric(df$sex)-1)
+y <- as.numeric(df$survived) - 1
+alpha_beta_iniciais <- c(0,0)
+
+# Usamos a função optim() com fnscale=-1 para MAXIMIZAR a função LL
+
+estimador <- optim(par = alpha_beta_iniciais, X = X, y = y, fn = LL, control=list(fnscale=-1))
+
+estimador$par
+```
+Veja que os coeficientes de $\alpha = 0.98$ e $\beta = -2.42$ serão muito similares aos que encontraremos quando criarmos o modelo pela função **glm**(). 
+:::
 
 # Modelo Logístico Binomial
 
@@ -125,17 +175,16 @@ Usaremos a função **gml**() do R para criar o modelo.
 Vamos inicalmente criar um modelo logístico binomial bivariado, ou seja, com apenas a variável dependente (survived) e uma variável explicativa (sex).
 
 ```{r}
-#Removendo missing values antes.
-df <- drop_na(TitanicSurvival)
 #Criando o modelo:
 modelo_log_bin_01 <- glm(formula = survived ~ sex, family = "binomial", data = df)
+modelo_log_bin_01 
 ```
 
 :::callout-important
-Observe o uso do parâmetro **family="binomial"** para que a função glm entenda que queremos uma distribuição de bernoulli. 
+Observe o uso do parâmetro **family="binomial"** para que a função **glm**() entenda que queremos uma distribuição de **bernoulli**. 
 :::
 
-Já que não fizemos a criação da variável dependen dummy manualmente, é importante sabermos o que estamos tratando como "evento", pois o "yes" e "no" da variável não necessariamente determina a probabildade do evento.
+Já que não fizemos a criação da variável dependente **dummy** manualmente, é importante sabermos o que estamos tratando como "evento", pois o "yes" e "no" da variável não necessariamente determina a probabildade do evento.
 
 Podemos definir manualmente 0 para o não evento e 1 para o evento em nosso dataset, mas como temos a variável do tipo fator (factor), o R pega o primeiro nível por ordem alfabética e define como não evento e o outro como evento. Veja:
 
@@ -151,25 +200,198 @@ df |>
                                TRUE ~ 1)) %>% 
   glm(formula = survived ~ sex, family = "binomial", data = .) -> modelo_log_bin_02
 
-jtools::export_summs(modelo_log_01, modelo_log_bin_02, scale = F, digits = 4)
+jtools::export_summs(modelo_log_bin_01, modelo_log_bin_02, scale = F, digits = 4)
 ```
 
-Observe também que a variável explicativa sexo (sex) deve ser "dummizada". Não fizemos este processo manualmente, pois a função glm() já entende este processo devido ao tipo da variável no dataset ser factor. Mas podemos confirmar que a variável referência foi a "female", devido à ordem no fator.
-
-# Comparando os valores previstos
+Observe também que a variável explicativa sexo (sex) deve ser "dummizada". Não fizemos este processo manualmente, pois a função glm() já entende este processo devido ao tipo da variável no dataset ser do tipo **fator** (factor). Mas podemos confirmar que a variável referência foi a "female", devido à ordem no fator.
 
 ```{r}
-df$fit_bin_01 <- modelo_log_bin_01$fitted.values
-
-df |> 
-  ggplot(aes(x=survived, fill = sex)) +
-  geom_bar(stat = "count", aes(y=..prop..), position = "dodge2") +
-  geom_label(stat = "count", aes(group = sex,label = ..prop..)) +
-  geom_jitter(aes(y=as.numeric(survived)-1), color = "blue", width = 0.4, height = 0.05)
+levels(df$sex)
 ```
 
+
+# Interpretando o Modelo
+
+Vamos inicialmente visualizar as porcentagens dos sobreviventes agrupados pelo sexo:
 
 ```{r}
+#| layout-ncol: 2
 
+
+#Criando uma função auxiliar para agrupar duas variáveis categoricas
+#no ggplot, mas mostrar as proporções em apenas uma
+
+prop_per_x <- function(x, count){
+    df_tmp <- tibble( x = x, count = count)
+    tmp <- df_tmp |> group_by(x) |> summarise(n = sum(count))
+    prop <- left_join(df_tmp, tmp) |> mutate (prop = count/n)
+  return (prop$prop)
+}
+
+#Criando os gráficos
+
+df |> dplyr::select(survived,sex) |> ggplot(aes(survived, fill = sex))+
+  geom_bar(position='dodge2')+
+  geom_label(aes(
+              label=paste(count,"\n",scales::label_percent(accuracy = 0.1)(after_stat(prop_per_x(x, count))))
+              ),
+            stat = "count",
+            position = position_dodge2(width = 0.9),
+            show.legend = FALSE
+            )+
+  geom_label(stat="count",
+             aes(
+                 label = paste(..count..,"\n",scales::label_percent(accuracy = 0.1)
+                 (..count../sum(..count..))),
+             group = survived),
+             show.legend = F,
+             position = position_stack( vjust = 1.05)) +
+   scale_y_continuous(limits = c(NA,900))
+
+
+df |> dplyr::select(survived,sex) |> ggplot(aes(survived, fill = sex))+
+  geom_bar(position='dodge2')+
+  geom_label(stat="count",
+             aes(
+                 label = paste(..count..,"\n",scales::label_percent(accuracy = 0.1)
+                 (..count../sum(..count..))),
+             group = sex),
+             show.legend = F,
+             position = position_dodge2(width = 0.9)) +
+  facet_wrap(vars(sex)) +
+   scale_y_continuous(limits = c(NA,900))
 ```
 
+Agora vamos ver o resumo do modelo criado através da função **summary**()
+
+```{r}
+summary(modelo_log_bin_01)
+```
+Nos modelos de regressão linear, onde temos o R2 para representar a porcentagem de variância da y por se tratar de variável quantitativa, aqui, na logística binária isto não faz mais sentido, pois temos uma variável y dicotômica, então acabamos interpretando atraveś da **probabilidade** do evento ocorrer ou não.
+
+## AIC, BIC e LogLik
+
+Além da própria somatória da função de verossimilhança (log-likelihood), dois outros critérios são bastante utilizados para comparação de modelos logísticos.
+
+**AIC**: Akaike's Information Criterion e **BIC**: Bayesian Information Criterion.
+
+Podemos utilizar diversas funções para obter tais valores. Aqui apresentaremos a função **glance**() do pacote **broom**:
+
+```{r}
+broom::glance(modelo_log_bin_01)
+```
+:::callout-tip
+Lembre-se que quanto menor o AIC e BIC, maior acurácia tem o modelo, enquanto que o Loglik deve ser o maior possível, pois desejamos maximizar a função de verossimilhança, conforme vimos anteriormente.
+:::
+
+## Coeficientes
+
+Analisar o coeficiente dos betas ($\beta$), é utilizado para entender se a influência é maior ou menor que a do evento não ocorrer, porém, devemos lembrar que o valor do $\beta$ corresponde ao valor da unidade **logito** (log da chance - *log odds*) da variável dependente quando dimuni-se X em uma unidade. 
+Como pode-se notar, afimar que o *ln da chance* diminui em 2.425 quando a X aumenta em uma unidade não é muito interpretativo.
+
+Por isso, em geral, analisamos a razão de **chance** (*odds ratio* - OR), ou seja, elevamos o $e$ à potência do *logito* ($\mathrm{e}^Z$), em nosso caso, $\mathrm{e}^-2.475 = 0.08843937$. 
+
+Neste caso, diríamos que a chance de ocorrer o evento da Y (sobreviver), diminui em 0,00884 para cada aumento na unidade de X, como X também é dicotômica, com a categoria de referência em "female", diríamos que a chance diminui em 0,0084 vezes quando o indivídou for homem (male). 
+
+:::callout-warning
+Lembre-se que, apesar de usarmos os termos "chances" e "probabilidade" de forma intercambiável em nosso cotidiano, estes conceitos NÃO são iguais:
+Chance é a razão entre a probabilidade de um evento ocorrer sobre a probabilidade do evento não ocorrer:
+$$chance  = \frac{p_i}{(1-p_i)}$$
+:::
+
+Ainda podemos estimar o **percentual de chance** fazendo $(chance-1)*100$, em nosso caso $(0.08843937 - 1) * 100 = -91.15%, ou seja, a **chance** de um homem sobrevivier é 91.15% vezes menor que de uma mulher. 
+
+Podemos também obter as chances (Odds Ratio - OR) através da função **odds.ratio**() do pacote **questionr**. O interessante desta opção é que já teríamos também os intervalos de confiança (que poderiam ser calculados manualmente obviamente):
+
+```{r}
+questionr::odds.ratio(modelo_log_bin_01)
+```
+
+:::callout-note
+Observe que se no intervalo de confiança da *chance* **conter o 1**, ou do *coeficiente* **conter o 0**, este parâmetro não será considerado estatisticamente igual a zero para o nível de confiança aplicado.
+
+Podemos fazer um teste de Wald para analisar a significância estatística do modelo também.
+
+```{r}
+Anova(modelo_log_bin_01, type="II", test = "Wald")
+```
+:::
+
+
+
+<!-- # Visualizando os valores previstos -->
+
+<!-- ```{r} -->
+<!-- #predict gives the predicted value in terms of logits -->
+<!-- plot.dat <- data.frame(prob = df$survived, -->
+<!--                        sex = df$sex, -->
+<!--                        fit = modelo_log_bin_01$fitted.values) -->
+
+<!-- plot.dat$fit_prob <- exp(plot.dat$fit)/(1+exp(plot.dat$fit)) -->
+
+<!-- library(ggplot2) -->
+<!-- ggplot(plot.dat, aes(x=sex, y=prob)) +  -->
+<!--   geom_point() + -->
+<!--   geom_line(aes(x=sex, y=fit_prob)) -->
+<!-- ``` -->
+
+
+<!-- # Comparando os valores previstos -->
+
+<!-- ```{r} -->
+<!-- df$fit_bin_01 <- modelo_log_bin_01$fitted.values -->
+
+<!-- df |>  -->
+<!--   ggplot(aes(x=survived, fill = sex)) + -->
+<!--   geom_bar(stat = "count", aes(y=..prop..), position = "dodge2") + -->
+<!--   geom_label(stat = "count", aes(group = sex,label = ..prop..)) + -->
+<!--   geom_jitter(aes(y=as.numeric(survived)-1), color = "blue", width = 0.4, height = 0.05) -->
+<!-- ``` -->
+
+# Matriz de confusão
+Uma forma comum de compararmos nossos valores previstos com nosso dados reais, é criar uma matriz de confusão, onde temos nas colunas os valores reais e nas linhas os valores previstos:
+
+```{r}
+table(predict(modelo_log_bin_01, type = "response") >= 0.5, df$survived == "yes")[2:1, 2:1]
+```
+
+Em nosso exemplo, TRUE significa sobreviveu e FALSE não sobreviveu, portanto, podemos ler que acertamos 339 e erramos 161 dos sobreviventes e acertamos 682 dos não sobreviventes  e erramos 127 dos não sobreviventes.
+
+Atraveś desta matriz, utilizaremos o pacote **caret** com a função **confusionMatrix**() para calcular a **Acurácia** (78%), **Sensitividade** (67%) e **Especificidade** (84%) do modelo.
+
+```{r}
+caret::confusionMatrix(table(predict(modelo_log_bin_01, type = "response") >= 0.5, df$survived == "yes")[2:1, 2:1])
+```
+
+# Modelo multivariado
+
+Assim com fizemos em nossos exemplos de [Regressão Linear](./Reg_Linear-01.html), podemos adicionar variáveis preditoras ao modelo. Para exemplificar, iremos adicionar a variável idade (age).
+
+```{r}
+modelo_log_bin_mult_01 <- glm(survived ~ sex + age, data = df, family="binomial")
+
+summary(modelo_log_bin_mult_01)
+```
+Com este resultado, observamos que a variável idade não passa no test z, com o p-valor maior que 5%. Então não devemos incluí-la no modelo, pois não é estatisticamente significante.
+
+Vamos então selecionar outra variável (passengerClass) e criar outro modelo multivariado:
+
+```{r}
+modelo_log_bin_mult_02 <- glm(survived ~ sex + passengerClass, data = df, family="binomial")
+summary(modelo_log_bin_mult_02)
+```
+Agora vemos que tanto a variável de classe do passageiro é estatisticamente significante para as categorias de primeira (referência, segunda e terceira classe)
+
+# Comparando os modelos
+
+Vamos agora montar nossa matriz de confusão e depois comparar os modelos:
+
+```{r}
+caret::confusionMatrix(table(predict(modelo_log_bin_mult_02, type = "response") >= 0.5, df$survived == "yes")[2:1, 2:1])
+```
+E agora avaliar o AIC de cada modelo:
+
+```{r}
+jtools::export_summs(modelo_log_bin_01, modelo_log_bin_mult_02, scale = F, digits = 4)
+```
+Observamos que o modelo multivariado com a variável classe do passageiro, possui um AIC menor, porém com uma acurácia similar ao anterior, portanto, considerando a regra da parssimonia, iremos considerar o modelo mais simples, como escolha. Lembrando que ideia do artigo, é apenas introduzir os conceitos de regressão logística. 

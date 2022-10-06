@@ -125,9 +125,21 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
   <ul>
   <li><a href="#introdução" id="toc-introdução" class="nav-link active" data-scroll-target="#introdução">Introdução</a></li>
   <li><a href="#base-de-dados" id="toc-base-de-dados" class="nav-link" data-scroll-target="#base-de-dados">Base de Dados</a></li>
-  <li><a href="#variável-dependente" id="toc-variável-dependente" class="nav-link" data-scroll-target="#variável-dependente">Variável dependente</a></li>
+  <li><a href="#variável-dependente" id="toc-variável-dependente" class="nav-link" data-scroll-target="#variável-dependente">Variável dependente</a>
+  <ul class="collapse">
+  <li><a href="#visualizando-a-variável-dependente" id="toc-visualizando-a-variável-dependente" class="nav-link" data-scroll-target="#visualizando-a-variável-dependente">Visualizando a variável dependente</a></li>
+  </ul></li>
   <li><a href="#logito" id="toc-logito" class="nav-link" data-scroll-target="#logito">Logito</a></li>
   <li><a href="#máxima-verossimilhança" id="toc-máxima-verossimilhança" class="nav-link" data-scroll-target="#máxima-verossimilhança">Máxima Verossimilhança</a></li>
+  <li><a href="#modelo-logístico-binomial" id="toc-modelo-logístico-binomial" class="nav-link" data-scroll-target="#modelo-logístico-binomial">Modelo Logístico Binomial</a></li>
+  <li><a href="#interpretando-o-modelo" id="toc-interpretando-o-modelo" class="nav-link" data-scroll-target="#interpretando-o-modelo">Interpretando o Modelo</a>
+  <ul class="collapse">
+  <li><a href="#aic-bic-e-loglik" id="toc-aic-bic-e-loglik" class="nav-link" data-scroll-target="#aic-bic-e-loglik">AIC, BIC e LogLik</a></li>
+  <li><a href="#coeficientes" id="toc-coeficientes" class="nav-link" data-scroll-target="#coeficientes">Coeficientes</a></li>
+  </ul></li>
+  <li><a href="#matriz-de-confusão" id="toc-matriz-de-confusão" class="nav-link" data-scroll-target="#matriz-de-confusão">Matriz de confusão</a></li>
+  <li><a href="#modelo-multivariado" id="toc-modelo-multivariado" class="nav-link" data-scroll-target="#modelo-multivariado">Modelo multivariado</a></li>
+  <li><a href="#comparando-os-modelos" id="toc-comparando-os-modelos" class="nav-link" data-scroll-target="#comparando-os-modelos">Comparando os modelos</a></li>
   </ul>
 </nav>
 </div>
@@ -150,6 +162,8 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 </header>
 
 <div class="cell">
+<details>
+<summary>Mostrar código-fonte</summary>
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse) </span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(janitor)</span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(nortest)</span>
@@ -159,19 +173,25 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(MASS)</span>
 <span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(rgl)</span>
 <span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(car)</span>
-<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(nlme)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(nlme)</span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(jtools)</span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(questionr)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
 </div>
 <section id="introdução" class="level1">
 <h1>Introdução</h1>
-<p>Diferente do que vimos no artigo sobre <a href="./RegLinear-01.html">Regressão Linear</a> onde criamos um modelo de ML supervisionado para fazer inferência sobre um variável dependente contínua, neste artigo iremos criar modelos onde a variável dependente obedece à uma distribuição de <strong>Bernoulli</strong>. Neste caso, temos uma variável dependente dicotômica (0 ou 1), tendo a probabilidade de um evento ocorrer (p) e dele não ocorrer (1-p).</p>
+<p>Diferente do que vimos no artigo sobre <a href="./RegLinear-01.html">Regressão Linear</a> onde criamos um modelo de ML supervisionado para fazer inferências sobre um variável dependente contínua, neste artigo iremos criar modelos onde a variável dependente obedece à uma distribuição de <strong>Bernoulli</strong>. Neste caso, temos uma variável dependente dicotômica (0 ou 1), tendo a probabilidade de um evento ocorrer (p) e dele não ocorrer (1-p).</p>
 </section>
 <section id="base-de-dados" class="level1">
 <h1>Base de Dados</h1>
 <p>Para os próximos exemplos iremos utilizar a base de dados <em>TitanicSurvival</em> que possui informações sobre 1309 passageiros do navio Titanic. Usaremos a variável <em>survived</em> como variável dependente e as variáveis sexo, idade e classe como variáveis explicativas.</p>
 <div class="cell">
+<details>
+<summary>Mostrar código-fonte</summary>
 <div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Selecionar base TitanicSurvival</span></span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>df <span class="ot">&lt;-</span> TitanicSurvival <span class="sc">|&gt;</span> <span class="fu">as_tibble</span>()</span>
 <span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>df</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
 <div class="cell-output-display">
 
 <div data-pagedtable="false">
@@ -181,33 +201,123 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 </div>
 </div>
 </div>
+<div class="callout-warning callout callout-style-default callout-captioned">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-caption-container flex-fill">
+Warning
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Veja que temos variaveis qualitativas tanto para a explicativa quanto para a variavel dependente. Devemos portanto, ou criar as variaveis dummies, conforme vimos no artigo de <a href="./RegLinear-01.html">Regressao Linear</a>, seja de forma manual ou saber exatamente como as funçoes lidam com tais cenarios.</p>
+</div>
+</div>
 </section>
 <section id="variável-dependente" class="level1">
 <h1>Variável dependente</h1>
-<p>Para nossos experimentos, iremos selecionar como variável dependente a <strong>survived</strong> que indica se a pessoa sobreviveu ou não à tragédia do navio Titanic. Ou seja, iremos criar modelo preditivo que, com base em variáveis explicativas presentes (sexo, idade e classe) em nossa amostra de dados, tentarão prever se uma pessoa sobreviveria ou não.</p>
+<p>Para nossos experimentos, iremos selecionar como variável dependente a <strong>survived</strong> que indica se a pessoa sobreviveu ou não à tragédia do navio Titanic. Ou seja, iremos criar modelo preditivo que, com base em variáveis explicativas presentes (sexo, idade e classe do passageiro) em nossa amostra de dados, tentarão prever se uma pessoa sobreviveria ou não.</p>
+<section id="visualizando-a-variável-dependente" class="level2">
+<h2 class="anchored" data-anchor-id="visualizando-a-variável-dependente">Visualizando a variável dependente</h2>
+<p>Inicialmente, vejamos a tabela de frequência</p>
+<div class="cell">
+<details>
+<summary>Mostrar código-fonte</summary>
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co">#Frequencia absoluta e relativa:</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="fu">as_tibble</span>(<span class="fu">table</span>(df<span class="sc">$</span>survived), </span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>          <span class="at">.name_repair =</span> <span class="st">"unique"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">bind_cols</span>(</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>    <span class="fu">enframe</span>(<span class="fu">prop.table</span>(</span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>    <span class="fu">table</span>(df<span class="sc">$</span>survived)))</span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">|&gt;</span> dplyr<span class="sc">::</span><span class="fu">select</span>(<span class="at">sobreviventes =</span> name, <span class="at">freq_absoluta =</span> n, <span class="at">freq_relativa=</span>value) <span class="sc">|&gt;</span> </span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span> (<span class="at">freq_relativa =</span> scales<span class="sc">::</span><span class="fu">percent</span>(<span class="fu">as.numeric</span>(freq_relativa)))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+
+<div data-pagedtable="false">
+  <script data-pagedtable-source="" type="application/json">
+{"columns":[{"label":["sobreviventes"],"name":[1],"type":["chr"],"align":["left"]},{"label":["freq_absoluta"],"name":[2],"type":["int"],"align":["right"]},{"label":["freq_relativa"],"name":[3],"type":["chr"],"align":["left"]}],"data":[{"1":"no","2":"809","3":"62%"},{"1":"yes","2":"500","3":"38%"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+  </script>
+</div>
+</div>
+</div>
+<p>Aqui, apenas a tabela em forma gráfica. Vemos que apenas 38% das pessoas sobreviveram.</p>
+<div class="cell">
+<details>
+<summary>Mostrar código-fonte</summary>
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>df <span class="ot">&lt;-</span> TitanicSurvival</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>df <span class="sc">|&gt;</span> <span class="fu">ggplot</span>(<span class="fu">aes</span>(survived, <span class="at">fill =</span> survived)) <span class="sc">+</span></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_bar</span>() <span class="sc">+</span></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_label</span>(<span class="at">stat =</span> <span class="st">"count"</span>, </span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>             <span class="fu">aes</span>(<span class="at">label=</span></span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>                   <span class="fu">paste</span>(..count.., <span class="st">"</span><span class="sc">\n</span><span class="st">"</span>,scales<span class="sc">::</span><span class="fu">percent</span>(<span class="fu">after_stat</span>(count<span class="sc">/</span><span class="fu">sum</span>(count))))), </span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>             <span class="at">show.legend =</span> F,</span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>             <span class="at">position =</span> <span class="fu">position_nudge</span>(<span class="at">y=</span><span class="sc">-</span><span class="dv">20</span>))<span class="sc">+</span></span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<p><img src="Reg_Logistica-01_files/figure-html/unnamed-chunk-4-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+</section>
 </section>
 <section id="logito" class="level1">
 <h1>Logito</h1>
-<p>Deferente da regressão linear, onde a saída era um valor quantitativo definido pelas variáveis preditoras e respetivos parâmetros calculados para minimizar os erros do modelo, na regressão logística binomial, iremos calcular a <strong>probabilidade</strong>(p) do evento ocorrer ou não com base no comportamente das variáveis preditoras. Se definirmos um vetor com as variáveis explicativas como:</p>
-<p><span class="math inline">Z_i = \alpha + \beta_1 * X_1 + \beta_2 * X_{2i} + \beta_k * X_{ki}</span></p>
-<p>em que <span class="math inline">Z</span> é conhecido como <em>logito</em> e não representa a variável dependente, mas sim equivale ao logaritmo natural (<span class="math inline">ln</span>) da <em>chance</em> (odds). Como <strong>chance</strong> equivale a:</p>
+<p>Diferente da regressão linear, onde a saída era um valor quantitativo definido pelas variáveis preditoras e respetivos parâmetros calculados para minimizar os erros do modelo, na regressão logística binomial, iremos calcular a <strong>probabilidade</strong>(<span class="math inline">p</span>) do evento <strong>ocorrer</strong> ou <strong>não ocorrer</strong> com base no comportamente das variáveis preditoras. Ou seja, a variável dependente será categórica e <strong>dicotômica</strong> (zero ou um).</p>
+<p>Se definirmos um vetor <span class="math inline">Z</span> com as variáveis explicativas como:</p>
+<p><span class="math inline">Z_i = \alpha + \beta_1 * X_1 + \beta_2 * X_{2} + \beta_k * X_{k}</span></p>
+<p>em que <span class="math inline">Z</span> é conhecido como <em>logito</em> e não representa a variável dependente, mas sim equivale ao logaritmo natural (<span class="math inline">ln</span>) da <em>chance</em> (odds).</p>
+<div class="callout-note callout callout-style-default callout-captioned">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-caption-container flex-fill">
+Note
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p><strong>Chance</strong> é um conceito estatístico definido pela razão do evento ocorrer e do evento não ocorrer:</p>
 <p><span class="math inline">chance (odds)_{Y_i=1} = \dfrac{p_i}{1 - p_i}</span></p>
-<p>E nosso objetivo é calcular a probabilidade <em>p</em> do evento <strong>ocorrer</strong>, temos:</p>
+</div>
+</div>
+<p>Já que nosso objetivo é calcular a <strong>probabilidade</strong> <em>p</em> do evento <strong>ocorrer</strong>, temos então:</p>
 <p><span class="math inline">p_i = \dfrac{1}{1 + \mathrm{e}^{-Z_i}}</span></p>
 <p>E a probailidade do evento <strong>não ocorrer</strong> é:</p>
 <p><span class="math inline">1 - p_i = \dfrac{1}{1 + \mathrm{e}^{Z_i}}</span></p>
 <p>Ao criarmos um gráfico de um conjunto de logitos aleatório, por exemplo de -5 à +5, temos uma curva conhecida como “curva S” ou “sigmóide”:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">tibble</span>(<span class="at">Z =</span> <span class="fu">seq</span>(<span class="sc">-</span><span class="dv">5</span>,<span class="dv">5</span>)) <span class="sc">|&gt;</span> </span>
-<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span> (<span class="at">p =</span> <span class="dv">1</span><span class="sc">/</span>(<span class="dv">1</span> <span class="sc">+</span> <span class="fu">exp</span>(<span class="dv">1</span>)<span class="sc">^</span>(Z<span class="sc">*-</span><span class="dv">1</span>))) <span class="sc">|&gt;</span> </span>
-<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(Z,p)) <span class="sc">+</span></span>
-<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">size =</span> <span class="dv">3</span>) <span class="sc">+</span></span>
-<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="at">linetype =</span> <span class="st">"dashed"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<details>
+<summary>Mostrar código-fonte</summary>
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">tibble</span>(<span class="at">Z =</span> <span class="fu">seq</span>(<span class="sc">-</span><span class="dv">5</span>,<span class="dv">5</span>)) <span class="sc">|&gt;</span> </span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span> (<span class="at">p =</span> <span class="dv">1</span><span class="sc">/</span>(<span class="dv">1</span> <span class="sc">+</span> <span class="fu">exp</span>(<span class="dv">1</span>)<span class="sc">^</span>(Z<span class="sc">*-</span><span class="dv">1</span>))) <span class="sc">|&gt;</span> </span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(Z,p)) <span class="sc">+</span></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">size =</span> <span class="dv">3</span>) <span class="sc">+</span></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="at">linetype =</span> <span class="st">"dashed"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
 <div class="cell-output-display">
-<p><img src="Reg_Logistica-01_files/figure-html/unnamed-chunk-3-1.png" class="img-fluid" width="672"></p>
+<p><img src="Reg_Logistica-01_files/figure-html/unnamed-chunk-5-1.png" class="img-fluid" width="672"></p>
 </div>
 </div>
-<p>Entção, quando estimarmos o logito em função das variáveis explicativas, conseguiremos estimar a probabildade do evento ocorrer.</p>
+<p>Tabela</p>
+<div class="cell">
+<details>
+<summary>Mostrar código-fonte</summary>
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="fu">tibble</span>(<span class="at">Z =</span> <span class="fu">seq</span>(<span class="sc">-</span><span class="dv">5</span>,<span class="dv">5</span>)) <span class="sc">|&gt;</span> </span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span> (<span class="at">p =</span> <span class="dv">1</span><span class="sc">/</span>(<span class="dv">1</span> <span class="sc">+</span> <span class="fu">exp</span>(<span class="dv">1</span>)<span class="sc">^</span>(Z<span class="sc">*-</span><span class="dv">1</span>)))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+
+<div data-pagedtable="false">
+  <script data-pagedtable-source="" type="application/json">
+{"columns":[{"label":["Z"],"name":[1],"type":["int"],"align":["right"]},{"label":["p"],"name":[2],"type":["dbl"],"align":["right"]}],"data":[{"1":"-5","2":"0.006692851"},{"1":"-4","2":"0.017986210"},{"1":"-3","2":"0.047425873"},{"1":"-2","2":"0.119202922"},{"1":"-1","2":"0.268941421"},{"1":"0","2":"0.500000000"},{"1":"1","2":"0.731058579"},{"1":"2","2":"0.880797078"},{"1":"3","2":"0.952574127"},{"1":"4","2":"0.982013790"},{"1":"5","2":"0.993307149"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+  </script>
+</div>
+</div>
+</div>
+<p>Então, quando calcularmos o logito em função das variáveis explicativas, conseguiremos estimar a probabildade do evento ocorrer.</p>
 </section>
 <section id="máxima-verossimilhança" class="level1">
 <h1>Máxima Verossimilhança</h1>
@@ -215,9 +325,571 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <p><span class="math display">LL=\sum_{n=i}^{n} [(Y_i) * ln(\dfrac {\mathrm{e}^{Z_i}}
 {1 + \mathrm{e}^{Z_i}})] + [(1-Y_i) * ln(\dfrac {1}
 {1 + \mathrm{e}^{Z_i}})] = máx</span></p>
+<p>Fazemos isto, pois queremos maximizar a probabildade do evento ocorrer em cada uma das observações da amostra. Isto gera uma função produtória, que após manupulações matemáticas, torna-se a função somatória apresentada anteriormente. É por isso que pretendemos maximizar a função logaritima de verossimilhança (log likelihood ou LL).</p>
+<p>O cáculo dos coeficientes alpha e betas para maximizar a função de verossimilhança é feito automaticamente quando criamos um modelo de regressão logística binária no R, porém, iremos apenas exemplificar, como isto poderia ser feito manualmente.</p>
+<div class="callout-note callout callout-style-default callout-captioned">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-caption-container flex-fill">
+Note
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Vamos criar uma função que calcula o log da verossimilhança e através da função <strong>optim</strong>() iremos buscar os valores de <span class="math inline">\alpha</span> e <span class="math inline">\beta</span> para que este log (log likelihood) seja maior possível.</p>
 <div class="cell">
+<details>
+<summary>Mostrar código-fonte</summary>
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Para simplificar, vamos criar uma função da sigmoid, ou seja, a partir do logito conseguimos calcular a probabilidade.</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>sigmoid <span class="ot">&lt;-</span> <span class="cf">function</span> (z) {</span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>  p <span class="ot">&lt;-</span> <span class="dv">1</span><span class="sc">/</span>(<span class="dv">1</span><span class="sc">+</span><span class="fu">exp</span>((<span class="sc">-</span>z)))</span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">return</span> (p)</span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a><span class="co"># Agora vamos definir a função de máxima verossimilhança (neste caso é também chamada de cost-função (ll) )</span></span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a>LL <span class="ot">&lt;-</span> <span class="cf">function</span>(X, y, par){</span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a>  n <span class="ot">&lt;-</span> <span class="fu">length</span>(y)</span>
+<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a>  p <span class="ot">&lt;-</span> <span class="fu">sigmoid</span>(X<span class="sc">%*%</span>par)</span>
+<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a>  J1 <span class="ot">&lt;-</span> (<span class="dv">1</span><span class="sc">/</span>n) <span class="sc">*</span> <span class="fu">sum</span>((<span class="sc">-</span>y <span class="sc">*</span> <span class="fu">log</span>(p)) <span class="sc">-</span> ((<span class="dv">1</span><span class="sc">-</span>y) <span class="sc">*</span> <span class="fu">log</span>((<span class="dv">1</span><span class="sc">-</span>p)))) </span>
+<span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a>  J2 <span class="ot">&lt;-</span> <span class="fu">sum</span>((y <span class="sc">*</span> <span class="fu">log</span>(p)) <span class="sc">+</span> ((<span class="dv">1</span><span class="sc">-</span>y) <span class="sc">*</span> <span class="fu">log</span>((<span class="dv">1</span><span class="sc">-</span>p)))) </span>
+<span id="cb7-15"><a href="#cb7-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">return</span> (J2)</span>
+<span id="cb7-16"><a href="#cb7-16" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb7-17"><a href="#cb7-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-18"><a href="#cb7-18" aria-hidden="true" tabindex="-1"></a><span class="co"># Definimos nossas variáveis explicativas em X (incluindo uma coluna com 1 do alpha e um vetor dependente em y. Definimos também valores inicias para o alpha e betas com zeros.</span></span>
+<span id="cb7-19"><a href="#cb7-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-20"><a href="#cb7-20" aria-hidden="true" tabindex="-1"></a>X <span class="ot">&lt;-</span> <span class="fu">cbind</span>(<span class="fu">rep</span>(<span class="dv">1</span>,<span class="fu">length</span>(df<span class="sc">$</span>sex)),<span class="fu">as.numeric</span>(df<span class="sc">$</span>sex)<span class="sc">-</span><span class="dv">1</span>)</span>
+<span id="cb7-21"><a href="#cb7-21" aria-hidden="true" tabindex="-1"></a>y <span class="ot">&lt;-</span> <span class="fu">as.numeric</span>(df<span class="sc">$</span>survived) <span class="sc">-</span> <span class="dv">1</span></span>
+<span id="cb7-22"><a href="#cb7-22" aria-hidden="true" tabindex="-1"></a>alpha_beta_iniciais <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">0</span>,<span class="dv">0</span>)</span>
+<span id="cb7-23"><a href="#cb7-23" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-24"><a href="#cb7-24" aria-hidden="true" tabindex="-1"></a><span class="co"># Usamos a função optim() com fnscale=-1 para MAXIMIZAR a função LL</span></span>
+<span id="cb7-25"><a href="#cb7-25" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-26"><a href="#cb7-26" aria-hidden="true" tabindex="-1"></a>estimador <span class="ot">&lt;-</span> <span class="fu">optim</span>(<span class="at">par =</span> alpha_beta_iniciais, <span class="at">X =</span> X, <span class="at">y =</span> y, <span class="at">fn =</span> LL, <span class="at">control=</span><span class="fu">list</span>(<span class="at">fnscale=</span><span class="sc">-</span><span class="dv">1</span>))</span>
+<span id="cb7-27"><a href="#cb7-27" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-28"><a href="#cb7-28" aria-hidden="true" tabindex="-1"></a>estimador<span class="sc">$</span>par</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1]  0.9818514 -2.4252728</code></pre>
+</div>
+</div>
+<p>Veja que os coeficientes de <span class="math inline">\alpha = 0.98</span> e <span class="math inline">\beta = -2.42</span> serão muito similares aos que encontraremos quando criarmos o modelo pela função <strong>glm</strong>().</p>
+</div>
+</div>
+</section>
+<section id="modelo-logístico-binomial" class="level1">
+<h1>Modelo Logístico Binomial</h1>
+<p>Usaremos a função <strong>gml</strong>() do R para criar o modelo.</p>
+<p>Vamos inicalmente criar um modelo logístico binomial bivariado, ou seja, com apenas a variável dependente (survived) e uma variável explicativa (sex).</p>
+<div class="cell">
+<details>
+<summary>Mostrar código-fonte</summary>
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="co">#Criando o modelo:</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>modelo_log_bin_01 <span class="ot">&lt;-</span> <span class="fu">glm</span>(<span class="at">formula =</span> survived <span class="sc">~</span> sex, <span class="at">family =</span> <span class="st">"binomial"</span>, <span class="at">data =</span> df)</span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>modelo_log_bin_01 </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Call:  glm(formula = survived ~ sex, family = "binomial", data = df)
+
+Coefficients:
+(Intercept)      sexmale  
+     0.9818      -2.4254  
+
+Degrees of Freedom: 1308 Total (i.e. Null);  1307 Residual
+Null Deviance:      1741 
+Residual Deviance: 1368     AIC: 1372</code></pre>
+</div>
+</div>
+<div class="callout-important callout callout-style-default callout-captioned">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-caption-container flex-fill">
+Important
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Observe o uso do parâmetro <strong>family=“binomial”</strong> para que a função <strong>glm</strong>() entenda que queremos uma distribuição de <strong>bernoulli</strong>.</p>
+</div>
+</div>
+<p>Já que não fizemos a criação da variável dependente <strong>dummy</strong> manualmente, é importante sabermos o que estamos tratando como “evento”, pois o “yes” e “no” da variável não necessariamente determina a probabildade do evento.</p>
+<p>Podemos definir manualmente 0 para o não evento e 1 para o evento em nosso dataset, mas como temos a variável do tipo fator (factor), o R pega o primeiro nível por ordem alfabética e define como não evento e o outro como evento. Veja:</p>
+<div class="cell">
+<details>
+<summary>Mostrar código-fonte</summary>
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="fu">levels</span> (df<span class="sc">$</span>survived)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "no"  "yes"</code></pre>
+</div>
+</div>
+<p>Veja que os mesmos coeficientes do modelo são apresentados se ajustarmos manualmente a variável.</p>
+<div class="cell">
+<details>
+<summary>Mostrar código-fonte</summary>
+<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>df <span class="sc">|&gt;</span> </span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span> (<span class="at">survived =</span> <span class="fu">case_when</span>(survived <span class="sc">==</span> <span class="st">"no"</span> <span class="sc">~</span> <span class="dv">0</span>,</span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>                               <span class="cn">TRUE</span> <span class="sc">~</span> <span class="dv">1</span>)) <span class="sc">%&gt;%</span> </span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">glm</span>(<span class="at">formula =</span> survived <span class="sc">~</span> sex, <span class="at">family =</span> <span class="st">"binomial"</span>, <span class="at">data =</span> .) <span class="ot">-&gt;</span> modelo_log_bin_02</span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a>jtools<span class="sc">::</span><span class="fu">export_summs</span>(modelo_log_bin_01, modelo_log_bin_02, <span class="at">scale =</span> F, <span class="at">digits =</span> <span class="dv">4</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+
+<table class="huxtable" style="border-collapse: collapse; border: 0px; margin-bottom: 2em; margin-top: 2em; ; margin-left: auto; margin-right: auto;  " id="tab:unnamed-chunk-10">
+<colgroup><col><col><col></colgroup><tbody><tr>
+<th style="vertical-align: top; text-align: center; white-space: normal; border-style: solid solid solid solid; border-width: 0.8pt 0pt 0pt 0pt;    padding: 6pt 6pt 6pt 6pt; font-weight: normal;"></th><th style="vertical-align: top; text-align: center; white-space: normal; border-style: solid solid solid solid; border-width: 0.8pt 0pt 0.4pt 0pt;    padding: 6pt 6pt 6pt 6pt; font-weight: normal;">Model 1</th><th style="vertical-align: top; text-align: center; white-space: normal; border-style: solid solid solid solid; border-width: 0.8pt 0pt 0.4pt 0pt;    padding: 6pt 6pt 6pt 6pt; font-weight: normal;">Model 2</th></tr>
+<tr>
+<th style="vertical-align: top; text-align: left; white-space: normal; padding: 6pt 6pt 6pt 6pt; font-weight: normal;">(Intercept)</th><td style="vertical-align: top; text-align: right; white-space: normal; border-style: solid solid solid solid; border-width: 0.4pt 0pt 0pt 0pt;    padding: 6pt 6pt 6pt 6pt; font-weight: normal;">0.9818 ***</td><td style="vertical-align: top; text-align: right; white-space: normal; border-style: solid solid solid solid; border-width: 0.4pt 0pt 0pt 0pt;    padding: 6pt 6pt 6pt 6pt; font-weight: normal;">0.9818 ***</td></tr>
+<tr>
+<th style="vertical-align: top; text-align: left; white-space: normal; padding: 6pt 6pt 6pt 6pt; font-weight: normal;"></th><td style="vertical-align: top; text-align: right; white-space: normal; padding: 6pt 6pt 6pt 6pt; font-weight: normal;">(0.1040)&nbsp;&nbsp;&nbsp;</td><td style="vertical-align: top; text-align: right; white-space: normal; padding: 6pt 6pt 6pt 6pt; font-weight: normal;">(0.1040)&nbsp;&nbsp;&nbsp;</td></tr>
+<tr>
+<th style="vertical-align: top; text-align: left; white-space: normal; padding: 6pt 6pt 6pt 6pt; font-weight: normal;">sexmale</th><td style="vertical-align: top; text-align: right; white-space: normal; padding: 6pt 6pt 6pt 6pt; font-weight: normal;">-2.4254 ***</td><td style="vertical-align: top; text-align: right; white-space: normal; padding: 6pt 6pt 6pt 6pt; font-weight: normal;">-2.4254 ***</td></tr>
+<tr>
+<th style="vertical-align: top; text-align: left; white-space: normal; padding: 6pt 6pt 6pt 6pt; font-weight: normal;"></th><td style="vertical-align: top; text-align: right; white-space: normal; border-style: solid solid solid solid; border-width: 0pt 0pt 0.4pt 0pt;    padding: 6pt 6pt 6pt 6pt; font-weight: normal;">(0.1360)&nbsp;&nbsp;&nbsp;</td><td style="vertical-align: top; text-align: right; white-space: normal; border-style: solid solid solid solid; border-width: 0pt 0pt 0.4pt 0pt;    padding: 6pt 6pt 6pt 6pt; font-weight: normal;">(0.1360)&nbsp;&nbsp;&nbsp;</td></tr>
+<tr>
+<th style="vertical-align: top; text-align: left; white-space: normal; padding: 6pt 6pt 6pt 6pt; font-weight: normal;">N</th><td style="vertical-align: top; text-align: right; white-space: normal; border-style: solid solid solid solid; border-width: 0.4pt 0pt 0pt 0pt;    padding: 6pt 6pt 6pt 6pt; font-weight: normal;">1309&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td><td style="vertical-align: top; text-align: right; white-space: normal; border-style: solid solid solid solid; border-width: 0.4pt 0pt 0pt 0pt;    padding: 6pt 6pt 6pt 6pt; font-weight: normal;">1309&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td></tr>
+<tr>
+<th style="vertical-align: top; text-align: left; white-space: normal; padding: 6pt 6pt 6pt 6pt; font-weight: normal;">AIC</th><td style="vertical-align: top; text-align: right; white-space: normal; padding: 6pt 6pt 6pt 6pt; font-weight: normal;">1372.1031&nbsp;&nbsp;&nbsp;&nbsp;</td><td style="vertical-align: top; text-align: right; white-space: normal; padding: 6pt 6pt 6pt 6pt; font-weight: normal;">1372.1031&nbsp;&nbsp;&nbsp;&nbsp;</td></tr>
+<tr>
+<th style="vertical-align: top; text-align: left; white-space: normal; padding: 6pt 6pt 6pt 6pt; font-weight: normal;">BIC</th><td style="vertical-align: top; text-align: right; white-space: normal; padding: 6pt 6pt 6pt 6pt; font-weight: normal;">1382.4571&nbsp;&nbsp;&nbsp;&nbsp;</td><td style="vertical-align: top; text-align: right; white-space: normal; padding: 6pt 6pt 6pt 6pt; font-weight: normal;">1382.4571&nbsp;&nbsp;&nbsp;&nbsp;</td></tr>
+<tr>
+<th style="vertical-align: top; text-align: left; white-space: normal; border-style: solid solid solid solid; border-width: 0pt 0pt 0.8pt 0pt;    padding: 6pt 6pt 6pt 6pt; font-weight: normal;">Pseudo R2</th><td style="vertical-align: top; text-align: right; white-space: normal; border-style: solid solid solid solid; border-width: 0pt 0pt 0.8pt 0pt;    padding: 6pt 6pt 6pt 6pt; font-weight: normal;">0.3370&nbsp;&nbsp;&nbsp;&nbsp;</td><td style="vertical-align: top; text-align: right; white-space: normal; border-style: solid solid solid solid; border-width: 0pt 0pt 0.8pt 0pt;    padding: 6pt 6pt 6pt 6pt; font-weight: normal;">0.3370&nbsp;&nbsp;&nbsp;&nbsp;</td></tr>
+<tr>
+<th colspan="3" style="vertical-align: top; text-align: left; white-space: normal; border-style: solid solid solid solid; border-width: 0.8pt 0pt 0pt 0pt;    padding: 6pt 6pt 6pt 6pt; font-weight: normal;"> *** p &lt; 0.001;  ** p &lt; 0.01;  * p &lt; 0.05.</th></tr>
+</tbody></table>
 
 </div>
+</div>
+<p>Observe também que a variável explicativa sexo (sex) deve ser “dummizada”. Não fizemos este processo manualmente, pois a função glm() já entende este processo devido ao tipo da variável no dataset ser do tipo <strong>fator</strong> (factor). Mas podemos confirmar que a variável referência foi a “female”, devido à ordem no fator.</p>
+<div class="cell">
+<details>
+<summary>Mostrar código-fonte</summary>
+<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="fu">levels</span>(df<span class="sc">$</span>sex)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "female" "male"  </code></pre>
+</div>
+</div>
+</section>
+<section id="interpretando-o-modelo" class="level1">
+<h1>Interpretando o Modelo</h1>
+<p>Vamos inicialmente visualizar as porcentagens dos sobreviventes agrupados pelo sexo:</p>
+<div>
+<details>
+<summary>Mostrar código-fonte</summary>
+<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="co">#Criando uma função auxiliar para agrupar duas variáveis categoricas</span></span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a><span class="co">#no ggplot, mas mostrar as proporções em apenas uma</span></span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a>prop_per_x <span class="ot">&lt;-</span> <span class="cf">function</span>(x, count){</span>
+<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a>    df_tmp <span class="ot">&lt;-</span> <span class="fu">tibble</span>( <span class="at">x =</span> x, <span class="at">count =</span> count)</span>
+<span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a>    tmp <span class="ot">&lt;-</span> df_tmp <span class="sc">|&gt;</span> <span class="fu">group_by</span>(x) <span class="sc">|&gt;</span> <span class="fu">summarise</span>(<span class="at">n =</span> <span class="fu">sum</span>(count))</span>
+<span id="cb16-7"><a href="#cb16-7" aria-hidden="true" tabindex="-1"></a>    prop <span class="ot">&lt;-</span> <span class="fu">left_join</span>(df_tmp, tmp) <span class="sc">|&gt;</span> <span class="fu">mutate</span> (<span class="at">prop =</span> count<span class="sc">/</span>n)</span>
+<span id="cb16-8"><a href="#cb16-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">return</span> (prop<span class="sc">$</span>prop)</span>
+<span id="cb16-9"><a href="#cb16-9" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb16-10"><a href="#cb16-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-11"><a href="#cb16-11" aria-hidden="true" tabindex="-1"></a><span class="co">#Criando os gráficos</span></span>
+<span id="cb16-12"><a href="#cb16-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-13"><a href="#cb16-13" aria-hidden="true" tabindex="-1"></a>df <span class="sc">|&gt;</span> dplyr<span class="sc">::</span><span class="fu">select</span>(survived,sex) <span class="sc">|&gt;</span> <span class="fu">ggplot</span>(<span class="fu">aes</span>(survived, <span class="at">fill =</span> sex))<span class="sc">+</span></span>
+<span id="cb16-14"><a href="#cb16-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_bar</span>(<span class="at">position=</span><span class="st">'dodge2'</span>)<span class="sc">+</span></span>
+<span id="cb16-15"><a href="#cb16-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_label</span>(<span class="fu">aes</span>(</span>
+<span id="cb16-16"><a href="#cb16-16" aria-hidden="true" tabindex="-1"></a>              <span class="at">label=</span><span class="fu">paste</span>(count,<span class="st">"</span><span class="sc">\n</span><span class="st">"</span>,scales<span class="sc">::</span><span class="fu">label_percent</span>(<span class="at">accuracy =</span> <span class="fl">0.1</span>)(<span class="fu">after_stat</span>(<span class="fu">prop_per_x</span>(x, count))))</span>
+<span id="cb16-17"><a href="#cb16-17" aria-hidden="true" tabindex="-1"></a>              ),</span>
+<span id="cb16-18"><a href="#cb16-18" aria-hidden="true" tabindex="-1"></a>            <span class="at">stat =</span> <span class="st">"count"</span>,</span>
+<span id="cb16-19"><a href="#cb16-19" aria-hidden="true" tabindex="-1"></a>            <span class="at">position =</span> <span class="fu">position_dodge2</span>(<span class="at">width =</span> <span class="fl">0.9</span>),</span>
+<span id="cb16-20"><a href="#cb16-20" aria-hidden="true" tabindex="-1"></a>            <span class="at">show.legend =</span> <span class="cn">FALSE</span></span>
+<span id="cb16-21"><a href="#cb16-21" aria-hidden="true" tabindex="-1"></a>            )<span class="sc">+</span></span>
+<span id="cb16-22"><a href="#cb16-22" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_label</span>(<span class="at">stat=</span><span class="st">"count"</span>,</span>
+<span id="cb16-23"><a href="#cb16-23" aria-hidden="true" tabindex="-1"></a>             <span class="fu">aes</span>(</span>
+<span id="cb16-24"><a href="#cb16-24" aria-hidden="true" tabindex="-1"></a>                 <span class="at">label =</span> <span class="fu">paste</span>(..count..,<span class="st">"</span><span class="sc">\n</span><span class="st">"</span>,scales<span class="sc">::</span><span class="fu">label_percent</span>(<span class="at">accuracy =</span> <span class="fl">0.1</span>)</span>
+<span id="cb16-25"><a href="#cb16-25" aria-hidden="true" tabindex="-1"></a>                 (..count..<span class="sc">/</span><span class="fu">sum</span>(..count..))),</span>
+<span id="cb16-26"><a href="#cb16-26" aria-hidden="true" tabindex="-1"></a>             <span class="at">group =</span> survived),</span>
+<span id="cb16-27"><a href="#cb16-27" aria-hidden="true" tabindex="-1"></a>             <span class="at">show.legend =</span> F,</span>
+<span id="cb16-28"><a href="#cb16-28" aria-hidden="true" tabindex="-1"></a>             <span class="at">position =</span> <span class="fu">position_stack</span>( <span class="at">vjust =</span> <span class="fl">1.05</span>)) <span class="sc">+</span></span>
+<span id="cb16-29"><a href="#cb16-29" aria-hidden="true" tabindex="-1"></a>   <span class="fu">scale_y_continuous</span>(<span class="at">limits =</span> <span class="fu">c</span>(<span class="cn">NA</span>,<span class="dv">900</span>))</span>
+<span id="cb16-30"><a href="#cb16-30" aria-hidden="true" tabindex="-1"></a>df <span class="sc">|&gt;</span> dplyr<span class="sc">::</span><span class="fu">select</span>(survived,sex) <span class="sc">|&gt;</span> <span class="fu">ggplot</span>(<span class="fu">aes</span>(survived, <span class="at">fill =</span> sex))<span class="sc">+</span></span>
+<span id="cb16-31"><a href="#cb16-31" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_bar</span>(<span class="at">position=</span><span class="st">'dodge2'</span>)<span class="sc">+</span></span>
+<span id="cb16-32"><a href="#cb16-32" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_label</span>(<span class="at">stat=</span><span class="st">"count"</span>,</span>
+<span id="cb16-33"><a href="#cb16-33" aria-hidden="true" tabindex="-1"></a>             <span class="fu">aes</span>(</span>
+<span id="cb16-34"><a href="#cb16-34" aria-hidden="true" tabindex="-1"></a>                 <span class="at">label =</span> <span class="fu">paste</span>(..count..,<span class="st">"</span><span class="sc">\n</span><span class="st">"</span>,scales<span class="sc">::</span><span class="fu">label_percent</span>(<span class="at">accuracy =</span> <span class="fl">0.1</span>)</span>
+<span id="cb16-35"><a href="#cb16-35" aria-hidden="true" tabindex="-1"></a>                 (..count..<span class="sc">/</span><span class="fu">sum</span>(..count..))),</span>
+<span id="cb16-36"><a href="#cb16-36" aria-hidden="true" tabindex="-1"></a>             <span class="at">group =</span> sex),</span>
+<span id="cb16-37"><a href="#cb16-37" aria-hidden="true" tabindex="-1"></a>             <span class="at">show.legend =</span> F,</span>
+<span id="cb16-38"><a href="#cb16-38" aria-hidden="true" tabindex="-1"></a>             <span class="at">position =</span> <span class="fu">position_dodge2</span>(<span class="at">width =</span> <span class="fl">0.9</span>)) <span class="sc">+</span></span>
+<span id="cb16-39"><a href="#cb16-39" aria-hidden="true" tabindex="-1"></a>  <span class="fu">facet_wrap</span>(<span class="fu">vars</span>(sex)) <span class="sc">+</span></span>
+<span id="cb16-40"><a href="#cb16-40" aria-hidden="true" tabindex="-1"></a>   <span class="fu">scale_y_continuous</span>(<span class="at">limits =</span> <span class="fu">c</span>(<span class="cn">NA</span>,<span class="dv">900</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell quarto-layout-panel">
+<div class="quarto-layout-row quarto-layout-valign-top">
+<div class="cell-output-display quarto-layout-cell" style="flex-basis: 50.0%;justify-content: center;">
+<p><img src="Reg_Logistica-01_files/figure-html/unnamed-chunk-12-1.png" class="img-fluid" width="672"></p>
+</div>
+<div class="cell-output-display quarto-layout-cell" style="flex-basis: 50.0%;justify-content: center;">
+<p><img src="Reg_Logistica-01_files/figure-html/unnamed-chunk-12-2.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+</div>
+</div>
+<p>Agora vamos ver o resumo do modelo criado através da função <strong>summary</strong>()</p>
+<div class="cell">
+<details>
+<summary>Mostrar código-fonte</summary>
+<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(modelo_log_bin_01)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Call:
+glm(formula = survived ~ sex, family = "binomial", data = df)
+
+Deviance Residuals: 
+    Min       1Q   Median       3Q      Max  
+-1.6124  -0.6511  -0.6511   0.7977   1.8196  
+
+Coefficients:
+            Estimate Std. Error z value Pr(&gt;|z|)    
+(Intercept)   0.9818     0.1040   9.437   &lt;2e-16 ***
+sexmale      -2.4254     0.1360 -17.832   &lt;2e-16 ***
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+(Dispersion parameter for binomial family taken to be 1)
+
+    Null deviance: 1741.0  on 1308  degrees of freedom
+Residual deviance: 1368.1  on 1307  degrees of freedom
+AIC: 1372.1
+
+Number of Fisher Scoring iterations: 4</code></pre>
+</div>
+</div>
+<p>Nos modelos de regressão linear, onde temos o R2 para representar a porcentagem de variância da y por se tratar de variável quantitativa, aqui, na logística binária isto não faz mais sentido, pois temos uma variável y dicotômica, então acabamos interpretando atraveś da <strong>probabilidade</strong> do evento ocorrer ou não.</p>
+<section id="aic-bic-e-loglik" class="level2">
+<h2 class="anchored" data-anchor-id="aic-bic-e-loglik">AIC, BIC e LogLik</h2>
+<p>Além da própria somatória da função de verossimilhança (log-likelihood), dois outros critérios são bastante utilizados para comparação de modelos logísticos.</p>
+<p><strong>AIC</strong>: Akaike’s Information Criterion e <strong>BIC</strong>: Bayesian Information Criterion.</p>
+<p>Podemos utilizar diversas funções para obter tais valores. Aqui apresentaremos a função <strong>glance</strong>() do pacote <strong>broom</strong>:</p>
+<div class="cell">
+<details>
+<summary>Mostrar código-fonte</summary>
+<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a>broom<span class="sc">::</span><span class="fu">glance</span>(modelo_log_bin_01)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 1 × 8
+  null.deviance df.null logLik   AIC   BIC deviance df.residual  nobs
+          &lt;dbl&gt;   &lt;int&gt;  &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt;    &lt;dbl&gt;       &lt;int&gt; &lt;int&gt;
+1         1741.    1308  -684. 1372. 1382.    1368.        1307  1309</code></pre>
+</div>
+</div>
+<div class="callout-tip callout callout-style-default callout-captioned">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-caption-container flex-fill">
+Tip
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Lembre-se que quanto menor o AIC e BIC, maior acurácia tem o modelo, enquanto que o Loglik deve ser o maior possível, pois desejamos maximizar a função de verossimilhança, conforme vimos anteriormente.</p>
+</div>
+</div>
+</section>
+<section id="coeficientes" class="level2">
+<h2 class="anchored" data-anchor-id="coeficientes">Coeficientes</h2>
+<p>Analisar o coeficiente dos betas (<span class="math inline">\beta</span>), é utilizado para entender se a influência é maior ou menor que a do evento não ocorrer, porém, devemos lembrar que o valor do <span class="math inline">\beta</span> corresponde ao valor da unidade <strong>logito</strong> (log da chance - <em>log odds</em>) da variável dependente quando dimuni-se X em uma unidade. Como pode-se notar, afimar que o <em>ln da chance</em> diminui em 2.425 quando a X aumenta em uma unidade não é muito interpretativo.</p>
+<p>Por isso, em geral, analisamos a razão de <strong>chance</strong> (<em>odds ratio</em> - OR), ou seja, elevamos o <span class="math inline">e</span> à potência do <em>logito</em> (<span class="math inline">\mathrm{e}^Z</span>), em nosso caso, <span class="math inline">\mathrm{e}^-2.475 = 0.08843937</span>.</p>
+<p>Neste caso, diríamos que a chance de ocorrer o evento da Y (sobreviver), diminui em 0,00884 para cada aumento na unidade de X, como X também é dicotômica, com a categoria de referência em “female”, diríamos que a chance diminui em 0,0084 vezes quando o indivídou for homem (male).</p>
+<div class="callout-warning callout callout-style-default callout-captioned">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-caption-container flex-fill">
+Warning
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Lembre-se que, apesar de usarmos os termos “chances” e “probabilidade” de forma intercambiável em nosso cotidiano, estes conceitos NÃO são iguais: Chance é a razão entre a probabilidade de um evento ocorrer sobre a probabilidade do evento não ocorrer:</p>
+<p><span class="math display">chance  = \frac{p_i}{(1-p_i)}</span></p>
+</div>
+</div>
+<p>Ainda podemos estimar o <strong>percentual de chance</strong> fazendo <span class="math inline">(chance-1)*100</span>, em nosso caso $(0.08843937 - 1) * 100 = -91.15%, ou seja, a <strong>chance</strong> de um homem sobrevivier é 91.15% vezes menor que de uma mulher.</p>
+<p>Podemos também obter as chances (Odds Ratio - OR) através da função <strong>odds.ratio</strong>() do pacote <strong>questionr</strong>. O interessante desta opção é que já teríamos também os intervalos de confiança (que poderiam ser calculados manualmente obviamente):</p>
+<div class="cell">
+<details>
+<summary>Mostrar código-fonte</summary>
+<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a>questionr<span class="sc">::</span><span class="fu">odds.ratio</span>(modelo_log_bin_01)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>                  OR    2.5 % 97.5 %         p    
+(Intercept) 2.669291 2.183379 3.2840 &lt; 2.2e-16 ***
+sexmale     0.088439 0.067525 0.1151 &lt; 2.2e-16 ***
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
+</div>
+</div>
+<div class="callout-note callout callout-style-default callout-captioned">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-caption-container flex-fill">
+Note
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Observe que se no intervalo de confiança da <em>chance</em> <strong>conter o 1</strong>, ou do <em>coeficiente</em> <strong>conter o 0</strong>, este parâmetro não será considerado estatisticamente igual a zero para o nível de confiança aplicado.</p>
+<p>Podemos fazer um teste de Wald para analisar a significância estatística do modelo também.</p>
+<div class="cell">
+<details>
+<summary>Mostrar código-fonte</summary>
+<div class="sourceCode cell-code" id="cb23"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="fu">Anova</span>(modelo_log_bin_01, <span class="at">type=</span><span class="st">"II"</span>, <span class="at">test =</span> <span class="st">"Wald"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>Analysis of Deviance Table (Type II tests)
+
+Response: survived
+    Df  Chisq Pr(&gt;Chisq)    
+sex  1 317.96  &lt; 2.2e-16 ***
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
+</div>
+</div>
+</div>
+</div>
+<!-- # Visualizando os valores previstos -->
+<!-- ```{r} -->
+<!-- #predict gives the predicted value in terms of logits -->
+<!-- plot.dat <- data.frame(prob = df$survived, -->
+<!--                        sex = df$sex, -->
+<!--                        fit = modelo_log_bin_01$fitted.values) -->
+<!-- plot.dat$fit_prob <- exp(plot.dat$fit)/(1+exp(plot.dat$fit)) -->
+<!-- library(ggplot2) -->
+<!-- ggplot(plot.dat, aes(x=sex, y=prob)) +  -->
+<!--   geom_point() + -->
+<!--   geom_line(aes(x=sex, y=fit_prob)) -->
+<!-- ``` -->
+<!-- # Comparando os valores previstos -->
+<!-- ```{r} -->
+<!-- df$fit_bin_01 <- modelo_log_bin_01$fitted.values -->
+<!-- df |>  -->
+<!--   ggplot(aes(x=survived, fill = sex)) + -->
+<!--   geom_bar(stat = "count", aes(y=..prop..), position = "dodge2") + -->
+<!--   geom_label(stat = "count", aes(group = sex,label = ..prop..)) + -->
+<!--   geom_jitter(aes(y=as.numeric(survived)-1), color = "blue", width = 0.4, height = 0.05) -->
+<!-- ``` -->
+</section>
+</section>
+<section id="matriz-de-confusão" class="level1">
+<h1>Matriz de confusão</h1>
+<p>Uma forma comum de compararmos nossos valores previstos com nosso dados reais, é criar uma matriz de confusão, onde temos nas colunas os valores reais e nas linhas os valores previstos:</p>
+<div class="cell">
+<details>
+<summary>Mostrar código-fonte</summary>
+<div class="sourceCode cell-code" id="cb25"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="fu">table</span>(<span class="fu">predict</span>(modelo_log_bin_01, <span class="at">type =</span> <span class="st">"response"</span>) <span class="sc">&gt;=</span> <span class="fl">0.5</span>, df<span class="sc">$</span>survived <span class="sc">==</span> <span class="st">"yes"</span>)[<span class="dv">2</span><span class="sc">:</span><span class="dv">1</span>, <span class="dv">2</span><span class="sc">:</span><span class="dv">1</span>]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>       
+        TRUE FALSE
+  TRUE   339   127
+  FALSE  161   682</code></pre>
+</div>
+</div>
+<p>Em nosso exemplo, TRUE significa sobreviveu e FALSE não sobreviveu, portanto, podemos ler que acertamos 339 e erramos 161 dos sobreviventes e acertamos 682 dos não sobreviventes e erramos 127 dos não sobreviventes.</p>
+<p>Atraveś desta matriz, utilizaremos o pacote <strong>caret</strong> com a função <strong>confusionMatrix</strong>() para calcular a <strong>Acurácia</strong> (78%), <strong>Sensitividade</strong> (67%) e <strong>Especificidade</strong> (84%) do modelo.</p>
+<div class="cell">
+<details>
+<summary>Mostrar código-fonte</summary>
+<div class="sourceCode cell-code" id="cb27"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a>caret<span class="sc">::</span><span class="fu">confusionMatrix</span>(<span class="fu">table</span>(<span class="fu">predict</span>(modelo_log_bin_01, <span class="at">type =</span> <span class="st">"response"</span>) <span class="sc">&gt;=</span> <span class="fl">0.5</span>, df<span class="sc">$</span>survived <span class="sc">==</span> <span class="st">"yes"</span>)[<span class="dv">2</span><span class="sc">:</span><span class="dv">1</span>, <span class="dv">2</span><span class="sc">:</span><span class="dv">1</span>])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>Confusion Matrix and Statistics
+
+       
+        TRUE FALSE
+  TRUE   339   127
+  FALSE  161   682
+                                          
+               Accuracy : 0.78            
+                 95% CI : (0.7565, 0.8022)
+    No Information Rate : 0.618           
+    P-Value [Acc &gt; NIR] : &lt; 2e-16         
+                                          
+                  Kappa : 0.5279          
+                                          
+ Mcnemar's Test P-Value : 0.05183         
+                                          
+            Sensitivity : 0.6780          
+            Specificity : 0.8430          
+         Pos Pred Value : 0.7275          
+         Neg Pred Value : 0.8090          
+             Prevalence : 0.3820          
+         Detection Rate : 0.2590          
+   Detection Prevalence : 0.3560          
+      Balanced Accuracy : 0.7605          
+                                          
+       'Positive' Class : TRUE            
+                                          </code></pre>
+</div>
+</div>
+</section>
+<section id="modelo-multivariado" class="level1">
+<h1>Modelo multivariado</h1>
+<p>Assim com fizemos em nossos exemplos de <a href="./Reg_Linear-01.html">Regressão Linear</a>, podemos adicionar variáveis preditoras ao modelo. Para exemplificar, iremos adicionar a variável idade (age).</p>
+<div class="cell">
+<details>
+<summary>Mostrar código-fonte</summary>
+<div class="sourceCode cell-code" id="cb29"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a>modelo_log_bin_mult_01 <span class="ot">&lt;-</span> <span class="fu">glm</span>(survived <span class="sc">~</span> sex <span class="sc">+</span> age, <span class="at">data =</span> df, <span class="at">family=</span><span class="st">"binomial"</span>)</span>
+<span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-3"><a href="#cb29-3" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(modelo_log_bin_mult_01)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Call:
+glm(formula = survived ~ sex + age, family = "binomial", data = df)
+
+Deviance Residuals: 
+    Min       1Q   Median       3Q      Max  
+-1.7247  -0.6859  -0.6603   0.7555   1.8737  
+
+Coefficients:
+             Estimate Std. Error z value Pr(&gt;|z|)    
+(Intercept)  1.235414   0.192032   6.433 1.25e-10 ***
+sexmale     -2.460689   0.152315 -16.155  &lt; 2e-16 ***
+age         -0.004254   0.005207  -0.817    0.414    
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+(Dispersion parameter for binomial family taken to be 1)
+
+    Null deviance: 1414.6  on 1045  degrees of freedom
+Residual deviance: 1101.3  on 1043  degrees of freedom
+  (263 observations deleted due to missingness)
+AIC: 1107.3
+
+Number of Fisher Scoring iterations: 4</code></pre>
+</div>
+</div>
+<p>Com este resultado, observamos que a variável idade não passa no test z, com o p-valor maior que 5%. Então não devemos incluí-la no modelo, pois não é estatisticamente significante.</p>
+<p>Vamos então selecionar outra variável (passengerClass) e criar outro modelo multivariado:</p>
+<div class="cell">
+<details>
+<summary>Mostrar código-fonte</summary>
+<div class="sourceCode cell-code" id="cb31"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a>modelo_log_bin_mult_02 <span class="ot">&lt;-</span> <span class="fu">glm</span>(survived <span class="sc">~</span> sex <span class="sc">+</span> passengerClass, <span class="at">data =</span> df, <span class="at">family=</span><span class="st">"binomial"</span>)</span>
+<span id="cb31-2"><a href="#cb31-2" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(modelo_log_bin_mult_02)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Call:
+glm(formula = survived ~ sex + passengerClass, family = "binomial", 
+    data = df)
+
+Deviance Residuals: 
+    Min       1Q   Median       3Q      Max  
+-2.1089  -0.6984  -0.4741   0.7167   2.1173  
+
+Coefficients:
+                  Estimate Std. Error z value Pr(&gt;|z|)    
+(Intercept)         2.1091     0.1728  12.203  &lt; 2e-16 ***
+sexmale            -2.5150     0.1467 -17.145  &lt; 2e-16 ***
+passengerClass2nd  -0.8808     0.1977  -4.456 8.34e-06 ***
+passengerClass3rd  -1.7231     0.1715 -10.047  &lt; 2e-16 ***
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+(Dispersion parameter for binomial family taken to be 1)
+
+    Null deviance: 1741.0  on 1308  degrees of freedom
+Residual deviance: 1257.2  on 1305  degrees of freedom
+AIC: 1265.2
+
+Number of Fisher Scoring iterations: 4</code></pre>
+</div>
+</div>
+<p>Agora vemos que tanto a variável de classe do passageiro é estatisticamente significante para as categorias de primeira (referência, segunda e terceira classe)</p>
+</section>
+<section id="comparando-os-modelos" class="level1">
+<h1>Comparando os modelos</h1>
+<p>Vamos agora montar nossa matriz de confusão e depois comparar os modelos:</p>
+<div class="cell">
+<details>
+<summary>Mostrar código-fonte</summary>
+<div class="sourceCode cell-code" id="cb33"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a>caret<span class="sc">::</span><span class="fu">confusionMatrix</span>(<span class="fu">table</span>(<span class="fu">predict</span>(modelo_log_bin_mult_02, <span class="at">type =</span> <span class="st">"response"</span>) <span class="sc">&gt;=</span> <span class="fl">0.5</span>, df<span class="sc">$</span>survived <span class="sc">==</span> <span class="st">"yes"</span>)[<span class="dv">2</span><span class="sc">:</span><span class="dv">1</span>, <span class="dv">2</span><span class="sc">:</span><span class="dv">1</span>])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>Confusion Matrix and Statistics
+
+       
+        TRUE FALSE
+  TRUE   339   127
+  FALSE  161   682
+                                          
+               Accuracy : 0.78            
+                 95% CI : (0.7565, 0.8022)
+    No Information Rate : 0.618           
+    P-Value [Acc &gt; NIR] : &lt; 2e-16         
+                                          
+                  Kappa : 0.5279          
+                                          
+ Mcnemar's Test P-Value : 0.05183         
+                                          
+            Sensitivity : 0.6780          
+            Specificity : 0.8430          
+         Pos Pred Value : 0.7275          
+         Neg Pred Value : 0.8090          
+             Prevalence : 0.3820          
+         Detection Rate : 0.2590          
+   Detection Prevalence : 0.3560          
+      Balanced Accuracy : 0.7605          
+                                          
+       'Positive' Class : TRUE            
+                                          </code></pre>
+</div>
+</div>
+<p>E agora avaliar o AIC de cada modelo:</p>
+<div class="cell">
+<details>
+<summary>Mostrar código-fonte</summary>
+<div class="sourceCode cell-code" id="cb35"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a>jtools<span class="sc">::</span><span class="fu">export_summs</span>(modelo_log_bin_01, modelo_log_bin_mult_02, <span class="at">scale =</span> F, <span class="at">digits =</span> <span class="dv">4</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+
+<table class="huxtable" style="border-collapse: collapse; border: 0px; margin-bottom: 2em; margin-top: 2em; ; margin-left: auto; margin-right: auto;  " id="tab:unnamed-chunk-22">
+<colgroup><col><col><col></colgroup><tbody><tr>
+<th style="vertical-align: top; text-align: center; white-space: normal; border-style: solid solid solid solid; border-width: 0.8pt 0pt 0pt 0pt;    padding: 6pt 6pt 6pt 6pt; font-weight: normal;"></th><th style="vertical-align: top; text-align: center; white-space: normal; border-style: solid solid solid solid; border-width: 0.8pt 0pt 0.4pt 0pt;    padding: 6pt 6pt 6pt 6pt; font-weight: normal;">Model 1</th><th style="vertical-align: top; text-align: center; white-space: normal; border-style: solid solid solid solid; border-width: 0.8pt 0pt 0.4pt 0pt;    padding: 6pt 6pt 6pt 6pt; font-weight: normal;">Model 2</th></tr>
+<tr>
+<th style="vertical-align: top; text-align: left; white-space: normal; padding: 6pt 6pt 6pt 6pt; font-weight: normal;">(Intercept)</th><td style="vertical-align: top; text-align: right; white-space: normal; border-style: solid solid solid solid; border-width: 0.4pt 0pt 0pt 0pt;    padding: 6pt 6pt 6pt 6pt; font-weight: normal;">0.9818 ***</td><td style="vertical-align: top; text-align: right; white-space: normal; border-style: solid solid solid solid; border-width: 0.4pt 0pt 0pt 0pt;    padding: 6pt 6pt 6pt 6pt; font-weight: normal;">2.1091 ***</td></tr>
+<tr>
+<th style="vertical-align: top; text-align: left; white-space: normal; padding: 6pt 6pt 6pt 6pt; font-weight: normal;"></th><td style="vertical-align: top; text-align: right; white-space: normal; padding: 6pt 6pt 6pt 6pt; font-weight: normal;">(0.1040)&nbsp;&nbsp;&nbsp;</td><td style="vertical-align: top; text-align: right; white-space: normal; padding: 6pt 6pt 6pt 6pt; font-weight: normal;">(0.1728)&nbsp;&nbsp;&nbsp;</td></tr>
+<tr>
+<th style="vertical-align: top; text-align: left; white-space: normal; padding: 6pt 6pt 6pt 6pt; font-weight: normal;">sexmale</th><td style="vertical-align: top; text-align: right; white-space: normal; padding: 6pt 6pt 6pt 6pt; font-weight: normal;">-2.4254 ***</td><td style="vertical-align: top; text-align: right; white-space: normal; padding: 6pt 6pt 6pt 6pt; font-weight: normal;">-2.5150 ***</td></tr>
+<tr>
+<th style="vertical-align: top; text-align: left; white-space: normal; padding: 6pt 6pt 6pt 6pt; font-weight: normal;"></th><td style="vertical-align: top; text-align: right; white-space: normal; padding: 6pt 6pt 6pt 6pt; font-weight: normal;">(0.1360)&nbsp;&nbsp;&nbsp;</td><td style="vertical-align: top; text-align: right; white-space: normal; padding: 6pt 6pt 6pt 6pt; font-weight: normal;">(0.1467)&nbsp;&nbsp;&nbsp;</td></tr>
+<tr>
+<th style="vertical-align: top; text-align: left; white-space: normal; padding: 6pt 6pt 6pt 6pt; font-weight: normal;">passengerClass2nd</th><td style="vertical-align: top; text-align: right; white-space: normal; padding: 6pt 6pt 6pt 6pt; font-weight: normal;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td><td style="vertical-align: top; text-align: right; white-space: normal; padding: 6pt 6pt 6pt 6pt; font-weight: normal;">-0.8808 ***</td></tr>
+<tr>
+<th style="vertical-align: top; text-align: left; white-space: normal; padding: 6pt 6pt 6pt 6pt; font-weight: normal;"></th><td style="vertical-align: top; text-align: right; white-space: normal; padding: 6pt 6pt 6pt 6pt; font-weight: normal;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td><td style="vertical-align: top; text-align: right; white-space: normal; padding: 6pt 6pt 6pt 6pt; font-weight: normal;">(0.1977)&nbsp;&nbsp;&nbsp;</td></tr>
+<tr>
+<th style="vertical-align: top; text-align: left; white-space: normal; padding: 6pt 6pt 6pt 6pt; font-weight: normal;">passengerClass3rd</th><td style="vertical-align: top; text-align: right; white-space: normal; padding: 6pt 6pt 6pt 6pt; font-weight: normal;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td><td style="vertical-align: top; text-align: right; white-space: normal; padding: 6pt 6pt 6pt 6pt; font-weight: normal;">-1.7231 ***</td></tr>
+<tr>
+<th style="vertical-align: top; text-align: left; white-space: normal; padding: 6pt 6pt 6pt 6pt; font-weight: normal;"></th><td style="vertical-align: top; text-align: right; white-space: normal; border-style: solid solid solid solid; border-width: 0pt 0pt 0.4pt 0pt;    padding: 6pt 6pt 6pt 6pt; font-weight: normal;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td><td style="vertical-align: top; text-align: right; white-space: normal; border-style: solid solid solid solid; border-width: 0pt 0pt 0.4pt 0pt;    padding: 6pt 6pt 6pt 6pt; font-weight: normal;">(0.1715)&nbsp;&nbsp;&nbsp;</td></tr>
+<tr>
+<th style="vertical-align: top; text-align: left; white-space: normal; padding: 6pt 6pt 6pt 6pt; font-weight: normal;">N</th><td style="vertical-align: top; text-align: right; white-space: normal; border-style: solid solid solid solid; border-width: 0.4pt 0pt 0pt 0pt;    padding: 6pt 6pt 6pt 6pt; font-weight: normal;">1309&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td><td style="vertical-align: top; text-align: right; white-space: normal; border-style: solid solid solid solid; border-width: 0.4pt 0pt 0pt 0pt;    padding: 6pt 6pt 6pt 6pt; font-weight: normal;">1309&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td></tr>
+<tr>
+<th style="vertical-align: top; text-align: left; white-space: normal; padding: 6pt 6pt 6pt 6pt; font-weight: normal;">AIC</th><td style="vertical-align: top; text-align: right; white-space: normal; padding: 6pt 6pt 6pt 6pt; font-weight: normal;">1372.1031&nbsp;&nbsp;&nbsp;&nbsp;</td><td style="vertical-align: top; text-align: right; white-space: normal; padding: 6pt 6pt 6pt 6pt; font-weight: normal;">1265.2221&nbsp;&nbsp;&nbsp;&nbsp;</td></tr>
+<tr>
+<th style="vertical-align: top; text-align: left; white-space: normal; padding: 6pt 6pt 6pt 6pt; font-weight: normal;">BIC</th><td style="vertical-align: top; text-align: right; white-space: normal; padding: 6pt 6pt 6pt 6pt; font-weight: normal;">1382.4571&nbsp;&nbsp;&nbsp;&nbsp;</td><td style="vertical-align: top; text-align: right; white-space: normal; padding: 6pt 6pt 6pt 6pt; font-weight: normal;">1285.9302&nbsp;&nbsp;&nbsp;&nbsp;</td></tr>
+<tr>
+<th style="vertical-align: top; text-align: left; white-space: normal; border-style: solid solid solid solid; border-width: 0pt 0pt 0.8pt 0pt;    padding: 6pt 6pt 6pt 6pt; font-weight: normal;">Pseudo R2</th><td style="vertical-align: top; text-align: right; white-space: normal; border-style: solid solid solid solid; border-width: 0pt 0pt 0.8pt 0pt;    padding: 6pt 6pt 6pt 6pt; font-weight: normal;">0.3370&nbsp;&nbsp;&nbsp;&nbsp;</td><td style="vertical-align: top; text-align: right; white-space: normal; border-style: solid solid solid solid; border-width: 0pt 0pt 0.8pt 0pt;    padding: 6pt 6pt 6pt 6pt; font-weight: normal;">0.4201&nbsp;&nbsp;&nbsp;&nbsp;</td></tr>
+<tr>
+<th colspan="3" style="vertical-align: top; text-align: left; white-space: normal; border-style: solid solid solid solid; border-width: 0.8pt 0pt 0pt 0pt;    padding: 6pt 6pt 6pt 6pt; font-weight: normal;"> *** p &lt; 0.001;  ** p &lt; 0.01;  * p &lt; 0.05.</th></tr>
+</tbody></table>
+
+</div>
+</div>
+<p>Observamos que o modelo multivariado com a variável classe do passageiro, possui um AIC menor, porém com uma acurácia similar ao anterior, portanto, considerando a regra da parssimonia, iremos considerar o modelo mais simples, como escolha. Lembrando que ideia do artigo, é apenas introduzir os conceitos de regressão logística.</p>
 </section>
 
 </main>

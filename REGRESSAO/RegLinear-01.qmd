@@ -38,7 +38,7 @@ df
 
 # Variável dependente
 
-Para nossos experimentos, iremos selecionar como variável dependente o consumo dos veículos por distância rodada (milhas por galão ou mpg). Ou seja, tentaremos criar modelo preditivo que, com base em variáveis explicativas presentes em nossa amostra de dados, tentarão prever o valor do consumo (mpg) de um automóvel.
+Para nossos experimentos, iremos selecionar como variável dependente o consumo dos veículos por distância rodada (milhas por galão ou mpg). Ou seja, tentaremos criar modelo preditivo que, com base em variáveis explicativas presentes em nossa amostra de dados, tentarão prever o valor do consumo (mpg) de um automóvel, que é uma variável quantitativa.
 
 ## Visualizando a variável dependente
 
@@ -129,11 +129,11 @@ df |>
 ## Criando um modelo linear simples
 
 No caso de uma regressão linear simples, temos a seguinte equação que define a **melhor reta** entre os pontos do gráfico anterior.
-Entende-se como **melhor reta** aquela que apresenta a somatória dos resíduos deve ser igual à zero e a somatória dos resíduos ao quadrado for a mínima possível (Mean Square Error - MSE).
+Entende-se como **melhor reta** aquela que apresenta a somatória dos resíduos igual à zero e a somatória dos resíduos ao quadrado for a mínima possível (Mean Square Error - MSE).
 
 Função: $\hat{Y}_i = \alpha + \beta * X1_i$
 
-O código abaixo, através da função "lm" irá criar um modelo de regressão linear simples, estimando os parâmetros para a equação de nossa reta. Neste caso, iremos utilizar o método "OLS" (Ordinary Least Square) para estimativa dos parâmetros desta equação. Não iremos cobrir os detalhes deste processo, mas há diversos métodos para encontrar estes coeficientes, como Mínimos Quadrados Ordinários (OLS), Máxima Verossimilhança (MLE), entre outros.
+O código abaixo, através da função "lm" irá criar um modelo de regressão linear simples, estimando os parâmetros para a equação de nossa reta. Neste caso, iremos utilizar o método "OLS" (Ordinary Least Square) para estimativa dos parâmetros desta equação. Não iremos cobrir os detalhes deste processo, mas há diversos métodos para encontrar estes coeficientes, como Mínimos Quadrados Ordinários (OLS), Máxima Verossimilhança (MLE), Descida do Gradiente, entre outros.
 
 ```{r}
 #Função lm para obter os coeficientes alpha e beta
@@ -163,12 +163,17 @@ Ou seja, nosso modelo prevê um consumo de **17.13** milhas por galão se um ve�
 Apenas como exemplo, vamos criar uma função que calcula a média das soma dos erros ao quadrado (Mean Square Error) e através da função **optim**() iremos buscar os valores de $\alpha$ e $\beta$ para que a soma dos erros ao quadrado seja menor possível.
 
 ```{r}
-fr <- function(x){
-  alpha <- x[1]
-  beta1 <- x[2]
-  mean((df$mpg - (alpha + beta1 * df$hp))^2)
+funcao_perda <- function(X, y, par){
+  n <- length(y)
+  J <- sum((X%*%par - y)^2)/(2*n)
+  return (J)
 }
-optim(par = c(0,0), fn = fr)
+
+X <- cbind(rep(1,32),df$hp)
+y <- df$mpg
+alpha_beta_iniciais <- c(0,0)
+
+optim(par = alpha_beta_iniciais, X = X, y = y, fn = funcao_perda)
 ```
 Veja que os coeficientes de $\alpha = 30.09$ e $\beta = -0.068$ são muito similares aos encontrados pela função **lm**(). 
 :::
