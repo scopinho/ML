@@ -1,5 +1,5 @@
 ---
-title: "Regressão Logística Binária"
+title: "Regressão Logística"
 execute: 
   warning: false
 format:
@@ -25,11 +25,12 @@ library(car)
 library(nlme)
 library(jtools)
 library(questionr)
+library(nnet)
 ```
 
 # Introdução
 
-Diferente do que vimos no artigo sobre [Regressão Linear](./RegLinear-01.html) onde criamos um modelo de ML supervisionado para fazer inferências sobre um variável dependente contínua, neste artigo iremos criar modelos onde a variável dependente obedece à uma distribuição de **Bernoulli**. Neste caso, temos uma variável dependente dicotômica (0 ou 1), tendo a probabilidade de um evento ocorrer (p) e dele não ocorrer (1-p).
+Diferente do que vimos no artigo sobre [Regressão Linear](./RegLinear-01.html) onde criamos um modelo de ML supervisionado para fazer inferências sobre uma variável dependente contínua, neste artigo iremos criar modelos onde a variável dependente obedece à uma distribuição de **Bernoulli**. Neste caso, temos uma variável dependente dicotômica (0 ou 1), tendo a probabilidade de um evento ocorrer ($p$) e dele não ocorrer ($1-p$).
 
 # Base de Dados
 
@@ -42,7 +43,7 @@ df
 ```
 
 :::callout-warning
-Veja que temos variaveis qualitativas tanto para a explicativa quanto para a variavel dependente. Devemos portanto, ou criar as variaveis dummies, conforme vimos no artigo de [Regressao Linear](./RegLinear-01.html), seja de forma manual ou saber exatamente como as funçoes lidam com tais cenarios. 
+Veja que temos variaveis qualitativas tanto para a explicativa quanto para a variavel dependente. Devemos portanto, ou criar as variaveis dummies conforme vimos no artigo de [Regressao Linear](./RegLinear-01.html), seja de forma manual ou saber exatamente como as funçoes lidam com tais cenários. 
 :::
 # Variável dependente
 
@@ -50,7 +51,7 @@ Para nossos experimentos, iremos selecionar como variável dependente a **surviv
 
 ## Visualizando a variável dependente
 
-Inicialmente, vejamos a tabela de frequência
+Por se tratar de uma variável qualitativa, não temos média, mediana ou outras estatísticas desta natureza. Desta forma, iremos apenas criar um tabela de frequência (absoluta e relativa):
 
 ```{r}
 #Frequencia absoluta e relativa:
@@ -79,16 +80,16 @@ df |> ggplot(aes(survived, fill = survived)) +
 ```
 # Logito
 
-Diferente da regressão linear, onde a saída era um valor quantitativo definido pelas variáveis preditoras e respetivos parâmetros calculados para minimizar os erros do modelo, na regressão logística binomial, iremos calcular a **probabilidade**($p$) do evento **ocorrer** ou **não ocorrer** com base no comportamente das variáveis preditoras. Ou seja, a variável dependente será categórica e **dicotômica** (zero ou um).
+Diferente da regressão linear, onde a saída era um valor quantitativo definido pelas variáveis preditoras e respectivos parâmetros calculados para minimizar os erros do modelo, na regressão **logística binomial**, iremos calcular a **probabilidade** ($p$) do evento **ocorrer** ou **não ocorrer** com base no comportamente das variáveis preditoras. Ou seja, a variável dependente será categórica e **dicotômica** (zero ou um).
 
 Se definirmos um vetor $Z$ com as variáveis explicativas como:
 
 $Z_i = \alpha + \beta_1 * X_1 + \beta_2 * X_{2} + \beta_k * X_{k}$
 
-em que $Z$ é conhecido como *logito* e não representa a variável dependente, mas sim equivale ao logaritmo natural ($ln$) da *chance* (odds).
+$Z$ é conhecido como **logito** e não representa a variável dependente prevista ($\hat{y}$) como em um modelo de regressão linear simples, mas sim equivale ao **logaritmo natural** ($ln$) da **chance** (*log odds*).
 
 :::callout-note
-**Chance** é um conceito estatístico definido pela razão do evento ocorrer e do evento não ocorrer:
+Apesar de usarmos no mesmo sentido de *probabilidade*, **Chance** (*odds*) é um conceito estatístico definido pela razão do evento ocorrer e do evento não ocorrer. *Chance* e *Probabildade* **NÃO** são a mesma coisa.
 
 $chance (odds)_{Y_i=1} = \dfrac{p_i}{1 - p_i}$
 :::
@@ -97,7 +98,7 @@ Já que nosso objetivo é calcular a **probabilidade** *p* do evento **ocorrer**
 
 $p_i = \dfrac{1}{1 + \mathrm{e}^{-Z_i}}$
 
-E a probailidade do evento **não ocorrer** é:
+E a probabilidade do evento **não ocorrer** é:
 
 $1 - p_i = \dfrac{1}{1 + \mathrm{e}^{Z_i}}$
 
@@ -113,27 +114,29 @@ tibble(Z = seq(-5,5)) |>
 Tabela
 
 ```{r}
-tibble(Z = seq(-5,5)) |> 
-  mutate (p = 1/(1 + exp(1)^(Z*-1)))
+tab <- tibble(Z = seq(-6,6)) |> 
+  mutate (p = 1/(1 + exp(1)^(Z*-1))) |> 
+  mutate (chance = round(exp(Z),4))
+tab
 ```
 
 Então, quando calcularmos o logito em função das variáveis explicativas, conseguiremos estimar a probabildade do evento ocorrer.
 
 # Máxima Verossimilhança
 
-Enquanto na regressão linear (OLS) fizemos às estimativas dos coeficientes através dos mínimos quadrados ordinários, iremos estimar os coeficientes **maximizando** a função de verossimilhança (MLE). 
+Enquanto na regressão linear, utilizamos os mínimos quadrados ordinários (OLS) para fazer as estimativas dos coeficientes, aqui iremos estimar os coeficientes **maximizando** a função de verossimilhança (likelihood).
 
 $$LL=\sum_{n=i}^{n} [(Y_i) * ln(\dfrac {\mathrm{e}^{Z_i}} 
 {1 + \mathrm{e}^{Z_i}})] + [(1-Y_i) * ln(\dfrac {1} 
 {1 + \mathrm{e}^{Z_i}})] = máx$$
 
 Fazemos isto, pois queremos maximizar a probabildade do evento ocorrer em cada uma das observações da amostra. Isto gera uma função produtória, que após manupulações matemáticas, torna-se a função somatória apresentada anteriormente.
-É por isso que pretendemos maximizar a função logaritima de verossimilhança (log likelihood ou LL).
+É por isso que pretendemos maximizar a função logaritima de verossimilhança (*maximum likelihood estimation* - MLE).
 
-O cáculo dos coeficientes alpha e betas para maximizar a função de verossimilhança é feito automaticamente quando criamos um modelo de regressão logística binária no R, porém, iremos apenas exemplificar, como isto poderia ser feito manualmente.
+O cáculo dos coeficientes $\alpha$ e $\beta$ para maximizar a função de verossimilhança é feito automaticamente quando criamos um modelo de regressão logística binária no R, porém, iremos apenas exemplificar, como isto poderia ser feito manualmente.
 
 :::callout-note
-Vamos criar uma função que calcula o log da verossimilhança e através da função **optim**() iremos buscar os valores de $\alpha$ e $\beta$ para que este log (log likelihood) seja maior possível.
+Vamos criar uma função que calcula o log da verossimilhança e através da função **optim**() iremos buscar os valores de $\alpha$ e $\beta$ para que este log (log likelihood) seja o maior possível.
 
 ```{r}
 # Para simplificar, vamos criar uma função da sigmoid, ou seja, a partir do logito conseguimos calcular a probabilidade.
@@ -161,23 +164,31 @@ alpha_beta_iniciais <- c(0,0)
 
 # Usamos a função optim() com fnscale=-1 para MAXIMIZAR a função LL
 
-estimador <- optim(par = alpha_beta_iniciais, X = X, y = y, fn = LL, control=list(fnscale=-1))
+estimador <- optim(par = alpha_beta_iniciais, X = X, y = y, fn = LL, control=list(fnscale=-1, trace=TRUE))
 
-estimador$par
+paste("Alpha:",estimador$par[1], " Beta:",estimador$par[2])
+paste("LogLikelihood: ",estimador$value)
 ```
-Veja que os coeficientes de $\alpha = 0.98$ e $\beta = -2.42$ serão muito similares aos que encontraremos quando criarmos o modelo pela função **glm**(). 
+
+Veja que os coeficientes de $\alpha = 0.98$ e $\beta = -2.42$ serão muito similares aos que encontraremos quando criarmos o modelo pela função **glm**(). O valor maximizado do log da função de verossimilhança (log likelihood), também será similar ao **loglik** do modelo quando criado através da função glm().
 :::
 
 # Modelo Logístico Binomial
 
 Usaremos a função **gml**() do R para criar o modelo.
 
-Vamos inicalmente criar um modelo logístico binomial bivariado, ou seja, com apenas a variável dependente (survived) e uma variável explicativa (sex).
+Vamos inicalmente criar um modelo logístico binomial simples, ou seja, com apenas a variável dependente (survived) e uma variável explicativa (sex).
 
 ```{r}
 #Criando o modelo:
 modelo_log_bin_01 <- glm(formula = survived ~ sex, family = "binomial", data = df)
 modelo_log_bin_01 
+```
+
+Para obter o valor máximo da função de verossimilhança (loglike), podemos utilizar a função **logLik**().
+
+```{r}
+logLik(modelo_log_bin_01)
 ```
 
 :::callout-important
@@ -201,6 +212,12 @@ df |>
   glm(formula = survived ~ sex, family = "binomial", data = .) -> modelo_log_bin_02
 
 jtools::export_summs(modelo_log_bin_01, modelo_log_bin_02, scale = F, digits = 4)
+```
+
+A função **summ**() do pacote **jtools** também nos dá o $\chi^2$ do modelo. Neste caso, o $\chi^2$ é similar ao teste F do modelo de regressão linear, ou seja, se ao menos um beta for estatisticamente significativo, temos um modelo.
+
+```{r}
+jtools::summ(modelo_log_bin_01)
 ```
 
 Observe também que a variável explicativa sexo (sex) deve ser "dummizada". Não fizemos este processo manualmente, pois a função glm() já entende este processo devido ao tipo da variável no dataset ser do tipo **fator** (factor). Mas podemos confirmar que a variável referência foi a "female", devido à ordem no fator.
@@ -269,27 +286,79 @@ summary(modelo_log_bin_01)
 ```
 Nos modelos de regressão linear, onde temos o R2 para representar a porcentagem de variância da y por se tratar de variável quantitativa, aqui, na logística binária isto não faz mais sentido, pois temos uma variável y dicotômica, então acabamos interpretando atraveś da **probabilidade** do evento ocorrer ou não.
 
-## AIC, BIC e LogLik
-
-Além da própria somatória da função de verossimilhança (log-likelihood), dois outros critérios são bastante utilizados para comparação de modelos logísticos.
-
-**AIC**: Akaike's Information Criterion e **BIC**: Bayesian Information Criterion.
-
-Podemos utilizar diversas funções para obter tais valores. Aqui apresentaremos a função **glance**() do pacote **broom**:
+Através dos valores dos coeficientes, podemos calcular nosso **logito** (Z), que equivale ao logaritmo natual da **chance** (odds), conforme vimos anteriormente:
 
 ```{r}
-broom::glance(modelo_log_bin_01)
+#| layout-ncol: 2
+
+# Obtendo os coeficientes do modelo 
+alpha <- coef(modelo_log_bin_01)[1]
+beta <- coef(modelo_log_bin_01)[2]
+X1 <- 1
+
+# Logitos: Modelo é quando o sexo masculino é presente e nulo quando não é
+Zmod <- alpha + beta * X1
+Znulo <- alpha + beta * 0
+
+#Calculo das chances (odds) e probabilidades
+ChanceMod <- exp(Zmod)
+ChanceNulo <- exp(Znulo)
+ProbMod <- 1/(1+exp(-Zmod))
+ProbNulo <- 1/(1+exp(-Znulo))
+
+#Gráfico comparando com logitos de -6 a 6
+tab |> 
+  ggplot(aes(Z,p)) +
+  geom_point(size = 3) +
+  geom_line(linetype = "dashed")+
+  geom_point(aes(x=Zmod, y=ProbMod), color = "blue", size = 4) +
+  geom_text(aes(x=Zmod, y=ProbMod, 
+                label=paste("Sexo=1 (Masculino)")), 
+            position = position_nudge(x=-2),
+            color = "blue", size = 4) +
+  geom_point(aes(x=Znulo, y=ProbNulo), color = "red", size = 4)+
+  geom_text(aes(x=Znulo, y=ProbNulo, 
+                label=paste("Sexo=0 (Feminino)")), 
+            position = position_nudge(x=-2),
+            color = "red", size = 4) +
+  labs(y = "Probabilidade", x = "Logito (Z)")
+
+
+#Gráfico comparando com chances de -6 a 6
+tab|>  
+  ggplot(aes(chance,p)) +
+  geom_point(size = 3) +
+  geom_line(linetype = "dashed")+
+  geom_point(aes(x=ChanceMod, y=ProbMod), color = "blue", size = 4) +
+  geom_text(aes(x=ChanceMod, y=ProbMod, 
+                label=paste("Sexo=1 (Masculino)")), 
+            position = position_nudge(x=+80),
+            color = "blue", size = 4) +
+  geom_point(aes(x=ChanceNulo, y=ProbNulo), color = "red", size = 4)+
+  geom_text(aes(x=ChanceNulo, y=ProbNulo, 
+                label=paste("Sexo=0 (Feminino)")), 
+            position = position_nudge(x=+80),
+            color = "red", size = 4) +
+  labs(y = "Probabilidade", x = "Chance (Odds)")
 ```
-:::callout-tip
-Lembre-se que quanto menor o AIC e BIC, maior acurácia tem o modelo, enquanto que o Loglik deve ser o maior possível, pois desejamos maximizar a função de verossimilhança, conforme vimos anteriormente.
-:::
+Vejamos em uma tabela estes valores:
+
+```{r}
+tmp<-tibble (items = c("alpha", "beta", "X1", "Zmod", "Znulo", "ChanceMod", "ChanceNulo", "ProbMod", "ProbNulo"),
+        valores = round(c(alpha, beta, X1, Zmod, Znulo, ChanceMod, ChanceNulo, ProbMod, ProbNulo),3))
+tmp
+```
+Veja que a diferença da **chance** (odds) entre o modelo nulo e modelo é o valor do $\beta$ de X1 (sexo) e que a chance do modelo dividida pela chance nulo é o que chamamos de **razão de chance** (*odds ratio* - OR).
+Isso é importante quando formos interpretar os coeficientes posteriormente.
+
+Como temos como categoria de referência "yes", ou seja, "sobreviveu", na variável dependente e como categoria de referência "female" na variável X1 (sex), então os valores do modelo nulo, são referentes à probabilidade de sibrevivência das mulhares (X1=0, sex=female), enquanto que (X1=1, sex=male) são os valores de probabilidade para homens que sobreviveram. Vejam que quanto maior o valor de **chance** dos homens, é menor que os das mulheres, e consequentemente, sua **probabildade** também é menor. 
 
 ## Coeficientes
 
 Analisar o coeficiente dos betas ($\beta$), é utilizado para entender se a influência é maior ou menor que a do evento não ocorrer, porém, devemos lembrar que o valor do $\beta$ corresponde ao valor da unidade **logito** (log da chance - *log odds*) da variável dependente quando dimuni-se X em uma unidade. 
 Como pode-se notar, afimar que o *ln da chance* diminui em 2.425 quando a X aumenta em uma unidade não é muito interpretativo.
 
-Por isso, em geral, analisamos a razão de **chance** (*odds ratio* - OR), ou seja, elevamos o $e$ à potência do *logito* ($\mathrm{e}^Z$), em nosso caso, $\mathrm{e}^-2.475 = 0.08843937$. 
+Por isso, em geral, analisamos a razão de **chance** (*odds ratio* - OR), ou seja, elevamos o $e$ à potência do *logito* ($\mathrm{e}^Z$), em nosso caso, $\mathrm{e}^-2.475 = 0.08843$. 
 
 Neste caso, diríamos que a chance de ocorrer o evento da Y (sobreviver), diminui em 0,00884 para cada aumento na unidade de X, como X também é dicotômica, com a categoria de referência em "female", diríamos que a chance diminui em 0,0084 vezes quando o indivídou for homem (male). 
 
@@ -298,8 +367,6 @@ Lembre-se que, apesar de usarmos os termos "chances" e "probabilidade" de forma 
 Chance é a razão entre a probabilidade de um evento ocorrer sobre a probabilidade do evento não ocorrer:
 $$chance  = \frac{p_i}{(1-p_i)}$$
 :::
-
-Ainda podemos estimar o **percentual de chance** fazendo $(chance-1)*100$, em nosso caso $(0.08843937 - 1) * 100 = -91.15%, ou seja, a **chance** de um homem sobrevivier é 91.15% vezes menor que de uma mulher. 
 
 Podemos também obter as chances (Odds Ratio - OR) através da função **odds.ratio**() do pacote **questionr**. O interessante desta opção é que já teríamos também os intervalos de confiança (que poderiam ser calculados manualmente obviamente):
 
@@ -357,13 +424,36 @@ table(predict(modelo_log_bin_01, type = "response") >= 0.5, df$survived == "yes"
 
 Em nosso exemplo, TRUE significa sobreviveu e FALSE não sobreviveu, portanto, podemos ler que acertamos 339 e erramos 161 dos sobreviventes e acertamos 682 dos não sobreviventes  e erramos 127 dos não sobreviventes.
 
+Nós também definimos um corte ou **cut-off** de 50%, ou seja, se a probabilidade do evento ocorrer for maior que 50% definiremos como evento, caso contrário, como não evento.
+
+
 Atraveś desta matriz, utilizaremos o pacote **caret** com a função **confusionMatrix**() para calcular a **Acurácia** (78%), **Sensitividade** (67%) e **Especificidade** (84%) do modelo.
 
 ```{r}
 caret::confusionMatrix(table(predict(modelo_log_bin_01, type = "response") >= 0.5, df$survived == "yes")[2:1, 2:1])
 ```
+## AIC, BIC e LogLik
 
-# Modelo multivariado
+Além da própria somatória da função de verossimilhança (log-likelihood - **loglik**), dois outros critérios são bastante utilizados para comparação de modelos logísticos.
+
+**AIC**: Akaike's Information Criterion e **BIC**: Bayesian Information Criterion.
+
+Podemos utilizar diversas funções para obter tais valores. Aqui apresentaremos a função **glance**() do pacote **broom**:
+
+```{r}
+broom::glance(modelo_log_bin_01)
+```
+:::callout-tip
+Lembre-se que quanto menor o AIC e BIC, maior acurácia tem o modelo, enquanto que o Loglik deve ser o maior possível, pois desejamos maximizar a função de verossimilhança, conforme vimos anteriormente.
+:::
+
+:::callout-note
+Diferente de outros algoritmos com parcelas mais estocásticas para estimação de parâmetros, como Redes Neurais, Árvores de Decisões, etc, no modelo de regressão logística NÃO há a necessidade de separar amostra de treino e teste.
+Também não há a necessidade do balanceamento entre a proporção das categorias da variável dependente. Apenas quando soubermos a proporção da população, devemos fazer um ajuste no $\alpha$ da equação de probabilidade, somando o log natural da razão de proporção da população e da amostra:
+
+$$\alpha_{ajust} = \alpha + ln(\frac{pop_{evento}}{pop_{não\ evento}*} * \frac{amostra_{não\ evento}}{amostra_{evento}*} )$$
+:::
+# Modelo Logistico Binário multivariado
 
 Assim com fizemos em nossos exemplos de [Regressão Linear](./Reg_Linear-01.html), podemos adicionar variáveis preditoras ao modelo. Para exemplificar, iremos adicionar a variável idade (age).
 
@@ -372,7 +462,7 @@ modelo_log_bin_mult_01 <- glm(survived ~ sex + age, data = df, family="binomial"
 
 summary(modelo_log_bin_mult_01)
 ```
-Com este resultado, observamos que a variável idade não passa no test z, com o p-valor maior que 5%. Então não devemos incluí-la no modelo, pois não é estatisticamente significante.
+Com este resultado, observamos que a variável idade **não passa** no test z, com o p-valor maior que 5%. Então não devemos incluí-la no modelo, pois **não é estatisticamente significante**.
 
 Vamos então selecionar outra variável (passengerClass) e criar outro modelo multivariado:
 
@@ -394,4 +484,262 @@ E agora avaliar o AIC de cada modelo:
 ```{r}
 jtools::export_summs(modelo_log_bin_01, modelo_log_bin_mult_02, scale = F, digits = 4)
 ```
+:::callout-note
+Podemos também fazer um **lilelihood ratio test** usando a função **lrtest**() do pacote **lmtest** para confirmarmos estatisticamente se um modelo é significativamente diferente do outro.
+:::
+
 Observamos que o modelo multivariado com a variável classe do passageiro, possui um AIC menor, porém com uma acurácia similar ao anterior, portanto, considerando a regra da parssimonia, iremos considerar o modelo mais simples, como escolha. Lembrando que ideia do artigo, é apenas introduzir os conceitos de regressão logística. 
+
+# Curva ROC
+
+Outra forma de avaliar o modelo, é através da área sob a curva ROC (**AUC**).
+
+```{r}
+ROC <- pROC::roc(response = df$survived, predictor = modelo_log_bin_01$fitted.values)
+
+ggplotly(
+  pROC::ggroc(ROC, color = "#440154FF", size = 1) +
+    geom_segment(aes(x = 1, xend = 0, y = 0, yend = 1),
+                 color="grey40",
+                 size = 0.2) +
+    labs(x = "Especificidade",
+         y = "Sensitividade",
+         title = paste("Área abaixo da curva:",
+                       round(ROC$auc, 3),
+                       "|",
+                       "Coeficiente de Gini",
+                       round((ROC$auc[1] - 0.5) / 0.5, 3))) +
+    theme_bw()
+)
+```
+
+```{r}
+ROC$auc
+```
+
+:::callout-note
+Os procedimentos stepwise, criação de dummies e entendimento dos níveis de significância visto no modelo de regressão linear, ainda se aplicam no caso dos modelos logísticos.
+:::
+
+# Regressão Logística Multinomial
+
+Quando nossa variável depedente (y) qualitativa possui 3 ou mais categorias, devemos criar um modelo multinomial.
+Diferente da regressão binária, que segue uma função bernoulli, neste caso ela segue uma **função binomial** (o que gera confusão, pois a fução glm(), usa family=binomial, o que é uma infelicidade).
+
+A função de desnidade probabilidade da função binomial segue a seguinte fórmula:
+
+$$p(Y_im) = \prod_{m=0}^{M-1}(p_{i_m})^{Y_{im}}$$
+De forma similar à regressão logística binária, aqui iremos gerar uma função de verossimilhança, porém com base em dummies da variável Y, ou seja, criando um logito ($Z (m-0,1,...M-1)$) para cada combinação das categorias da variável dependente (M) menos uma categoria de referência.
+
+A função de máxima verossimilhança que devemos maximizar neste caso é:
+
+$$LL = \sum_{i=0}^n  \sum_{m=0}^{M-1} \bigg[ (Y_{im} . ln\bigg(\frac{e^{Z_{im}}}  {\sum_{m=0}^{M-1}\ .e^{Z_{im}}}\bigg]\bigg)=máx$$
+Para criarmos um modelo multinomial, iremos utilziar a função **multinom**() do pacote **nnet**.
+
+Neste exemplo, iremos utilizar a mesma base de dados, mas para efeitos didáticos, iremos definir nossa variável dependente como a classe do passageiro (passengerClass) que tem 3 categorias. Por isso, iremos estimas 2 logitos. Cada logito terá um $\alpha$ e mais um $\beta$ para cada variável explicativa (X). Aqui, usaremos apenas a variável "survived" pois já vimos que existia associação entre ambas anteriormente. 
+
+```{r}
+modelo_log_multinon_01<- multinom(formula = passengerClass ~ survived, 
+                            data = df)
+summary (modelo_log_multinon_01)
+```
+
+Vejamos também um resumo através das funções **export_summ**() do pacote jtools:
+
+```{r}
+jtools::export_summs(modelo_log_multinon_01)
+```
+
+
+Infelizmente, a função **summ**() do pacote jtools, não suporta modelos criados pelo nnet, portanto, teremos que calcular o $\chi^2$ manualmente. Também não temos o teste Z de Wald na saída da função summary() e também deveremos calculá-los manualmente.
+
+# Calculando o $\chi^2$
+
+```{r}
+Qui2 <- function(x) {
+  maximo <- logLik(x)
+  minimo <- logLik(update(x, ~1, trace = F))
+  Qui.Quadrado <- -2*(minimo - maximo)
+  pvalue <- pchisq(Qui.Quadrado, df = 1, lower.tail = F)
+  df <- data.frame()
+  df <- cbind.data.frame(Qui.Quadrado, pvalue)
+  return(df)
+}
+
+Qui2(modelo_log_multinon_01)
+```
+
+# Estatística Z (Wald)
+
+```{r}
+zWald <- (summary(modelo_log_multinon_01)$coefficients / 
+                            summary(modelo_log_multinon_01)$standard.errors)
+paste("Z (Wald):")
+zWald
+
+paste("p-value:")
+round((pnorm(abs(zWald), lower.tail = F) * 2), 4)
+```
+
+# Fazendo Previsões
+
+Através da função **predict**() iremos calcular as probabilidades das classes de passageiros de alguém que sobreviveu e outro que não sobreviveu:
+
+```{r}
+#| layout n-col: 2
+p_sobreviente_0 <- predict(modelo_log_multinon_01, 
+        data.frame(survived = "no"), 
+        type = "probs")
+
+p_sobreviente_1 <- predict(modelo_log_multinon_01, 
+        data.frame(survived = "yes"), 
+        type = "probs")
+df_tmp2 <- tibble("0" = p_sobreviente_0, "1"=p_sobreviente_1, classe=c("1a", "2a", "3a")) |> 
+  pivot_longer(cols = c("0","1"), names_to = "sobrevivente", values_to = "probabilidades") |> 
+  mutate (probabilidades = round(probabilidades, 2))
+
+df_tmp2 |> ggplot(aes(sobrevivente, probabilidades, color=classe)) +
+  geom_point(size = 4)+
+  geom_text(aes(label=classe), 
+            show.legend = F,
+            position = position_nudge(x=-.08))
+
+df_tmp2
+```
+
+
+Podemos observar que a probabilidade de alguém da 1a classe não ter sobrevivido é de 15%, enquanto que desse alguém ter sobrevivido de 40%.
+
+Podemos também pedir a classe, que é a com maior probabilidade, através da função **predict**()
+
+```{r}
+p_sobreviente_1c <- predict(modelo_log_multinon_01, 
+        data.frame(survived = "no"), 
+        type = "class")
+
+p_sobreviente_1c
+
+p_sobreviente_2c <- predict(modelo_log_multinon_01, 
+        data.frame(survived = "yes"), 
+        type = "class")
+
+p_sobreviente_2c
+```
+ Neste exemplo, vemos que passageiros de 1a classe tinham maior probabilidade de sobreviver e os de 3a classe maior probabilidade de não sobreviver.
+
+# Modelo Multinomial multivariado
+
+Iremos agora criar um novo modelo multinomial, porém adicionando a variável idade (age).
+
+```{r}
+modelo_log_multinon_02<- multinom(formula = passengerClass ~ survived + age, 
+                            data = df)
+summary(modelo_log_multinon_02)
+Qui2(modelo_log_multinon_02)
+
+zWald <- (summary(modelo_log_multinon_02)$coefficients / 
+                            summary(modelo_log_multinon_02)$standard.errors)
+paste("Z (Wald):")
+zWald
+
+paste("p-value:")
+round((pnorm(abs(zWald), lower.tail = F) * 2), 4)
+
+jtools::export_summs(modelo_log_multinon_02)
+```
+
+Observamos pelo $\chi^2$ e também pela estatística z (Wald) que ambas as variáveis são estatisticamente significante à 95% de confiança.
+
+Comparando os Modelos:
+
+```{r}
+logLik(modelo_log_multinon_01)
+logLik(modelo_log_multinon_02)
+paste("AIC:")
+AIC(modelo_log_multinon_01)
+AIC(modelo_log_multinon_02)
+```
+
+Agora podemos juntar os fitted values em nossa base original para criarmos algumas visualizações:
+
+```{r}
+#Iremos remover as linhas com missing values nas idades e juntar as colunas:
+
+df2 <- drop_na(df) 
+df_fit <- predict(modelo_log_multinon_02, newdata = df2, type = "probs")
+df_final <- cbind (df2, df_fit)
+df_fitc <- predict(modelo_log_multinon_02, newdata = df2, type = "class")
+df_final <- cbind (df_final, df_fitc)
+```
+
+Agora podemos também criar nossa **Matriz de Confusão** para calcular a **Acurácia** do modelo:
+
+```{r}
+table(df_final$df_fitc, df_final$passengerClass)
+
+acuracia <- (round((sum(diag(table(df_final$df_fitc, df_final$passengerClass))) / 
+                      sum(table(df_final$df_fitc, df_final$passengerClass))), 2))
+
+acuracia
+```
+
+Visualizando as probabilidades de serem da 1a, 2a ou 3a classes:
+
+```{r}
+
+df_final  <-janitor::clean_names(df_final)
+df_final |> 
+  pivot_longer(cols = c("x1st", "x2nd", "x3rd")) |> 
+  ggplot(aes(x=age, y=value)) +
+  geom_point(aes(color=name)) +
+    labs(y="probabilidade") +
+  facet_wrap(vars(survived))
+```
+Observamos que dentre os sobreviventes, existe uma maior chance de serem adultos mais velhos da 1a classe e crianças da 3a classe. O mesmo ocorre entre aqueles que não sobreviveram, porém com maior probabilidade de serem crianças de 3a classe ser maior que os sobreviventes.
+
+```{r}
+#| layout ncol: 3
+plot_ly(x = df_final$x1st, 
+        y = df_final$age, 
+        z = df_final$survived,
+        type = "mesh3d",
+        name = "1a classe",
+        intensity = df_final$x1st,
+        colors = colorRamp(c("red","yellow","chartreuse3","lightblue","blue"))) %>% 
+  layout(showlegend = T,
+         scene = list(
+           xaxis = list(title = "Prob_1a_Classe"),
+           yaxis = list(title = "Idade"),
+           zaxis = list(title = "Sobreviveu")),
+         title = "Probabildade de ser da 1a classe")
+#####################################################
+plot_ly(x = df_final$x2nd, 
+        y = df_final$age, 
+        z = df_final$survived,
+        type = "mesh3d",
+        name = "2a classe",
+        intensity = df_final$x2nd,
+        colors = colorRamp(c("chartreuse3","lightblue","blue"))) %>% 
+  layout(showlegend = T,
+         scene = list(
+           xaxis = list(title = "Prob_2a_Classe"),
+           yaxis = list(title = "Idade"),
+           zaxis = list(title = "Sobreviveu")),
+         title = "Probabildade de ser da 2a classe")
+#####################################################
+plot_ly(x = df_final$x3rd, 
+        y = df_final$age, 
+        z = df_final$survived,
+        type = "mesh3d",
+        name = "3a classe",
+        intensity = df_final$x3rd,
+        colors = colorRamp(c("yellow","chartreuse3","lightblue","blue"))) %>% 
+  layout(showlegend = T,
+         scene = list(
+           xaxis = list(title = "Prob_3a_Classe"),
+           yaxis = list(title = "Idade"),
+           zaxis = list(title = "Sobreviveu")),
+         title = "Probabildade de ser da 3a classe")
+```
+
+Note que aqui, as nossa variável dependente é a classe do passageiro, portanto, devemos entender que a probabilidade é do passageiro ser ou não de determinada classe e não mais se ele sobreviveu ou não.

@@ -19,7 +19,7 @@ Index
 - Regressão Linear Simples e Multipla
 [Regressão Linear](https://scopinho.github.io/ML/REGRESSAO/RegLinear-01.html)
 
-- Regressão Logística Binária
+- Regressão Logística Binária e Multinomial
 [Regressão Linear](https://scopinho.github.io/ML/REGRESSAO/Reg_Logistica-01-01.html)
 
 - Outliers
