@@ -1,5 +1,7 @@
 # Machine Learning (ML)
 
+![](https://mlf6kovmjrtn.i.optimole.com/w:256/h:256/q:mauto/f:avif/https://www.pointstar.com.my/wp-content/uploads/2021/06/menu-AI-icon-b.png)
+
 **ENGLISH** -  Machine Learning, Operational Research, Decision Making and other stuffs repo
 
 Experiments, learning material and cheatsheets for some ML algs, MCDM and Oper. Research in R.
@@ -17,16 +19,16 @@ Most of the articles are in Portuguese language. Since there are plenty of that 
 [Análise Fatorial Exploratória](https://scopinho.github.io/ML/EFA/EFA-01.html)
 
 ## PCA
-[Analise por Componentes Principais](https://scopinho.github.io/ML/PCA/PCA-01.html)
+[Análise por Componentes Principais, redução de dimensionalidade, etc...](https://scopinho.github.io/ML/PCA/PCA-01.html)
 
 ## Regressão Linear Simples e Multipla
-[Regressão Linear](https://scopinho.github.io/ML/REGRESSAO/RegLinear-01.html)
+[Regressão Linear, tipos de variáveis, variáveis dummies, etc ](https://scopinho.github.io/ML/REGRESSAO/RegLinear-01.html)
 
 ## Regressão Logística Binária e Multinomial
-[Regressão Logística](https://scopinho.github.io/ML/REGRESSAO/Reg_Logistica-01-01.html)
+[Regressão Logística, Chance, Logito, Multiplas Categorias, etc... ](https://scopinho.github.io/ML/REGRESSAO/Reg_Logistica-01-01.html)
 
 ## Regressão Poisson, Binomial Negativa e com Inflação de Zeros (Dados de Contagem)
-[Dados de Contagem](https://scopinho.github.io/ML/REGRESSAO/Reg_Contagem-01.html)
+[Dados de Contagem, Zero Inflated, etc...](https://scopinho.github.io/ML/REGRESSAO/Reg_Contagem-01.html)
 
 ## Outliers (BACON e Mahalanobis)
 [Blocked Adaptative Computationally Efficient e Mahalanobis Distance Outlier](https://scopinho.github.io/ML/BACON/BACON.html)
