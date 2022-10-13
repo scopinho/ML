@@ -1,0 +1,543 @@
+---
+title: "Regressão para Dados de Contagem"
+execute: 
+  warning: false
+format:
+  html:
+    toc: true
+    html-math-method: katex
+    css: styles.css
+    df-print: paged
+    code-fold: true
+    code-summary: "Mostrar código-fonte"
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r}
+library(tidyverse) 
+library(janitor)
+library(jtools)
+library(faraway)
+library (fastDummies)
+library(broom)
+library (MASS)
+library(gghighlight)
+library(overdisp)
+library(pscl)
+```
+
+# Introdução
+
+Diferente do que vimos no artigo sobre [Regressão Linear](./RegLinear-01.html) onde criamos um modelo de ML supervisionado para fazer inferências sobre uma variável dependente contínua, neste artigo iremos criar modelos onde a variável **dependente discreta** obedece à uma distribuição de **Poisson**. Neste caso, temos uma variável dependente *discreta*, *não-negativa* e com *exposição*. **Exposição**, pode ser tempo, espaço, forma ou outro grupo latente não diretamente observável. 
+Para simplificar, alguns exemplos de exposição podemos considerar kilometros por hora, pessoas por dia, animais por metro quadrado e assim por diante.
+
+Em alguns cenários, temos ainda um efeito, onde a média não é igual à variância, e nestes casos, ao invés de uma distribuição Poisson, o fenômeno pode ser mais aderente à **Poisson Gama**, também chamada de **Binomial Negativa**. Observamos que quanto maior a exposição, a distribuição se aproxima de uma binomial negativa.
+
+# Exemplos de distribuição Poisson e Binomial Negativa:
+
+Abaixo temos uma distribuição **Poisson** onde o parâmetro lambda ($\lambda$) é igual à 4, 6 ou 8, ou seja, a média em que determinado evento ocorre por exposição são este valores. 
+
+Digamos que temos em média, 4 pessoas visitando um consultório médico a cada hora. Podemos determinar a probabilidade de termos determinado número de pessoas através da função desenidade probabilidade poisson conforme a seguir:
+
+```{r}
+#| layout-ncol: 2
+x <- seq(from=0, to= 20)
+
+lmda = 4
+d4 <- dpois(x, lmda)
+
+dfp <- tibble(x,d4) |> pivot_longer(-x, names_to = "lambda", values_to = "values")
+
+dfp |> ggplot(aes(x=x, y=values, fill=lambda)) + 
+    geom_col(position = "dodge2", show.legend = F) +
+  labs (y="Probabilidade", x="m") +
+  gghighlight(x == lmda, unhighlighted_params = list(fill = alpha("blue", 0.4)))+
+  labs(title = "Poisson - lambda = 4")
+
+```
+
+Podemos observar que a probabilidade de termos 4 pessoas no consultório é de 19% usando a função **dpois**():
+
+```{r}
+dpois(4,4)
+```
+
+Se aumentarmos a média pela exposição, observamos o movimentação da distribuição à direita:
+Veja como ficaria com lambda =1, 4 e 8:
+
+```{r}
+#| layout-ncol: 3
+
+# Lambda = 1
+lmda = 1
+d <- dpois(x, lmda)
+
+dfp <- tibble(x,d) |> pivot_longer(-x, names_to = "lambda", values_to = "values")
+
+dfp |> ggplot(aes(x=x, y=values, fill=lambda)) + 
+  geom_col(position = "dodge2", show.legend = F) +
+  labs (y="Probabilidade", x="m") +
+  gghighlight(x == lmda, unhighlighted_params = list(fill = alpha("blue", 0.4))) +
+  labs(title = "Poisson - lambda = 1")
+
+# Lambda = 4 ##########################
+lmda = 4
+d <- dpois(x, lmda)
+
+dfp <- tibble(x,d) |> pivot_longer(-x, names_to = "lambda", values_to = "values")
+
+dfp |> ggplot(aes(x=x, y=values, fill=lambda)) + 
+  geom_col(position = "dodge2", show.legend = F) +
+  labs (y="Probabilidade", x="m") +
+  gghighlight(x == lmda, unhighlighted_params = list(fill = alpha("blue", 0.4)))+
+  labs(title = "Poisson - lambda = 4")
+
+# Lambda = 8 ###########################
+lmda = 8
+d <- dpois(x, lmda)
+
+dfp <- tibble(x,d) |> pivot_longer(-x, names_to = "lambda", values_to = "values")
+
+dfp |> ggplot(aes(x=x, y=values, fill=lambda)) + 
+  geom_col(position = "dodge2", show.legend = F) +
+  labs (y="Probabilidade", x="m") +
+  gghighlight(x == lmda, unhighlighted_params = list(fill = alpha("blue", 0.4)))+
+  labs(title = "Poisson - lambda = 8")
+
+
+```
+
+A seguir, temos um função **Binomial Negativa** ou **Poisson Gama**. Aqui, o fenômeno de superdispersão contribui para uma cauda mais alongada e é muito comum em dados de contagem.
+Digamos que iremos seguir nosso exemplo anterior, porém agora, a contagem de pacientes possui uma dispersão maior, ou seja, uma maior variância entre a média e os valores encontrados. 
+
+```{r}
+d0 <- dnbinom(x, 1, .25)
+d1 <- dnbinom(x, 4, .25)
+d2 <- dnbinom(x, 4, .50)
+
+  dfp <- tibble(x,d0, d1, d2) |> pivot_longer(-x, names_to = "lambda", values_to = "values")
+
+dfp |> ggplot(aes(x=x, y=values, color=lambda)) + 
+  geom_line()+
+  labs(x = "Tentativas", y="Probabilidade")+
+  scale_color_discrete(name = "Size-Probabilidade", 
+                       labels = c("1-25%","4-25%","4-50%"))+
+  theme(legend.position = "bottom")
+```
+
+# Base de Dados
+Para exemplificar os modelos para dados de contagem, iremos utilizar a base "motorins".
+Esta base possui 1797 observações sobre sobre seguradoras na Suécia. 
+Va variável dependente "Claims" contém o número de reclamos de uma seguradora em 1977.
+
+```{r}
+df <- faraway::motorins
+df
+```
+
+# Criando Modelos
+Em geral, devemos fazer a análise descritiva para entendermos os detalhes do dataset, porém, como o propósito deste testo é apresentar um modelo GLM para dados de contagem, iremos pular esta parte e partiremos direto para criação do modelo em função da variável zona, que são categorias geográficas do país. 
+
+```{r}
+modelo_poisson_01 <- glm(Claims ~ Zone, data = df, family="poisson")
+modelo_poisson_01
+```
+
+
+No R, assim como fizemos na na [Logiśtica Binária](./Reg_Logostica-01.html), utilizaremos a função **glm**(), porém com o parâmetro **family = "poisson"**.
+Podemos observar que a variável explicativa Zona, possui todas suas categorias com nível de significância de 5%. Vemos também que o $\chi^2$ também foi estatisticamente significante, portanto temos um modelo.
+
+```{r}
+summary(modelo_poisson_01)
+jtools::summ(modelo_poisson_01)
+```
+
+# Modelo Poisson Multivariado
+
+Agora iremos incluir a variável explicativa "Make" que é um outro fator que representa 8 modelos de classes comuns de veículos, e os demais modelos são agrupados em uma nona categoria.
+
+```{r}
+modelo_poisson_02 <- glm(Claims ~ Zone + Make, data = df, family="poisson")
+modelo_poisson_02
+```
+
+```{r}
+summary(modelo_poisson_02)
+jtools::summ(modelo_poisson_02)
+jtools::export_summs(modelo_poisson_01, modelo_poisson_02)
+```
+
+# Teste de superdispersão
+
+Conforme vimos anteriormente, quando temos superdispersão nos dados, uma função de distribuição binomial negativa pode-se adequar melhor ao modelo.
+Faremos um teste, usando a função **overdisp**() do pacote overdisp para confirmar.
+
+```{r}
+overdisp::overdisp(x = df,
+         dependent.position = 6,
+         predictor.position = c(2,4))
+
+```
+
+Podemos confirmar pelo p-value menor que 0.05 que temos superdispersão. 
+
+# Criação do modelo Binomial Negativo
+
+Para este modelo, iremos utilizar a função **glm.nb**() do pacote **MASS**.
+
+```{r}
+df_dummy <- fastDummies::dummy_cols(.data = df, 
+                                    select_columns = c("Zone", "Make"),
+                                    remove_first_dummy = T, 
+                                    remove_selected_columns = T)
+
+modelo_bneg_01 <- MASS::glm.nb(formula = Claims ~ . -Kilometres -Bonus -Insured -Payment -perd  ,
+                      data = df_dummy)
+modelo_bneg_01
+summary(modelo_bneg_01)
+```
+
+Veja que as variáveis Zone_2 e Zone_3 não se mostraram estatisticamente significantes à 5%, portante devemos fazer o procedimento **stepwise**. 
+Para isto, fizemos a dummização das variáveis manualmente.
+
+```{r}
+modelo_bneg_step_01 <- step(modelo_bneg_01, trace = F)
+summary(modelo_bneg_step_01)
+```
+
+# Comparando os modelos
+
+```{r}
+modelos <- map(list(modelo_poisson_01, modelo_poisson_02, modelo_bneg_step_01), broom::glance)
+modelos <- set_names(modelos, c("modelo_poisson_01", "modelo_poisson_02", "modelo_bneg_step_01"))
+modelos <- enframe(modelos)
+modelos[[2]][[3]]$logLik <- as.double(modelos[[2]][[3]]$logLik)
+modelos <- unnest(modelos, cols = value) |> 
+  pivot_longer(cols = -name, names_to = "ind", values_to = "values")
+
+modelos |> filter (ind == "AIC") |> arrange (desc(values)) |> 
+  ggplot(aes(x=fct_reorder(name, values, .desc = values), y=values, fill = name)) +
+  geom_bar(stat = "identity", show.legend = F)+
+  geom_label(aes(label=round(values,2)), show.legend = F)+
+  labs(x="Modelo", y="AIC")+
+  theme_classic() +
+  theme(axis.text.x = element_text(angle = 90))
+```
+
+Demais indicadores:
+
+```{r}
+modelos |> filter (ind %in% c("AIC", "BIC", "logLik")) |> as_tibble()
+``` 
+
+# Fazendo Predições
+
+Vamos prever em nosso modelo quanto teríamos de reclamos para dois casos.
+
+**Caso 1:** Alguém da *Zona 4* e *Fabricante* 4
+**Caso 2:** Alguém da *Zona 1* e *Fabricante* 1
+
+
+```{r}
+df_new <- data.frame("Zone" = factor(4,levels=c(1,2,3,4,5,6,7)),
+                     "Make" = factor(3,levels=c(1,2,3,4,5,6,7,8,9))
+                     )
+df_new <- rbind(df_new, c(1,1))
+
+df_new_d <- fastDummies::dummy_cols(.data = df_new, 
+                                    select_columns = c("Zone", "Make"),
+                                    remove_first_dummy = T, 
+                                    remove_selected_columns = T)
+
+df_new$fit <- exp(predict(modelo_bneg_step_01, type = "link", newdata=df_new_d))
+df_new$fit_p <- predict(modelo_poisson_02, type = "response", newdata=df_new)
+df_new$fit <- round(df_new$fit,0)
+df_new$fit_p <- round(df_new$fit_p,0)
+
+```
+
+Vejamos quais seriam mas médias para tais comnimações em nossos dados:
+
+```{r}
+df |> group_by(Zone, Make) |> 
+  summarise(media = mean(Claims)) |> 
+  filter(Zone %in% c("4","1"), Make %in% c("3", "1"))
+```
+
+
+Vemos que para a Zona 4 e Make 3, a média seria de 15, enquanto que para Zona 1 e Make 1 de 62.
+
+Nossa predição seria de 17 e 58 respectivamente para o modelo binomial e 17 e 68 para o poisson multivariado:
+
+```{r}
+df$fit_p <- predict(modelo_poisson_02, type = "response")
+df$fit <- exp(predict(modelo_bneg_step_01, type = "link"))
+df <- df |> mutate (fit = round(fit,0),
+              fit_p = round(fit_p,0)) 
+
+df |>   
+  ggplot(aes(x = Make))+
+  geom_point(aes(y = log(Claims), color = Make), size = 1, alpha = 0.7, show.legend = T) +
+  geom_point(aes(y = log(fit_p)), shape = 10, color = "red", size = 3, alpha = 0.5, show.legend = F ) +
+  geom_point(aes(y = log(fit)),shape = 23, color = "blue", size = 3, alpha = 0.5, show.legend = F) +
+  facet_wrap(vars(Zone), scales = "free")+
+  labs(title = "Previsões usando Zona e Fabricantes\n pela Poisson e Binomial Negativa")+
+  theme_minimal()
+```
+
+Acima, vemos os valores previstos pelo modelo usando a **Binamial Negativa** (em *azul*) e a **Poisson** (em *vermelho*) para cada Fabricante (Maker) e em cada Zona.
+
+Em resumo, conforme comprovamos, quando temos uma superdispersão nos dados, usar um modelo com a distribuições Binomial Negativa gera um melhor ajuste (aqui usando o AIC como indicador) que uma Poisson para dados de contagem.
+
+# Dados com Inflação de Zeros
+
+Em alguns casos, em nossos dados podemos ter uma grande quantidade de zeros, como por exemplo, em estudos de doenças raras, onde apenas alguns dentre muitos casos são eventos do estudo. Ou então estudos sobre fraudes e assim por diante. Nestes casos, podemos criar modelos Poisson o Binomial Negativa com **inflações de zero** (*zero inflated*). Estes modelos são conhecidos como modelos **ZIP**.
+
+Apenas para exemplificar, podemos criar um modelo através da função **zeroinfl**() do pacote **pscl**. Mas antes, iremos artificialmente alterar nossa variável dependente e incluir vários casos, onde temos zeros na contagem.
+
+```{r}
+# Ajustando o dataset para exemplificar o usa de modelos ZIP
+df_zip <- 
+  df_dummy |> 
+  mutate (Claims = case_when (Claims <= 30 ~ 0L,
+                                  TRUE ~ Claims)) |> 
+  dplyr::select(Claims, starts_with(c("Zone", "Make")))
+```
+
+# Analisando a variável dependente com inflações de zeros
+Veja que neste caso, nossa variável dependente agora possui um alto número de observações com zero reclamas (Claims) e ainda assim, precisamos estivar o modelo.
+
+```{r}
+df_zip  |> 
+  ggplot(aes(x=Claims))+
+  geom_histogram(fill="darkred", color="white")+
+  theme_minimal()
+```
+
+# Criando o modelo ZIP
+
+Vamos criar agora dois modelos, sendo o primeiro binomial negativo, similar ao que já fizemos anteriormente, utilizando as variáveis Zone e Maker.
+Iremos criar um modelo Binomial Negativo, Binomial Negativo com inflação de zeros e apenas para comparar, um OLS.
+
+```{r}
+modelo_bneg_02_lmzip <- lm(formula = Claims ~ ., 
+                                    data = df_zip)
+
+modelo_bneg_02_nzip <- MASS::glm.nb(formula = Claims ~ ., 
+                                    data = df_zip)
+
+modelo_bneg_02_zip <- pscl::zeroinfl(formula = Claims ~ . | .,
+                                        dist = "negbin", data = df_zip)
+```
+
+Podemos avaliar os *logLik* de ambos os modelos.
+
+```{r}
+map_df(list(Bneg=modelo_bneg_02_nzip, Bneg_Zip=modelo_bneg_02_zip, OLS=modelo_bneg_02_lmzip), ~logLik(.))
+```
+
+Aqui observamos que o modelo com inflação de zeros tem o maior logLik e portanto aparentemente melhor. Vejamos se estatisticamente melhor.
+
+# Teste de Vuong
+Podemos utilizar o teste de Vuong para comparar modelos de contagem com inflação de zeros e seus respectivos modelos sem inflação de zeros:
+
+```{r}
+pscl::vuong(m1 = modelo_bneg_02_zip, m2 = modelo_bneg_02_nzip)
+```
+
+Aqui, observamos que o modelo com inflações de zero binomial negativo, é estatisticamente mehor que o modelo sem inflações de zeros.
+
+```{r}
+df_zip$fit_nzip <- predict(modelo_bneg_02_nzip, type = "response")
+df_zip$fit_zip <- predict(modelo_bneg_02_zip, type ="response")
+df_zip$fit_lmzip <- predict(modelo_bneg_02_lmzip, type ="response")
+
+df$fit_nzip <- df_zip$fit_nzip
+df$fit_zip <- df_zip$fit_zip
+df$fit_lmzip <- df_zip$fit_lmzip
+
+df  |> dplyr::select(Claims, Zone, Make, fit_nzip, fit_zip, fit_lmzip) |> 
+  ggplot(x=Zone, y=fit_nzip)+
+  geom_point(aes(x=Zone, y=Claims), color ="gray", alpha = 0.4)+
+  geom_point(aes(x=Zone, y=fit_lmzip), color = "blue") +
+  geom_point(aes(x=Zone, y=fit_nzip), color = "green") +
+  geom_point(aes(x=Zone, y=fit_zip), color = "red") +
+  facet_wrap(facets = vars(Make), scales = "free")+
+  theme_bw()+
+  labs(title = "Previsões por Zonas e Makers usando BNeg, BNeg \n com Inflações de Zeros e OLS", y = "Previsões", x = "Zone")
+```
+
+```{r}
+df  |> dplyr::select(Claims, Zone, Make, fit_nzip, fit_zip) |> 
+  pivot_longer(cols = c(fit_nzip, fit_zip),
+               names_to = "modelo", 
+               values_to = "previsão") |> 
+  ggplot(aes(x=Claims, y=previsão, color=modelo))+
+  geom_smooth(method = "loess",se = T)
+```
+
+# Bônus
+
+A seguir, iremos apresentar as distribuições teóricas poisson, binomial negativa para referência:
+
+## Poisson
+
+```{r}
+# A DISTRIBUIÇÃO POISSON
+
+#Estabelecendo uma função da distribuição Poisson com lambda = 1
+poisson_lambda1 <- function(m){
+  lambda <- 1
+  (exp(-lambda) * lambda ^ m) / factorial(m)
+}
+
+#Estabelecendo uma função da distribuição Poisson com lambda = 4
+poisson_lambda4 <- function(m){
+  lambda <- 4
+  (exp(-lambda) * lambda ^ m) / factorial(m)
+}
+
+#Estabelecendo uma função da distribuição Poisson com lambda = 10
+poisson_lambda10 <- function(m){
+  lambda <- 10
+  (exp(-lambda) * lambda ^ m) / factorial(m)
+}
+
+#Plotagem das funções estabelecidas anteriormente
+data.frame(m = 0:20) %>%
+  ggplot(aes(x = m)) +
+  stat_function(fun = poisson_lambda1, size = 1.5,
+                aes(color = "01")) +
+  stat_function(fun = poisson_lambda4, size = 1.5,
+                aes(color = "04")) +
+  stat_function(fun = poisson_lambda10, size = 1.5,
+                aes(color = "10")) +
+  scale_color_discrete("Valores de" ~ lambda ~ "") +
+  labs(title = "Função Massa Probabilidade (Poisson)", y = "Probabilidades", x = "m")
+```
+## Binomial Negativa
+
+```{r}
+# A DISTRIBUIÇÃO BINOMIAL NEGATIVA - PARTE CONCEITUAL
+
+#Criando com theta=2 e delta=2
+#theta: parâmetro de forma da distribuição Poisson-Gama (binomial negativa)
+#delta: parâmetro de taxa de decaimento da distribuição Poisson-Gama
+
+bneg_theta2_delta2 <- function(m){
+  theta <- 2
+  delta <- 2
+  ((delta ^ theta) * (m ^ (theta - 1)) * (exp(-m * delta))) / factorial(theta - 1)
+}
+
+#Criando uma função da distribuição binomial negativa, com theta=3 e delta=1
+bneg_theta3_delta1 <- function(m){
+  theta <- 3
+  delta <- 1
+  ((delta ^ theta) * (m ^ (theta - 1)) * (exp(-m * delta))) / factorial(theta - 1)
+}
+
+#Criando uma função da distribuição binomial negativa, com theta=3 e delta=0,5
+bneg_theta3_delta05 <- function(m){
+  theta <- 3
+  delta <- 0.5
+  ((delta ^ theta) * (m ^ (theta - 1)) * (exp(-m * delta))) / factorial(theta - 1)
+}
+
+#Plotagem das funções estabelecidas anteriormente
+data.frame(m = 1:20) %>%
+  ggplot(aes(x = m)) +
+  stat_function(fun = bneg_theta2_delta2, 
+                aes(color = "Theta igual a 2 e Delta igual a 2"),
+                size = 1.5) +
+  stat_function(fun = bneg_theta3_delta1, 
+                aes(color = "Theta igual a 3 e Delta igual a 1"),
+                size = 1.5) +
+  stat_function(fun = bneg_theta3_delta05, 
+                aes(color = "Theta igual a 3 e Delta igual a 0,5"),
+                size = 1.5) +
+  scale_color_discrete("Valores de " ~ theta ~ "e " ~ delta ~ "") +
+  labs(title = "Função Massa Probabilidade (Binomial Negativa)", y = "Probabilidades", x = "m")
+```
+
+## Poisson *Zero Inflated*
+
+```{r}
+# A DISTRIBUIÇÃO ZERO-INFLATED POISSON (ZIP) 
+
+#Exemplo de uma função da distribuição ZI Poisson, com lambda = 1 e plogit = 0,7
+zip_lambda1_plogit07 <- function(m){
+  lambda <- 1
+  plogit <- 0.7
+  ifelse(m == 0, 
+         yes = (plogit) + ((1 - plogit) * exp(-lambda)),
+         no = (1 - plogit) * ((exp(-lambda) * lambda ^ m) / factorial(m)))
+}
+
+#Comparando as distribuições Poisson, BNeg e ZIP
+data.frame(m = 0:20) %>% 
+  ggplot(aes(x = m)) +
+  stat_function(fun = zip_lambda1_plogit07, size = 1.5, 
+                aes(color = "ZIP - Lambda igual a 1 e plogit igual a 0,7")) +
+  scale_color_discrete("Distribuição:") +
+  labs(title = "Função Massa Probabilidade (Poisson Zero Inflated)",y = "Probabilidade", x = "m") +
+  theme (legend.position = "bottom")
+```
+
+## Binomial Negativa *Zero Inflated*
+
+```{r}
+# DISTRIBUIÇÃO ZERO-INFLATED BINOMIAL NEGATIVA (ZINB)
+
+#Exemplo de uma função da distribuição ZI Binomial Negativa, com theta = 2,
+#delta = 2, plogit = 0,7 e lambda_bneg = 2
+zinb_theta2_delta2_plogit07_lambda2 <- function(m){
+  theta <- 2
+  delta <- 2
+  plogit <- 0.7
+  lambda_bneg <- 2
+  ifelse(m == 0,
+         yes = (plogit) + ((1 - plogit) * (((1) / (1 + 1/theta * lambda_bneg)) ^ theta)),
+         no = (1 - plogit) * ((delta ^ theta) * (m ^ (theta - 1)) * 
+                                (exp(-m * delta))) / factorial(theta - 1))
+}
+
+#Comparando as distribuições Poisson, BNeg, ZIP e ZINB
+data.frame(m = 0:20) %>% 
+  ggplot(aes(x = m)) +
+  stat_function(fun = zinb_theta2_delta2_plogit07_lambda2, size = 1.5, 
+                aes(color = "ZINB - Theta igual a 2, Delta igual a 2 e plogit igual a 0,7")) +
+  scale_color_discrete("Distribuição:") +
+  labs(title = "Função Massa Probabilidade (Bineg Zero Inflated)", y = "Probabilidade", x = "m") +
+  theme_bw()+
+  theme(legend.position = "bottom")
+```
+
+## Todas Distribuições
+
+```{r}
+data.frame(m = 0:20) %>% 
+  ggplot(aes(x = m)) +
+  stat_function(fun = poisson_lambda1, size = 0.7,
+                aes(color = "Poisson - Lambda igual a 1")) +
+  stat_function(fun = poisson_lambda4, size = 0.7,
+                aes(color = "Poisson - Lambda igual a 4")) +
+  stat_function(fun = poisson_lambda10, size = 0.7,
+                aes(color = "Poisson - Lambda igual a 10")) +
+  stat_function(fun = bneg_theta2_delta2, size = 0.7,
+                aes(color = "BNeg - Theta igual a 2 e Delta igual a 2")) +
+  stat_function(fun = bneg_theta3_delta1, size = 0.7,
+                aes(color = "BNeg - Theta igual a 3 e Delta igual a 1")) +
+  stat_function(fun = bneg_theta3_delta05, size = 0.7,
+                aes(color = "BNeg - Theta igual a 3 e Delta igual a 0,5")) +
+  stat_function(fun = zip_lambda1_plogit07, size = 0.7,
+                aes(color = "ZI Poisson - Lambda igual a 1 e plogit igual a 0,7")) +
+  stat_function(fun = zinb_theta2_delta2_plogit07_lambda2, size = 1.5, 
+                aes(color = "ZINB - Theta igual a 2, Delta igual a 2 e plogit igual a 0,7")) +
+  scale_color_discrete("Distribuição:") +
+  labs(y = "Probabilidade", x = "m") +
+  theme_bw()+
+  theme(legend.position = "bottom")
+```
+

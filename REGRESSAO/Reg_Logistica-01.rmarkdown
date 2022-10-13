@@ -28,6 +28,7 @@ library(questionr)
 library(nnet)
 ```
 
+
 # Introdução
 
 Diferente do que vimos no artigo sobre [Regressão Linear](./RegLinear-01.html) onde criamos um modelo de ML supervisionado para fazer inferências sobre uma variável dependente contínua, neste artigo iremos criar modelos onde a variável dependente obedece à uma distribuição de **Bernoulli**. Neste caso, temos uma variável dependente dicotômica (0 ou 1), tendo a probabilidade de um evento ocorrer ($p$) e dele não ocorrer ($1-p$).
@@ -36,11 +37,13 @@ Diferente do que vimos no artigo sobre [Regressão Linear](./RegLinear-01.html) 
 
 Para os próximos exemplos iremos utilizar a base de dados *TitanicSurvival* que possui informações sobre 1309 passageiros do navio Titanic. Usaremos a variável *survived* como variável dependente e as variáveis sexo, idade e classe como variáveis explicativas.
 
+
 ```{r}
 # Selecionar base TitanicSurvival
 df <- TitanicSurvival |> as_tibble()
 df
 ```
+
 
 :::callout-warning
 Veja que temos variaveis qualitativas tanto para a explicativa quanto para a variavel dependente. Devemos portanto, ou criar as variáveis dummies conforme vimos no artigo de [Regressao Linear](./RegLinear-01.html), seja de forma manual ou saber exatamente como as funçoes lidam com tais cenários. 
@@ -49,6 +52,7 @@ Veja que temos variaveis qualitativas tanto para a explicativa quanto para a var
 
 Para nossos experimentos, iremos selecionar como variável dependente a **survived** que indica se a pessoa sobreviveu ou não à tragédia do navio Titanic. Ou seja, iremos criar modelo preditivo que, com base em variáveis explicativas presentes (sexo, idade e classe do passageiro) em nossa amostra de dados, tentemos prever se uma pessoa sobreviveria ou não.
 
+
 ```{mermaid}
 flowchart LR
 A[Sex] --> B((Survived?))
@@ -56,9 +60,11 @@ C[Age] --> B((Survived?))
 D[Passenger Class] --> B((Survived?)) 
 ```
 
+
 ## Visualizando a variável dependente
 
 Por se tratar de uma variável qualitativa, não temos média, mediana ou outras estatísticas desta natureza. Desta forma, iremos apenas criar um tabela de frequência (absoluta e relativa):
+
 
 ```{r}
 #Frequencia absoluta e relativa:
@@ -71,7 +77,9 @@ as_tibble(table(df$survived),
   mutate (freq_relativa = scales::percent(as.numeric(freq_relativa)))
 ```
 
+
 Aqui, apenas a tabela em forma gráfica. Vemos que apenas 38% das pessoas sobreviveram.
+
 
 ```{r}
 df <- TitanicSurvival
@@ -85,6 +93,7 @@ df |> ggplot(aes(survived, fill = survived)) +
              position = position_nudge(y=-20))+
   theme_minimal()
 ```
+
 # Logito
 
 Diferente da regressão linear, onde a saída era um valor quantitativo definido pelas variáveis preditoras e respectivos parâmetros calculados para minimizar os erros do modelo, na regressão **logística binomial**, iremos calcular a **probabilidade** ($p$) do evento **ocorrer** ou **não ocorrer** com base no comportamente das variáveis preditoras. Ou seja, a variável dependente será categórica e **dicotômica** (zero ou um).
@@ -111,6 +120,7 @@ $1 - p_i = \dfrac{1}{1 + \mathrm{e}^{Z_i}}$
 
 Ao criarmos um gráfico de um conjunto de logitos aleatório, por exemplo de -5 à +5, temos uma curva conhecida como "curva S" ou "sigmóide":
 
+
 ```{r}
 tibble(Z = seq(-5,5)) |> 
   mutate (p = 1/(1 + exp(1)^(Z*-1))) |> 
@@ -118,7 +128,9 @@ tibble(Z = seq(-5,5)) |>
   geom_point(size = 3) +
   geom_line(linetype = "dashed")
 ```
+
 Tabela
+
 
 ```{r}
 tab <- tibble(Z = seq(-6,6)) |> 
@@ -127,11 +139,13 @@ tab <- tibble(Z = seq(-6,6)) |>
 tab
 ```
 
+
 Então, quando calcularmos o logito em função das variáveis explicativas, conseguiremos estimar a probabildade do evento ocorrer.
 
 # Máxima Verossimilhança
 
 Enquanto na regressão linear, utilizamos os mínimos quadrados ordinários (OLS) para fazer as estimativas dos coeficientes, aqui iremos estimar os coeficientes **maximizando** a função de verossimilhança (likelihood).
+
 
 $$LL=\sum_{n=i}^{n} [(Y_i) * ln(\dfrac {\mathrm{e}^{Z_i}} 
 {1 + \mathrm{e}^{Z_i}})] + [(1-Y_i) * ln(\dfrac {1} 
@@ -372,7 +386,9 @@ Neste caso, diríamos que a chance de ocorrer o evento da Y (sobreviver), diminu
 :::callout-warning
 Lembre-se que, apesar de usarmos os termos "chances" e "probabilidade" de forma intercambiável em nosso cotidiano, estes conceitos NÃO são iguais:
 Chance é a razão entre a probabilidade de um evento ocorrer sobre a probabilidade do evento não ocorrer:
+
 $$chance  = \frac{p_i}{(1-p_i)}$$
+
 :::
 
 Podemos também obter as chances (Odds Ratio - OR) através da função **odds.ratio**() do pacote **questionr**. O interessante desta opção é que já teríamos também os intervalos de confiança (que poderiam ser calculados manualmente obviamente):
@@ -458,7 +474,9 @@ Lembre-se que quanto menor o AIC e BIC, maior acurácia tem o modelo, enquanto q
 Diferente de outros algoritmos com parcelas mais estocásticas para estimação de parâmetros, como Redes Neurais, Árvores de Decisões, etc, no modelo de regressão logística NÃO há a necessidade de separar amostra de treino e teste.
 Também não há a necessidade do balanceamento entre a proporção das categorias da variável dependente. Apenas quando soubermos a proporção da população, devemos fazer um ajuste no $\alpha$ da equação de probabilidade, somando o log natural da razão de proporção da população e da amostra:
 
+
 $$\alpha_{ajust} = \alpha + ln(\frac{pop_{evento}}{pop_{não\ evento}*} * \frac{amostra_{não\ evento}}{amostra_{evento}*} )$$
+
 :::
 # Modelo Logistico Binário multivariado
 
@@ -535,12 +553,16 @@ Diferente da regressão binária, que segue uma função bernoulli, neste caso e
 
 A função de desnidade probabilidade da função binomial segue a seguinte fórmula:
 
+
 $$p(Y_im) = \prod_{m=0}^{M-1}(p_{i_m})^{Y_{im}}$$
+
 De forma similar à regressão logística binária, aqui iremos gerar uma função de verossimilhança, porém com base em dummies da variável Y, ou seja, criando um logito ($Z (m-0,1,...M-1)$) para cada combinação das categorias da variável dependente (M) menos uma categoria de referência.
 
 A função de máxima verossimilhança que devemos maximizar neste caso é:
 
+
 $$LL = \sum_{i=0}^n  \sum_{m=0}^{M-1} \bigg[ (Y_{im} . ln\bigg(\frac{e^{Z_{im}}}  {\sum_{m=0}^{M-1}\ .e^{Z_{im}}}\bigg]\bigg)=máx$$
+
 Para criarmos um modelo multinomial, iremos utilziar a função **multinom**() do pacote **nnet**.
 
 Neste exemplo, iremos utilizar a mesma base de dados, mas para efeitos didáticos, iremos definir nossa variável dependente como a classe do passageiro (passengerClass) que tem 3 categorias. Por isso, iremos estimas 2 logitos. Cada logito terá um $\alpha$ e mais um $\beta$ para cada variável explicativa (X). Aqui, usaremos apenas a variável "survived" pois já vimos que existia associação entre ambas anteriormente. 
@@ -750,6 +772,7 @@ plot_ly(x = df_final$x3rd,
 ```
 
 Note que aqui, as nossa variável dependente é a classe do passageiro, portanto, devemos entender que a probabilidade é do passageiro ser ou não de determinada classe e não mais se ele sobreviveu ou não.
+
 
 
 
