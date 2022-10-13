@@ -22,10 +22,10 @@ já que temos muito conteúdo em Inglês disponível.
 [Regressão Linear](https://scopinho.github.io/ML/REGRESSAO/RegLinear-01.html)
 
 - Regressão Logística Binária e Multinomial
-[Regressão Linear](https://scopinho.github.io/ML/REGRESSAO/Reg_Logistica-01-01.html)
+[Regressão Logística](https://scopinho.github.io/ML/REGRESSAO/Reg_Logistica-01-01.html)
 
 - Regressão Poisson, Binomial Negativa e com Inflação de Zeros (Dados de Contagem)
-[Regressão Linear](https://scopinho.github.io/ML/REGRESSAO/Reg_Contagem-01.html)
+[Dados de Contagem](https://scopinho.github.io/ML/REGRESSAO/Reg_Contagem-01.html)
 
 - Outliers (BACON e Mahalanobis)
 [Blocked Adaptative Computationally Efficient e Mahalanobis Distance Outlier](https://scopinho.github.io/ML/BACON/BACON.html)
