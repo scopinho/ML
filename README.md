@@ -1,11 +1,12 @@
-# ML
+# Machine Learning (ML)
+
 **ENGLISH** -  Machine Learning, Operational Research, Decision Making and other stuffs repo
 
-Experiments, learning material and cheatsheets for some ML algs, MCDM and Oper. Research in R
+Experiments, learning material and cheatsheets for some ML algs, MCDM and Oper. Research in R.
+
 Most of the articles are in Portuguese language. Since there are plenty of that already in English we thought that might be a good contribution to produce in different langs.
 
-PORTUGUESE -  Repo com coisas de ML, MCDM, P.O e outras coisas. A maiores em português
-já que temos muito conteúdo em Inglês disponível.
+**PORTUGUESE** -  Repo com coisas de Machine Learning, MCDM, P.O e outros estudos para tomada de decisão e análise de dados. A maioria está em português, um vez que jaé existem diverso artigos em Inglês disponível.
 
 # **Conteúdo**
 
