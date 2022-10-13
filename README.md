@@ -1,6 +1,4 @@
-# Machine Learning (ML)
-
-![](https://mlf6kovmjrtn.i.optimole.com/w:256/h:256/q:mauto/f:avif/https://www.pointstar.com.my/wp-content/uploads/2021/06/menu-AI-icon-b.png)
+# ![Machine Learning (ML)](https://mlf6kovmjrtn.i.optimole.com/w:256/h:256/q:mauto/f:avif/https://www.pointstar.com.my/wp-content/uploads/2021/06/menu-AI-icon-b.png)
 
 **ENGLISH** -  Machine Learning, Operational Research, Decision Making and other stuffs repo
 
