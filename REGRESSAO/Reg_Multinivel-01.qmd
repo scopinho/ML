@@ -20,15 +20,31 @@ library(lme4)
 
 # Introdução
 
-A idéia dos modelos multi-níveis (Multi-levels models), também chamados de hierárquicos (hiarchical models) ou ainda modelos mistos generalizados (Generalized Mixed Models) é conseguir capturar tanto efeitos fixos quanto efeitos randômicos das variáveis. 
+A idéia dos modelos multi-níveis (Multi-level models), também chamados de hierárquicos (hiarchical models) ou ainda modelos mistos generalizados (Generalized Mixed Models) é conseguir capturar tanto efeitos fixos quanto efeitos randômicos das variáveis. 
 Eles são particularmente úteis quando temos medidas repetidas da mesma variável (estudos longitudinais) quanto agrupamentos, diretos ou latentes em variáveis explicativas. 
 
-Diferente do que vimos no artigo sobre [Regressão Linear](./RegLinear-01.html), os modelos hierárquicos permitem identificar a heterogeneidade individual e entre grupos que pertencem estes indivíduos. Para simplificar o entendimento, pense no seguinte cenário: 
-Alunos agrupados por escolas: Cada aluno tem componentes fixos que impactam seu desempenho, porém podemos tem componentes específicos de cada escola que também podem impactar o resultado do indivídou. Este tipo de relação jamais seria capturada em um modelo linear simples (OLS).
+Diferente do que vimos no artigo sobre [Regressão Linear](./RegLinear-01.html), onde temos uma premissa de independência dos dados, os modelos hierárquicos permitem identificar a heterogeneidade individual e entre grupos que pertencem estes indivíduos. Para simplificar o entendimento, pense no seguinte cenário: 
+Alunos agrupados por escolas: Cada aluno tem componentes que impactam seu desempenho, como renda, distância da escola, etc, porém podemos tem componentes específicos de cada escola que também podem impactar o resultado do indivídou, como experiência dos profressores, etc. 
+Este tipo de relação jamais seria capturada em um modelo linear simples (OLS).
+Neste exemplo, o nível 1, seria o Aluno e o nível 2 seria a escola.
+
+
+```{mermaid}
+
+flowchart TD
+A[Escola A] --> B[Aluno_1]
+A[Escola A] --> C[Aluno_2]
+A[Escola A] --> D[Aluno_3]
+Z[Escola B] --> E[Aluno_4]
+Z[Escola B] --> F[Aluno_5]
+Z[Escola B] --> G[Aluno_6]
+```
+
+Veja que este conceito de nível ou grupo não necessariamente ocorre com agrupamentos observáveis, como no exemplo de escolas. Ele pode ocorrer de outras formas, dentre elas, quando não temos indipendência das observações, ou seja, quando a mesma unidade, possui diversas observações. Neste caso, consideramos a própria variável replicada, por exemplo, através do tempo, como uma forma de agrupamento ou nível. É este cenário que iremos utilizar a seguir.
 
 # Base de Dados
 
-Para os próximos exemplos iremos utilizar a base de dados *sleepstudy* que possui informações sobre um estudo sobre privação do sono de 18 indivídous.
+Para os próximos exemplos iremos utilizar a base de dados **sleepstudy** que possui informações sobre um estudo sobre privação do sono de 18 indivídous.
 
 ```{r}
 # Selecionar base TitanicSurvival
@@ -37,10 +53,10 @@ df
 ```
 # Variável Dependente
 
-A variável **Reaction** é o tempo média do indivíduo por dia (em milisegundos).
+A variável **Reaction** é o tempo médio de reação do indivíduo por dia (em milisegundos).
 O dias 0 e 1 são de adaptação de treino, dia 2 é o baseline e a privação do sono (apenas 3 horas de tempo na cama) inicia-se após o segundo dia.
 
-Aqui, uma regressão simples, já teria uma de suas premissas feridas, pois não temos independência dos dados, pois o mesmo indivíduo aparece em vaŕias observações.
+Aqui, uma regressão simples, já teria uma de suas premissas feridas, pois não temos independência das observações, pois o mesmo indivíduo aparece em várias observações.
 Vamos dar uma olhada inicial no dataset.
 
 ```{r}
@@ -48,8 +64,9 @@ glimpse(df)
 ```
 
 # Modelo Simples (OLS)
-Vejamos os dados quando não consideramos este elemento de agrupamento em consideração.
-Para facilitar o entendimento, vamos coloca no gráfico apenas os 5 primeiros indivíduos. 
+
+Vejamos os dados quando não levamos este elemento de agrupamento em consideração.
+Para facilitar o entendimento, vamos colocar no gráfico apenas 5 indivíduos. 
 
 ```{r}
 df <- sleepstudy |> filter(Subject %in% c(308,309,330,331, 372)) 
@@ -57,7 +74,7 @@ df |>
   ggplot(aes(x=Days, y=Reaction))+
   geom_point()
 ```
-Apesar de cada indivíduo ter uma média diária, cada um pode ter reações em diferentes níveis e em alguns casos até opostas.
+Olhando este gráfico, ele faz um sentido intuitivo, pois a medida que passam os dias, o tempo de reação aumenta (devido à privação do sono).
 
 Se criamos um modelo de regressão simples, teríamos algo como:
 
@@ -69,7 +86,9 @@ df |>
   geom_point() +
   geom_smooth(aes(y=fit_simples))
 ```
-Porém, se simplesmente agruparmos as observações por indivíduos, podemos observar que o indivídous tem um tempo de reação maior com o passar dos dias, porém alguns tem tempos de reação distintos já desde o início, ou seja, o intercepto de cada um dos grupos já seria diferente desde o início do teste. 
+Aqui temos um modelo que não considera o tempo de reação de cada indivíduo, que pode ser diferente já desde o início.
+
+Veja que, se simplesmente agruparmos as observações por indivíduos, podemos observar que o indivídous tem um tempo de reação maior com o passar dos dias, porém alguns tem tempos de reação distintos já desde o início, ou seja, o intercepto de cada um dos grupos já seria diferente desde o início do teste. 
 
 ```{r}
 mod_lm_simples <- lm(Reaction ~ Days, data = df)
@@ -79,9 +98,57 @@ df |>
   geom_point() +
   geom_smooth(aes(y=fit_simples))
 ```
+Recordemos que, em um modelo linear simples, temos:
+
+$$Reaction_i = \beta0 + \beta1 * Days_i + e$$
+
+Portanto, utilizando a função **summary**(), vemos que, teríamos:
+
+$$\widehat{Reaction_i} = 258.34 + 8.72 * Days_i$$
+
+```{r}
+summary(mod_lm_simples)
+```
+
+Vemos claramente que tanto o intercepto do modelo linear simples, quando sua inclinação seriam diferentes, se considerados o efeito do grupo, ou seja, neste caso de cada indivíduo, para nossa modelagem.
+
+É aqui que entram os modelos multi-níveis (ou hierárquico, ou de efeitos, mistos....esses são nomes diferentes para a mesma técnica).
+
 # Modelo Hierárquico (HLM2)
 
-Vejamos com seria um modelo hierárquico tendo a variável "Subject" como nível 2 e apenas permitindo o efeito do grupo na variável de saída:
+Além de termos $i$ indivíduos, teremos $j$ grupos, permitindo que o fator do grupo, seja considerado na estimativa da variável dependente (Reaction). Veja:
+
+$$\widehat{Reaction_{ij}} = \beta0_j + \beta1_j * Days_{ij}$$
+Do modelo simples, temos que $\beta0$ é o intercepto, portanto, $\beta0_j$ é o intercepto para aquele determinado grupo. Ou seja, teremos um intercepto para cada grupo definido. Aqui, podemos definir uma equação par $\beta0j$:
+
+$$\beta0_j = \gamma_{00} + u_{0j}$$
+Aqui, $\gamma_{00}$ é o *grande intercepto*, ou melhor, o intercepto médio entre todos os grupos. É o **intercepto fixo**. Significa que para cada indivíduo que estamos estimando, ele será considerado.
+
+$u_{0j}$ é o desvio do grupo $j$ do intercepto fixo, ou seja, do $\gamma_{00}$.
+
+Agora podemos também definir uma equação para a inclinação:
+
+$$\beta1_j = \gamma_{10} + u_{1j}$$
+Aqui, é similar ao que vimos para o intercepto, porém $\gamma_{10}$, é a inclinação da primeira variável explicativa, ou seja, a **inclinação fixa**, enquanto $u_{1j}$ é a parte aleatória da inclinação para determinado grupo.
+
+Portanto temos as seguintes equações:
+
+**Nível 1**: 
+$$\widehat{Reaction_{ij}} = \beta0_j + \beta1_j * Days_{ij}$$
+
+**Nível 2**:
+$$\beta0_j = \gamma_{00} + u_{0j}$$
+$$\beta1_j = \gamma_{10} + u_{1j}$$
+Substituindo temos:
+
+$$\widehat{Reaction_{ij}} = (\gamma_{00} + u_{0j}) + ((\gamma_{10} + u_{1j}) * Days_{ij})$$
+Neste caso, temos um modelo de dois níveis, e por isso, é também chamado HLM2.
+
+# Criando um modelo HLM2
+
+Vejamos com seria um modelo hierárquico tendo a variável "Subject" como nível 2 e apenas permitindo o efeito do grupo na variável de saída.
+Para isso usamos a função **lmer** do pacote (*lme4*).
+Esta função utiliza a sintaxe similar à função de regressão simples (lm) para a parte fixa do modelo, porém permite incluir entre parênteses a parte aleatória do modelo. 
 
 ```{r}
 mod_mm_0 <- lmer(Reaction ~ Days + (+1 | Subject), data = df)
@@ -91,12 +158,20 @@ df |>
   geom_point() +
   geom_smooth(aes(y=fit_mm_0))
 ```
+No exemplo acima, criamos um modelo onde a parte fixa possui o intercepto e a variável preditora (Days), porém na parte aleatória, temos apenas a parte aleatória do intercepto e não da variável preditora. Neste caso, nossa equação seria:
+
+$$\widehat{Reaction_{ij}} = (\gamma_{00} + u_{0j}) + (\gamma_{10} * Days_{ij})$$
+
 Observamos que apenas permitindo o efeito do grupo variar no intercepto, já visualizamos o impacto potencial. Vejamos um resumo do modelo:
 
 ```{r}
 jtools::summ(mod_mm_0)
 ```
-Podemos observar que temos a sessão de efeitos Fixos e Randômicos. O p-value da variável Days se mostra estatisticamente significante (à 95%) no efeito fixo (como no modelo lm simples), porém observamos o efeito randômico do grupo no intercépto. O ICC (*Inteclass Correlation Coefficient*) pode ser interpretado com a proporção de variância explicada pela estrutura de grupo. Neste exemplo (2224/(2224+1136)), vemos que 66% da variância já pode ser explicada permitindo o efeito de grupo em nosso modelo.
+
+Podemos observar no resumo acima que temos a sessão de efeitos **Fixos** e **Aleatórios** (Randômicos). 
+O p-value da variável Days se mostra estatisticamente significante (à 95%) no efeito fixo (como no modelo lm simples), porém observamos o efeito randômico do grupo no intercépto. 
+
+O **ICC** (*Inteclass Correlation Coefficient*) pode ser interpretado com a proporção de variância explicada pela estrutura de grupo. Neste exemplo (2224/(2224+1136)), vemos que 66% da variância já pode ser explicada permitindo o efeito de grupo em nosso modelo.
 
 ```{r}
 summary (mod_mm_0)
@@ -116,11 +191,83 @@ df |>
 ```
 Aqui, podemos observar que o grupo (neste caso indivíduo), tem impacto tanto no componente fixo quanto no componente aleatório.
 
+No exemplo acima, criamos um modelo onde a parte fixa possui o intercepto e a variável preditora (Days), porém na parte aleatória, temos apenas a parte aleatória do intercepto e também da variável preditora. Neste caso, nossa equação seria:
+
+$$\widehat{Reaction_{ij}} = (\gamma_{00} + u_{0j}) + ((\gamma_{10} + u_{1j}) * Days_{ij})$$
+
 # Comparando os modelos
 
-Se comporarmos os modelos, observamos um ganho substancial no AIC e BIC do último modelo:
+Se comporarmos os modelos, observamos o segundo modelo, é estatisticamente melhor que o primeiro (à 95% de confiança) que o primeiro utilzando o **Likelihood Ratio Test**.
+
+```{r}
+lmtest::lrtest(mod_mm_0, mod_mm_1)
+```
+
+Os critérios AIC e BIC também são melhores para o segundo modelo:
+
+```{r}
+  rbind(map_df(list(mod_1=mod_mm_0, mod_2=mod_mm_1), AIC),
+  map_df(list(mod_1=mod_mm_0, mod_2=mod_mm_1), BIC)) |> 
+  cbind(Criteria=c("AIC", "BIC")) |> pivot_longer(cols = starts_with("mod")) |> 
+  ggplot(aes(x=Criteria, y=value, fill=name))+
+  geom_col(position="dodge")+
+  labs(y="Valor", x="Criterio")+
+  geom_label(aes(label=round(value,2)), position = position_dodge(width = .9), show.legend = F)+
+  scale_fill_discrete(name = "Modelo", label=c("OLS", "HLM"))
+```
 
 :::callout-note
-É importante observar que não há procedimento stepwise para modelo multi-nível, desta forma deve-se fazer manualmente o procedimento step-up, que seria a adição e comparação dos modelos e significância das variáveis começando do modelo nulo até um mais completo.
+É importante observar que **não há procedimento stepwise** para modelo multi-nível, desta forma deve-se fazer manualmente o procedimento **step-up**, que seria a adição e comparação dos modelos e significância das variáveis começando do modelo nulo até um mais completo.
 :::
 
+# Fazendo predições
+
+Vamos agora fazer predições para nossa base e comparar os modelos.
+Utilizamos a função **predict**(), passando o modelo hierárquico como argumento, da mesma forma que fazíamos na regressão simples.
+
+Por exemplo:
+
+```{r}
+df_pred <- data.frame(Reaction = seq(from = 293.1, to=298.5, by=0.5),
+           Days = seq(from = 0, to = 10),
+           Subject = rep(330,11))
+
+predict(mod_mm_1, newdata = df_pred)
+```
+
+Podemos também comparar o fit dos modelos OLS e HML:
+
+```{r}
+df$fit_mm_1 <- predict(mod_mm_1, type = "response")
+
+df |> ggplot(aes(x=Reaction, y=Reaction)) +
+  geom_point() +
+  geom_smooth(aes(x=fit_simples, color="red")) +
+  geom_smooth(aes(x=fit_mm_1, color="green"))+
+  scale_color_manual(name = "Modelos",
+                     labels = c("HLM", "OLS"),
+                     values = c("green", "red"))
+```
+
+```{r}
+df |> ggplot(aes(x=Days, y=Reaction, color = Subject)) +
+  geom_point() +
+  geom_smooth(aes(y=fit_simples), color = "red", linetype = "dashed") +
+  geom_smooth(aes(y=fit_mm_1), size = 1.5)
+```
+
+Podemos observar que a linha tracejada do modelo OLS, não considera os efeitos fixos e aleatórios dos grupos de indivíduos, enquanto o modelo HML consegue capturar melhor a variância dos dados considerando este outro nível.
+
+# Modelos HLM com mais níveis
+
+De forma 
+# Modelos HLM Generalizados
+
+Além dos modelos hierárquicos lineares, podemos ter modelos hierárquicos generalizados, ou seja, para variáveis de resposta que sigam distribuições como **Bernoulli**, **Poisson**, **Binomial Negativa**, etc, de forma similar ao que discutimos na [Regressão Logística](./Reg_Logistica-01.html), porém adicionando o agrupamento e componentes **fixos** e **aleatórios** na fórmula.
+
+Para isto, deve-se utilzar a função **glmer**() do pacote lme4.
+
+Para modelos multinomiais, uma alterativa é utilizar a função **mclogit**() do pacote mclogit. Por hora, ficamos por aqui.
+
+Para uma referência extra sobre este tema, sugerimos:
+[R Guide to Longitudinal Models](https://rpsychologist.com/r-guide-longitudinal-lme-lmer)

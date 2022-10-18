@@ -94,7 +94,26 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 
 <link href="Reg_Multinivel-01_files/libs/pagedtable-1.1/css/pagedtable.css" rel="stylesheet">
 <script src="Reg_Multinivel-01_files/libs/pagedtable-1.1/js/pagedtable.js"></script>
+<script src="Reg_Multinivel-01_files/libs/quarto-diagram/mermaid.min.js"></script>
+<script src="Reg_Multinivel-01_files/libs/quarto-diagram/mermaid-init.js"></script>
+<link href="Reg_Multinivel-01_files/libs/quarto-diagram/mermaid.css" rel="stylesheet">
 
+  <script>window.backupDefine = window.define; window.define = undefined;</script><script src="https://cdn.jsdelivr.net/npm/katex@0.15.1/dist/katex.min.js"></script>
+  <script>document.addEventListener("DOMContentLoaded", function () {
+ var mathElements = document.getElementsByClassName("math");
+ var macros = [];
+ for (var i = 0; i < mathElements.length; i++) {
+  var texText = mathElements[i].firstChild;
+  if (mathElements[i].tagName == "SPAN") {
+   katex.render(texText.data, mathElements[i], {
+    displayMode: mathElements[i].classList.contains('display'),
+    throwOnError: false,
+    macros: macros,
+    fleqn: false
+   });
+}}});
+  </script>
+  <script>window.define = window.backupDefine; window.backupDefine = undefined;</script><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.15.1/dist/katex.min.css">
 
 <link rel="stylesheet" href="styles.css">
 </head>
@@ -112,8 +131,11 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
   <li><a href="#variável-dependente" id="toc-variável-dependente" class="nav-link" data-scroll-target="#variável-dependente">Variável Dependente</a></li>
   <li><a href="#modelo-simples-ols" id="toc-modelo-simples-ols" class="nav-link" data-scroll-target="#modelo-simples-ols">Modelo Simples (OLS)</a></li>
   <li><a href="#modelo-hierárquico-hlm2" id="toc-modelo-hierárquico-hlm2" class="nav-link" data-scroll-target="#modelo-hierárquico-hlm2">Modelo Hierárquico (HLM2)</a></li>
+  <li><a href="#criando-um-modelo-hlm2" id="toc-criando-um-modelo-hlm2" class="nav-link" data-scroll-target="#criando-um-modelo-hlm2">Criando um modelo HLM2</a></li>
   <li><a href="#hlm2-com-efeitos-fixos-e-aleatórios" id="toc-hlm2-com-efeitos-fixos-e-aleatórios" class="nav-link" data-scroll-target="#hlm2-com-efeitos-fixos-e-aleatórios">HLM2 com efeitos fixos e aleatórios</a></li>
   <li><a href="#comparando-os-modelos" id="toc-comparando-os-modelos" class="nav-link" data-scroll-target="#comparando-os-modelos">Comparando os modelos</a></li>
+  <li><a href="#fazendo-predições" id="toc-fazendo-predições" class="nav-link" data-scroll-target="#fazendo-predições">Fazendo predições</a></li>
+  <li><a href="#modelos-hlm-com-mais-níveis" id="toc-modelos-hlm-com-mais-níveis" class="nav-link" data-scroll-target="#modelos-hlm-com-mais-níveis">Modelos HLM com mais níveis</a></li>
   </ul>
 </nav>
 </div>
@@ -145,12 +167,32 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 </div>
 <section id="introdução" class="level1">
 <h1>Introdução</h1>
-<p>A idéia dos modelos multi-níveis (Multi-levels models), também chamados de hierárquicos (hiarchical models) ou ainda modelos mistos generalizados (Generalized Mixed Models) é conseguir capturar tanto efeitos fixos quanto efeitos randômicos das variáveis. Eles são particularmente úteis quando temos medidas repetidas da mesma variável (estudos longitudinais) quanto agrupamentos, diretos ou latentes em variáveis explicativas.</p>
-<p>Diferente do que vimos no artigo sobre <a href="./RegLinear-01.html">Regressão Linear</a>, os modelos hierárquicos permitem identificar a heterogeneidade individual e entre grupos que pertencem estes indivíduos. Para simplificar o entendimento, pense no seguinte cenário: Alunos agrupados por escolas: Cada aluno tem componentes fixos que impactam seu desempenho, porém podemos tem componentes específicos de cada escola que também podem impactar o resultado do indivídou. Este tipo de relação jamais seria capturada em um modelo linear simples (OLS).</p>
+<p>A idéia dos modelos multi-níveis (Multi-level models), também chamados de hierárquicos (hiarchical models) ou ainda modelos mistos generalizados (Generalized Mixed Models) é conseguir capturar tanto efeitos fixos quanto efeitos randômicos das variáveis. Eles são particularmente úteis quando temos medidas repetidas da mesma variável (estudos longitudinais) quanto agrupamentos, diretos ou latentes em variáveis explicativas.</p>
+<p>Diferente do que vimos no artigo sobre <a href="./RegLinear-01.html">Regressão Linear</a>, onde temos uma premissa de independência dos dados, os modelos hierárquicos permitem identificar a heterogeneidade individual e entre grupos que pertencem estes indivíduos. Para simplificar o entendimento, pense no seguinte cenário: Alunos agrupados por escolas: Cada aluno tem componentes que impactam seu desempenho, como renda, distância da escola, etc, porém podemos tem componentes específicos de cada escola que também podem impactar o resultado do indivídou, como experiência dos profressores, etc. Este tipo de relação jamais seria capturada em um modelo linear simples (OLS). Neste exemplo, o nível 1, seria o Aluno e o nível 2 seria a escola.</p>
+<div class="cell">
+<div class="cell-output-display">
+<div>
+<p>
+</p><pre class="mermaid" data-tooltip-selector="#mermaid-tooltip-1">flowchart TD
+A[Escola A] --&gt; B[Aluno_1]
+A[Escola A] --&gt; C[Aluno_2]
+A[Escola A] --&gt; D[Aluno_3]
+Z[Escola B] --&gt; E[Aluno_4]
+Z[Escola B] --&gt; F[Aluno_5]
+Z[Escola B] --&gt; G[Aluno_6]
+</pre>
+<div id="mermaid-tooltip-1" class="mermaidTooltip">
+
+</div>
+<p></p>
+</div>
+</div>
+</div>
+<p>Veja que este conceito de nível ou grupo não necessariamente ocorre com agrupamentos observáveis, como no exemplo de escolas. Ele pode ocorrer de outras formas, dentre elas, quando não temos indipendência das observações, ou seja, quando a mesma unidade, possui diversas observações. Neste caso, consideramos a própria variável replicada, por exemplo, através do tempo, como uma forma de agrupamento ou nível. É este cenário que iremos utilizar a seguir.</p>
 </section>
 <section id="base-de-dados" class="level1">
 <h1>Base de Dados</h1>
-<p>Para os próximos exemplos iremos utilizar a base de dados <em>sleepstudy</em> que possui informações sobre um estudo sobre privação do sono de 18 indivídous.</p>
+<p>Para os próximos exemplos iremos utilizar a base de dados <strong>sleepstudy</strong> que possui informações sobre um estudo sobre privação do sono de 18 indivídous.</p>
 <div class="cell">
 <details>
 <summary>Mostrar código-fonte</summary>
@@ -170,8 +212,8 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 </section>
 <section id="variável-dependente" class="level1">
 <h1>Variável Dependente</h1>
-<p>A variável <strong>Reaction</strong> é o tempo média do indivíduo por dia (em milisegundos). O dias 0 e 1 são de adaptação de treino, dia 2 é o baseline e a privação do sono (apenas 3 horas de tempo na cama) inicia-se após o segundo dia.</p>
-<p>Aqui, uma regressão simples, já teria uma de suas premissas feridas, pois não temos independência dos dados, pois o mesmo indivíduo aparece em vaŕias observações. Vamos dar uma olhada inicial no dataset.</p>
+<p>A variável <strong>Reaction</strong> é o tempo médio de reação do indivíduo por dia (em milisegundos). O dias 0 e 1 são de adaptação de treino, dia 2 é o baseline e a privação do sono (apenas 3 horas de tempo na cama) inicia-se após o segundo dia.</p>
+<p>Aqui, uma regressão simples, já teria uma de suas premissas feridas, pois não temos independência das observações, pois o mesmo indivíduo aparece em várias observações. Vamos dar uma olhada inicial no dataset.</p>
 <div class="cell">
 <details>
 <summary>Mostrar código-fonte</summary>
@@ -188,7 +230,7 @@ $ Subject  &lt;fct&gt; 308, 308, 308, 308, 308, 308, 308, 308, 308, 308, 309, 30
 </section>
 <section id="modelo-simples-ols" class="level1">
 <h1>Modelo Simples (OLS)</h1>
-<p>Vejamos os dados quando não consideramos este elemento de agrupamento em consideração. Para facilitar o entendimento, vamos coloca no gráfico apenas os 5 primeiros indivíduos.</p>
+<p>Vejamos os dados quando não levamos este elemento de agrupamento em consideração. Para facilitar o entendimento, vamos colocar no gráfico apenas 5 indivíduos.</p>
 <div class="cell">
 <details>
 <summary>Mostrar código-fonte</summary>
@@ -198,10 +240,10 @@ $ Subject  &lt;fct&gt; 308, 308, 308, 308, 308, 308, 308, 308, 308, 308, 309, 30
 <span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output-display">
-<p><img src="Reg_Multinivel-01_files/figure-html/unnamed-chunk-4-1.png" class="img-fluid" width="672"></p>
+<p><img src="Reg_Multinivel-01_files/figure-html/unnamed-chunk-5-1.png" class="img-fluid" width="672"></p>
 </div>
 </div>
-<p>Apesar de cada indivíduo ter uma média diária, cada um pode ter reações em diferentes níveis e em alguns casos até opostas.</p>
+<p>Olhando este gráfico, ele faz um sentido intuitivo, pois a medida que passam os dias, o tempo de reação aumenta (devido à privação do sono).</p>
 <p>Se criamos um modelo de regressão simples, teríamos algo como:</p>
 <div class="cell">
 <details>
@@ -214,10 +256,11 @@ $ Subject  &lt;fct&gt; 308, 308, 308, 308, 308, 308, 308, 308, 308, 308, 309, 30
 <span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_smooth</span>(<span class="fu">aes</span>(<span class="at">y=</span>fit_simples))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output-display">
-<p><img src="Reg_Multinivel-01_files/figure-html/unnamed-chunk-5-1.png" class="img-fluid" width="672"></p>
+<p><img src="Reg_Multinivel-01_files/figure-html/unnamed-chunk-6-1.png" class="img-fluid" width="672"></p>
 </div>
 </div>
-<p>Porém, se simplesmente agruparmos as observações por indivíduos, podemos observar que o indivídous tem um tempo de reação maior com o passar dos dias, porém alguns tem tempos de reação distintos já desde o início, ou seja, o intercepto de cada um dos grupos já seria diferente desde o início do teste.</p>
+<p>Aqui temos um modelo que não considera o tempo de reação de cada indivíduo, que pode ser diferente já desde o início.</p>
+<p>Veja que, se simplesmente agruparmos as observações por indivíduos, podemos observar que o indivídous tem um tempo de reação maior com o passar dos dias, porém alguns tem tempos de reação distintos já desde o início, ou seja, o intercepto de cada um dos grupos já seria diferente desde o início do teste.</p>
 <div class="cell">
 <details>
 <summary>Mostrar código-fonte</summary>
@@ -229,32 +272,87 @@ $ Subject  &lt;fct&gt; 308, 308, 308, 308, 308, 308, 308, 308, 308, 308, 309, 30
 <span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_smooth</span>(<span class="fu">aes</span>(<span class="at">y=</span>fit_simples))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output-display">
-<p><img src="Reg_Multinivel-01_files/figure-html/unnamed-chunk-6-1.png" class="img-fluid" width="672"></p>
-</div>
-</div>
-</section>
-<section id="modelo-hierárquico-hlm2" class="level1">
-<h1>Modelo Hierárquico (HLM2)</h1>
-<p>Vejamos com seria um modelo hierárquico tendo a variável “Subject” como nível 2 e apenas permitindo o efeito do grupo na variável de saída:</p>
-<div class="cell">
-<details>
-<summary>Mostrar código-fonte</summary>
-<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>mod_mm_0 <span class="ot">&lt;-</span> <span class="fu">lmer</span>(Reaction <span class="sc">~</span> Days <span class="sc">+</span> (<span class="sc">+</span><span class="dv">1</span> <span class="sc">|</span> Subject), <span class="at">data =</span> df)</span>
-<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>df<span class="sc">$</span>fit_mm_0 <span class="ot">&lt;-</span> <span class="fu">predict</span>(mod_mm_0)</span>
-<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>df <span class="sc">|&gt;</span> </span>
-<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x=</span>Days, <span class="at">y=</span>Reaction, <span class="at">color=</span>Subject))<span class="sc">+</span></span>
-<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>() <span class="sc">+</span></span>
-<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_smooth</span>(<span class="fu">aes</span>(<span class="at">y=</span>fit_mm_0))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</details>
-<div class="cell-output-display">
 <p><img src="Reg_Multinivel-01_files/figure-html/unnamed-chunk-7-1.png" class="img-fluid" width="672"></p>
 </div>
 </div>
+<p>Recordemos que, em um modelo linear simples, temos:</p>
+<p><span class="math display">Reaction_i = \beta0 + \beta1 * Days_i + e</span></p>
+<p>Portanto, utilizando a função <strong>summary</strong>(), vemos que, teríamos:</p>
+<p><span class="math display">\widehat{Reaction_i} = 258.34 + 8.72 * Days_i</span></p>
+<div class="cell">
+<details>
+<summary>Mostrar código-fonte</summary>
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(mod_lm_simples)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Call:
+lm(formula = Reaction ~ Days, data = df)
+
+Residuals:
+     Min       1Q   Median       3Q      Max 
+-103.805  -28.170    7.242   27.575  129.533 
+
+Coefficients:
+            Estimate Std. Error t value Pr(&gt;|t|)    
+(Intercept)  258.343     14.372  17.976  &lt; 2e-16 ***
+Days           8.720      2.692   3.239  0.00218 ** 
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+Residual standard error: 54.68 on 48 degrees of freedom
+Multiple R-squared:  0.1794,    Adjusted R-squared:  0.1623 
+F-statistic: 10.49 on 1 and 48 DF,  p-value: 0.002179</code></pre>
+</div>
+</div>
+<p>Vemos claramente que tanto o intercepto do modelo linear simples, quando sua inclinação seriam diferentes, se considerados o efeito do grupo, ou seja, neste caso de cada indivíduo, para nossa modelagem.</p>
+<p>É aqui que entram os modelos multi-níveis (ou hierárquico, ou de efeitos, mistos….esses são nomes diferentes para a mesma técnica).</p>
+</section>
+<section id="modelo-hierárquico-hlm2" class="level1">
+<h1>Modelo Hierárquico (HLM2)</h1>
+<p>Além de termos <span class="math inline">i</span> indivíduos, teremos <span class="math inline">j</span> grupos, permitindo que o fator do grupo, seja considerado na estimativa da variável dependente (Reaction). Veja:</p>
+<p><span class="math display">\widehat{Reaction_{ij}} = \beta0_j + \beta1_j * Days_{ij}</span></p>
+<p>Do modelo simples, temos que <span class="math inline">\beta0</span> é o intercepto, portanto, <span class="math inline">\beta0_j</span> é o intercepto para aquele determinado grupo. Ou seja, teremos um intercepto para cada grupo definido. Aqui, podemos definir uma equação par <span class="math inline">\beta0j</span>:</p>
+<p><span class="math display">\beta0_j = \gamma_{00} + u_{0j}</span></p>
+<p>Aqui, <span class="math inline">\gamma_{00}</span> é o <em>grande intercepto</em>, ou melhor, o intercepto médio entre todos os grupos. É o <strong>intercepto fixo</strong>. Significa que para cada indivíduo que estamos estimando, ele será considerado.</p>
+<p><span class="math inline">u_{0j}</span> é o desvio do grupo <span class="math inline">j</span> do intercepto fixo, ou seja, do <span class="math inline">\gamma_{00}</span>.</p>
+<p>Agora podemos também definir uma equação para a inclinação:</p>
+<p><span class="math display">\beta1_j = \gamma_{10} + u_{1j}</span></p>
+<p>Aqui, é similar ao que vimos para o intercepto, porém <span class="math inline">\gamma_{10}</span>, é a inclinação da primeira variável explicativa, ou seja, a <strong>inclinação fixa</strong>, enquanto <span class="math inline">u_{1j}</span> é a parte aleatória da inclinação para determinado grupo.</p>
+<p>Portanto temos as seguintes equações:</p>
+<p><strong>Nível 1</strong>:</p>
+<p><span class="math display">\widehat{Reaction_{ij}} = \beta0_j + \beta1_j * Days_{ij}</span></p>
+<p><strong>Nível 2</strong>:</p>
+<p><span class="math display">\beta0_j = \gamma_{00} + u_{0j}</span></p>
+<p><span class="math display">\beta1_j = \gamma_{10} + u_{1j}</span></p>
+<p>Substituindo temos:</p>
+<p><span class="math display">\widehat{Reaction_{ij}} = (\gamma_{00} + u_{0j}) + ((\gamma_{10} + u_{1j}) * Days_{ij})</span></p>
+<p>Neste caso, temos um modelo de dois níveis, e por isso, é também chamado HLM2.</p>
+</section>
+<section id="criando-um-modelo-hlm2" class="level1">
+<h1>Criando um modelo HLM2</h1>
+<p>Vejamos com seria um modelo hierárquico tendo a variável “Subject” como nível 2 e apenas permitindo o efeito do grupo na variável de saída. Para isso usamos a função <strong>lmer</strong> do pacote (<em>lme4</em>). Esta função utiliza a sintaxe similar à função de regressão simples (lm) para a parte fixa do modelo, porém permite incluir entre parênteses a parte aleatória do modelo.</p>
+<div class="cell">
+<details>
+<summary>Mostrar código-fonte</summary>
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>mod_mm_0 <span class="ot">&lt;-</span> <span class="fu">lmer</span>(Reaction <span class="sc">~</span> Days <span class="sc">+</span> (<span class="sc">+</span><span class="dv">1</span> <span class="sc">|</span> Subject), <span class="at">data =</span> df)</span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>df<span class="sc">$</span>fit_mm_0 <span class="ot">&lt;-</span> <span class="fu">predict</span>(mod_mm_0)</span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>df <span class="sc">|&gt;</span> </span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x=</span>Days, <span class="at">y=</span>Reaction, <span class="at">color=</span>Subject))<span class="sc">+</span></span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>() <span class="sc">+</span></span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_smooth</span>(<span class="fu">aes</span>(<span class="at">y=</span>fit_mm_0))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<p><img src="Reg_Multinivel-01_files/figure-html/unnamed-chunk-9-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<p>No exemplo acima, criamos um modelo onde a parte fixa possui o intercepto e a variável preditora (Days), porém na parte aleatória, temos apenas a parte aleatória do intercepto e não da variável preditora. Neste caso, nossa equação seria:</p>
+<p><span class="math display">\widehat{Reaction_{ij}} = (\gamma_{00} + u_{0j}) + (\gamma_{10} * Days_{ij})</span></p>
 <p>Observamos que apenas permitindo o efeito do grupo variar no intercepto, já visualizamos o impacto potencial. Vejamos um resumo do modelo:</p>
 <div class="cell">
 <details>
 <summary>Mostrar código-fonte</summary>
-<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>jtools<span class="sc">::</span><span class="fu">summ</span>(mod_mm_0)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>jtools<span class="sc">::</span><span class="fu">summ</span>(mod_mm_0)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output-display">
 
@@ -364,11 +462,12 @@ $ Subject  &lt;fct&gt; 308, 308, 308, 308, 308, 308, 308, 308, 308, 308, 309, 30
 </table>
 </div>
 </div>
-<p>Podemos observar que temos a sessão de efeitos Fixos e Randômicos. O p-value da variável Days se mostra estatisticamente significante (à 95%) no efeito fixo (como no modelo lm simples), porém observamos o efeito randômico do grupo no intercépto. O ICC (<em>Inteclass Correlation Coefficient</em>) pode ser interpretado com a proporção de variância explicada pela estrutura de grupo. Neste exemplo (2224/(2224+1136)), vemos que 66% da variância já pode ser explicada permitindo o efeito de grupo em nosso modelo.</p>
+<p>Podemos observar no resumo acima que temos a sessão de efeitos <strong>Fixos</strong> e <strong>Aleatórios</strong> (Randômicos). O p-value da variável Days se mostra estatisticamente significante (à 95%) no efeito fixo (como no modelo lm simples), porém observamos o efeito randômico do grupo no intercépto.</p>
+<p>O <strong>ICC</strong> (<em>Inteclass Correlation Coefficient</em>) pode ser interpretado com a proporção de variância explicada pela estrutura de grupo. Neste exemplo (2224/(2224+1136)), vemos que 66% da variância já pode ser explicada permitindo o efeito de grupo em nosso modelo.</p>
 <div class="cell">
 <details>
 <summary>Mostrar código-fonte</summary>
-<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span> (mod_mm_0)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span> (mod_mm_0)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>Linear mixed model fit by REML ['lmerMod']
@@ -404,22 +503,55 @@ Days -0.326</code></pre>
 <div class="cell">
 <details>
 <summary>Mostrar código-fonte</summary>
-<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>mod_mm_1 <span class="ot">&lt;-</span> <span class="fu">lmer</span>(Reaction <span class="sc">~</span> Days <span class="sc">+</span> (Days <span class="sc">|</span> Subject), <span class="at">data =</span> df)</span>
-<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>df<span class="sc">$</span>fit_mm_1 <span class="ot">&lt;-</span> <span class="fu">predict</span>(mod_mm_1)</span>
-<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>df <span class="sc">|&gt;</span> </span>
-<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x=</span>Days, <span class="at">y=</span>Reaction, <span class="at">color=</span>Subject))<span class="sc">+</span></span>
-<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>() <span class="sc">+</span></span>
-<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_smooth</span>(<span class="fu">aes</span>(<span class="at">y=</span>fit_mm_1))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>mod_mm_1 <span class="ot">&lt;-</span> <span class="fu">lmer</span>(Reaction <span class="sc">~</span> Days <span class="sc">+</span> (Days <span class="sc">|</span> Subject), <span class="at">data =</span> df)</span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>df<span class="sc">$</span>fit_mm_1 <span class="ot">&lt;-</span> <span class="fu">predict</span>(mod_mm_1)</span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>df <span class="sc">|&gt;</span> </span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x=</span>Days, <span class="at">y=</span>Reaction, <span class="at">color=</span>Subject))<span class="sc">+</span></span>
+<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>() <span class="sc">+</span></span>
+<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_smooth</span>(<span class="fu">aes</span>(<span class="at">y=</span>fit_mm_1))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output-display">
-<p><img src="Reg_Multinivel-01_files/figure-html/unnamed-chunk-10-1.png" class="img-fluid" width="672"></p>
+<p><img src="Reg_Multinivel-01_files/figure-html/unnamed-chunk-12-1.png" class="img-fluid" width="672"></p>
 </div>
 </div>
 <p>Aqui, podemos observar que o grupo (neste caso indivíduo), tem impacto tanto no componente fixo quanto no componente aleatório.</p>
+<p>No exemplo acima, criamos um modelo onde a parte fixa possui o intercepto e a variável preditora (Days), porém na parte aleatória, temos apenas a parte aleatória do intercepto e também da variável preditora. Neste caso, nossa equação seria:</p>
+<p><span class="math display">\widehat{Reaction_{ij}} = (\gamma_{00} + u_{0j}) + ((\gamma_{10} + u_{1j}) * Days_{ij})</span></p>
 </section>
 <section id="comparando-os-modelos" class="level1">
 <h1>Comparando os modelos</h1>
-<p>Se comporarmos os modelos, observamos um ganho substancial no AIC e BIC do último modelo:</p>
+<p>Se comporarmos os modelos, observamos o segundo modelo, é estatisticamente melhor que o primeiro (à 95% de confiança) que o primeiro utilzando o <strong>Likelihood Ratio Test</strong>.</p>
+<div class="cell">
+<details>
+<summary>Mostrar código-fonte</summary>
+<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>lmtest<span class="sc">::</span><span class="fu">lrtest</span>(mod_mm_0, mod_mm_1)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+
+<div data-pagedtable="false">
+  <script data-pagedtable-source="" type="application/json">
+{"columns":[{"label":[""],"name":["_rn_"],"type":[""],"align":["left"]},{"label":["#Df"],"name":[1],"type":["dbl"],"align":["right"]},{"label":["LogLik"],"name":[2],"type":["dbl"],"align":["right"]},{"label":["Df"],"name":[3],"type":["dbl"],"align":["right"]},{"label":["Chisq"],"name":[4],"type":["dbl"],"align":["right"]},{"label":["Pr(>Chisq)"],"name":[5],"type":["dbl"],"align":["right"]}],"data":[{"1":"4","2":"-247.9712","3":"NA","4":"NA","5":"NA","_rn_":"1"},{"1":"6","2":"-240.2872","3":"2","4":"15.36795","5":"0.000460143","_rn_":"2"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+  </script>
+</div>
+</div>
+</div>
+<p>Os critérios AIC e BIC também são melhores para o segundo modelo:</p>
+<div class="cell">
+<details>
+<summary>Mostrar código-fonte</summary>
+<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rbind</span>(<span class="fu">map_df</span>(<span class="fu">list</span>(<span class="at">mod_1=</span>mod_mm_0, <span class="at">mod_2=</span>mod_mm_1), AIC),</span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">map_df</span>(<span class="fu">list</span>(<span class="at">mod_1=</span>mod_mm_0, <span class="at">mod_2=</span>mod_mm_1), BIC)) <span class="sc">|&gt;</span> </span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">cbind</span>(<span class="at">Criteria=</span><span class="fu">c</span>(<span class="st">"AIC"</span>, <span class="st">"BIC"</span>)) <span class="sc">|&gt;</span> <span class="fu">pivot_longer</span>(<span class="at">cols =</span> <span class="fu">starts_with</span>(<span class="st">"mod"</span>)) <span class="sc">|&gt;</span> </span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x=</span>Criteria, <span class="at">y=</span>value, <span class="at">fill=</span>name))<span class="sc">+</span></span>
+<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_col</span>(<span class="at">position=</span><span class="st">"dodge"</span>)<span class="sc">+</span></span>
+<span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">y=</span><span class="st">"Valor"</span>, <span class="at">x=</span><span class="st">"Criterio"</span>)<span class="sc">+</span></span>
+<span id="cb16-7"><a href="#cb16-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_label</span>(<span class="fu">aes</span>(<span class="at">label=</span><span class="fu">round</span>(value,<span class="dv">2</span>)), <span class="at">position =</span> <span class="fu">position_dodge</span>(<span class="at">width =</span> .<span class="dv">9</span>), <span class="at">show.legend =</span> F)<span class="sc">+</span></span>
+<span id="cb16-8"><a href="#cb16-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_fill_discrete</span>(<span class="at">name =</span> <span class="st">"Modelo"</span>, <span class="at">label=</span><span class="fu">c</span>(<span class="st">"OLS"</span>, <span class="st">"HLM"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<p><img src="Reg_Multinivel-01_files/figure-html/unnamed-chunk-14-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
 <div class="callout-note callout callout-style-default callout-captioned">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
@@ -430,9 +562,69 @@ Note
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<p>É importante observar que não há procedimento stepwise para modelo multi-nível, desta forma deve-se fazer manualmente o procedimento step-up, que seria a adição e comparação dos modelos e significância das variáveis começando do modelo nulo até um mais completo.</p>
+<p>É importante observar que <strong>não há procedimento stepwise</strong> para modelo multi-nível, desta forma deve-se fazer manualmente o procedimento <strong>step-up</strong>, que seria a adição e comparação dos modelos e significância das variáveis começando do modelo nulo até um mais completo.</p>
 </div>
 </div>
+</section>
+<section id="fazendo-predições" class="level1">
+<h1>Fazendo predições</h1>
+<p>Vamos agora fazer predições para nossa base e comparar os modelos. Utilizamos a função <strong>predict</strong>(), passando o modelo hierárquico como argumento, da mesma forma que fazíamos na regressão simples.</p>
+<p>Por exemplo:</p>
+<div class="cell">
+<details>
+<summary>Mostrar código-fonte</summary>
+<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>df_pred <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">Reaction =</span> <span class="fu">seq</span>(<span class="at">from =</span> <span class="fl">293.1</span>, <span class="at">to=</span><span class="fl">298.5</span>, <span class="at">by=</span><span class="fl">0.5</span>),</span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>           <span class="at">Days =</span> <span class="fu">seq</span>(<span class="at">from =</span> <span class="dv">0</span>, <span class="at">to =</span> <span class="dv">10</span>),</span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>           <span class="at">Subject =</span> <span class="fu">rep</span>(<span class="dv">330</span>,<span class="dv">11</span>))</span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a><span class="fu">predict</span>(mod_mm_1, <span class="at">newdata =</span> df_pred)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>       1        2        3        4        5        6        7        8 
+280.7099 285.3295 289.9490 294.5686 299.1882 303.8077 308.4273 313.0468 
+       9       10       11 
+317.6664 322.2859 326.9055 </code></pre>
+</div>
+</div>
+<p>Podemos também comparar o fit dos modelos OLS e HML:</p>
+<div class="cell">
+<details>
+<summary>Mostrar código-fonte</summary>
+<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a>df<span class="sc">$</span>fit_mm_1 <span class="ot">&lt;-</span> <span class="fu">predict</span>(mod_mm_1, <span class="at">type =</span> <span class="st">"response"</span>)</span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a>df <span class="sc">|&gt;</span> <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x=</span>Reaction, <span class="at">y=</span>Reaction)) <span class="sc">+</span></span>
+<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>() <span class="sc">+</span></span>
+<span id="cb19-5"><a href="#cb19-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_smooth</span>(<span class="fu">aes</span>(<span class="at">x=</span>fit_simples, <span class="at">color=</span><span class="st">"red"</span>)) <span class="sc">+</span></span>
+<span id="cb19-6"><a href="#cb19-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_smooth</span>(<span class="fu">aes</span>(<span class="at">x=</span>fit_mm_1, <span class="at">color=</span><span class="st">"green"</span>))<span class="sc">+</span></span>
+<span id="cb19-7"><a href="#cb19-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_color_manual</span>(<span class="at">name =</span> <span class="st">"Modelos"</span>,</span>
+<span id="cb19-8"><a href="#cb19-8" aria-hidden="true" tabindex="-1"></a>                     <span class="at">labels =</span> <span class="fu">c</span>(<span class="st">"HLM"</span>, <span class="st">"OLS"</span>),</span>
+<span id="cb19-9"><a href="#cb19-9" aria-hidden="true" tabindex="-1"></a>                     <span class="at">values =</span> <span class="fu">c</span>(<span class="st">"green"</span>, <span class="st">"red"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<p><img src="Reg_Multinivel-01_files/figure-html/unnamed-chunk-16-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<div class="cell">
+<details>
+<summary>Mostrar código-fonte</summary>
+<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a>df <span class="sc">|&gt;</span> <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x=</span>Days, <span class="at">y=</span>Reaction, <span class="at">color =</span> Subject)) <span class="sc">+</span></span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>() <span class="sc">+</span></span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_smooth</span>(<span class="fu">aes</span>(<span class="at">y=</span>fit_simples), <span class="at">color =</span> <span class="st">"red"</span>, <span class="at">linetype =</span> <span class="st">"dashed"</span>) <span class="sc">+</span></span>
+<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_smooth</span>(<span class="fu">aes</span>(<span class="at">y=</span>fit_mm_1), <span class="at">size =</span> <span class="fl">1.5</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<p><img src="Reg_Multinivel-01_files/figure-html/unnamed-chunk-17-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<p>Podemos observar que a linha tracejada do modelo OLS, não considera os efeitos fixos e aleatórios dos grupos de indivíduos, enquanto o modelo HML consegue capturar melhor a variância dos dados considerando este outro nível.</p>
+</section>
+<section id="modelos-hlm-com-mais-níveis" class="level1">
+<h1>Modelos HLM com mais níveis</h1>
+<p>De forma # Modelos HLM Generalizados</p>
+<p>Além dos modelos hierárquicos lineares, podemos ter modelos hierárquicos generalizados, ou seja, para variáveis de resposta que sigam distribuições como <strong>Bernoulli</strong>, <strong>Poisson</strong>, <strong>Binomial Negativa</strong>, etc, de forma similar ao que discutimos na <a href="./Reg_Logistica-01.html">Regressão Logística</a>, porém adicionando o agrupamento e componentes <strong>fixos</strong> e <strong>aleatórios</strong> na fórmula.</p>
+<p>Para isto, deve-se utilzar a função <strong>glmer</strong>() do pacote lme4.</p>
+<p>Para modelos multinomiais, uma alterativa é utilizar a função <strong>mclogit</strong>() do pacote mclogit. Por hora, ficamos por aqui.</p>
+<p>Para uma referência extra sobre este tema, sugerimos: <a href="https://rpsychologist.com/r-guide-longitudinal-lme-lmer">R Guide to Longitudinal Models</a></p>
 </section>
 
 </main>

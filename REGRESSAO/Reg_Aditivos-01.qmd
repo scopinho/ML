@@ -1,0 +1,35 @@
+---
+title: "Modelos Aditivos Generalizados - GAM"
+execute: 
+  warning: false
+format:
+  html:
+    toc: true
+    html-math-method: katex
+    css: styles.css
+    df-print: paged
+    code-fold: true
+    code-summary: "Mostrar código-fonte"
+---
+
+```{r}
+library(tidyverse) 
+library(janitor)
+library(lme4)
+```
+
+# Introdução
+
+XXXX
+
+XXX.
+
+# Base de Dados
+
+Para os próximos exemplos iremos utilizar a base de dados **XXX** que possui informações sobre um estudo sobre privação do sono de 18 indivídous.
+
+```{r}
+# Selecionar base TitanicSurvival
+df <- sleepstudy |> as_tibble()
+df
+```

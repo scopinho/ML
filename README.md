@@ -39,6 +39,9 @@ Most of the articles are in Portuguese language. Since there are plenty of that 
 ## Modelos Hierárquicos Multinivel ou Efeitos Mistos 
 [Modelos Hierárquicos - HLM](https://scopinho.github.io/ML/REGRESSAO/Reg_Multinivel-01.html)
 
+## Modelos Aditivos Generalizados 
+[Generalized Addictive Models - GAM](https://scopinho.github.io/ML/REGRESSAO/Reg_Aditivos-01.html)
+
 ## Outliers (BACON e Mahalanobis)
 
 [Blocked Adaptative Computationally Efficient e Mahalanobis Distance Outlier](https://scopinho.github.io/ML/BACON/BACON.html)
