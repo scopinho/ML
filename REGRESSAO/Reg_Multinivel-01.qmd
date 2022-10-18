@@ -1,0 +1,126 @@
+---
+title: "Modelo Multinível"
+execute: 
+  warning: false
+format:
+  html:
+    toc: true
+    html-math-method: katex
+    css: styles.css
+    df-print: paged
+    code-fold: true
+    code-summary: "Mostrar código-fonte"
+---
+
+```{r}
+library(tidyverse) 
+library(janitor)
+library(lme4)
+```
+
+# Introdução
+
+A idéia dos modelos multi-níveis (Multi-levels models), também chamados de hierárquicos (hiarchical models) ou ainda modelos mistos generalizados (Generalized Mixed Models) é conseguir capturar tanto efeitos fixos quanto efeitos randômicos das variáveis. 
+Eles são particularmente úteis quando temos medidas repetidas da mesma variável (estudos longitudinais) quanto agrupamentos, diretos ou latentes em variáveis explicativas. 
+
+Diferente do que vimos no artigo sobre [Regressão Linear](./RegLinear-01.html), os modelos hierárquicos permitem identificar a heterogeneidade individual e entre grupos que pertencem estes indivíduos. Para simplificar o entendimento, pense no seguinte cenário: 
+Alunos agrupados por escolas: Cada aluno tem componentes fixos que impactam seu desempenho, porém podemos tem componentes específicos de cada escola que também podem impactar o resultado do indivídou. Este tipo de relação jamais seria capturada em um modelo linear simples (OLS).
+
+# Base de Dados
+
+Para os próximos exemplos iremos utilizar a base de dados *sleepstudy* que possui informações sobre um estudo sobre privação do sono de 18 indivídous.
+
+```{r}
+# Selecionar base TitanicSurvival
+df <- sleepstudy |> as_tibble()
+df
+```
+# Variável Dependente
+
+A variável **Reaction** é o tempo média do indivíduo por dia (em milisegundos).
+O dias 0 e 1 são de adaptação de treino, dia 2 é o baseline e a privação do sono (apenas 3 horas de tempo na cama) inicia-se após o segundo dia.
+
+Aqui, uma regressão simples, já teria uma de suas premissas feridas, pois não temos independência dos dados, pois o mesmo indivíduo aparece em vaŕias observações.
+Vamos dar uma olhada inicial no dataset.
+
+```{r}
+glimpse(df)
+```
+
+# Modelo Simples (OLS)
+Vejamos os dados quando não consideramos este elemento de agrupamento em consideração.
+Para facilitar o entendimento, vamos coloca no gráfico apenas os 5 primeiros indivíduos. 
+
+```{r}
+df <- sleepstudy |> filter(Subject %in% c(308,309,330,331, 372)) 
+df |> 
+  ggplot(aes(x=Days, y=Reaction))+
+  geom_point()
+```
+Apesar de cada indivíduo ter uma média diária, cada um pode ter reações em diferentes níveis e em alguns casos até opostas.
+
+Se criamos um modelo de regressão simples, teríamos algo como:
+
+```{r}
+mod_lm_simples <- lm(Reaction ~ Days, data = df)
+df$fit_simples <- predict(mod_lm_simples)
+df |> 
+  ggplot(aes(x=Days, y=Reaction))+
+  geom_point() +
+  geom_smooth(aes(y=fit_simples))
+```
+Porém, se simplesmente agruparmos as observações por indivíduos, podemos observar que o indivídous tem um tempo de reação maior com o passar dos dias, porém alguns tem tempos de reação distintos já desde o início, ou seja, o intercepto de cada um dos grupos já seria diferente desde o início do teste. 
+
+```{r}
+mod_lm_simples <- lm(Reaction ~ Days, data = df)
+df$fit_simples <- predict(mod_lm_simples)
+df |> 
+  ggplot(aes(x=Days, y=Reaction, color=Subject))+
+  geom_point() +
+  geom_smooth(aes(y=fit_simples))
+```
+# Modelo Hierárquico (HLM2)
+
+Vejamos com seria um modelo hierárquico tendo a variável "Subject" como nível 2 e apenas permitindo o efeito do grupo na variável de saída:
+
+```{r}
+mod_mm_0 <- lmer(Reaction ~ Days + (+1 | Subject), data = df)
+df$fit_mm_0 <- predict(mod_mm_0)
+df |> 
+  ggplot(aes(x=Days, y=Reaction, color=Subject))+
+  geom_point() +
+  geom_smooth(aes(y=fit_mm_0))
+```
+Observamos que apenas permitindo o efeito do grupo variar no intercepto, já visualizamos o impacto potencial. Vejamos um resumo do modelo:
+
+```{r}
+jtools::summ(mod_mm_0)
+```
+Podemos observar que temos a sessão de efeitos Fixos e Randômicos. O p-value da variável Days se mostra estatisticamente significante (à 95%) no efeito fixo (como no modelo lm simples), porém observamos o efeito randômico do grupo no intercépto. O ICC (*Inteclass Correlation Coefficient*) pode ser interpretado com a proporção de variância explicada pela estrutura de grupo. Neste exemplo (2224/(2224+1136)), vemos que 66% da variância já pode ser explicada permitindo o efeito de grupo em nosso modelo.
+
+```{r}
+summary (mod_mm_0)
+```
+
+# HLM2 com efeitos fixos e aleatórios
+
+Podemos também permitr o efeito aleatório do grupo na variável Days tanto no intercepto quanto na inclinação:
+
+```{r}
+mod_mm_1 <- lmer(Reaction ~ Days + (Days | Subject), data = df)
+df$fit_mm_1 <- predict(mod_mm_1)
+df |> 
+  ggplot(aes(x=Days, y=Reaction, color=Subject))+
+  geom_point() +
+  geom_smooth(aes(y=fit_mm_1))
+```
+Aqui, podemos observar que o grupo (neste caso indivíduo), tem impacto tanto no componente fixo quanto no componente aleatório.
+
+# Comparando os modelos
+
+Se comporarmos os modelos, observamos um ganho substancial no AIC e BIC do último modelo:
+
+:::callout-note
+É importante observar que não há procedimento stepwise para modelo multi-nível, desta forma deve-se fazer manualmente o procedimento step-up, que seria a adição e comparação dos modelos e significância das variáveis começando do modelo nulo até um mais completo.
+:::
+

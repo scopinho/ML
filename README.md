@@ -24,7 +24,7 @@ Most of the articles are in Portuguese language. Since there are plenty of that 
 
 [Análise por Componentes Principais, redução de dimensionalidade, etc...](https://scopinho.github.io/ML/PCA/PCA-01.html)
 
-## Regressão Linear Simples e Multipla
+## Regressão Linear Simples e Múltipla
 
 [Regressão Linear, tipos de variáveis, variáveis dummies, etc](https://scopinho.github.io/ML/REGRESSAO/RegLinear-01.html)
 
@@ -35,6 +35,9 @@ Most of the articles are in Portuguese language. Since there are plenty of that 
 ## Regressão Poisson, Binomial Negativa e com Inflação de Zeros (Dados de Contagem)
 
 [Dados de Contagem, Zero Inflated, etc...](https://scopinho.github.io/ML/REGRESSAO/Reg_Contagem-01.html)
+
+## Modelos Hierárquicos Multinivel ou Efeitos Mistos 
+[Modelos Hierárquicos - HLM](https://scopinho.github.io/ML/REGRESSAO/Reg_Multinivel-01-01.html)
 
 ## Outliers (BACON e Mahalanobis)
 

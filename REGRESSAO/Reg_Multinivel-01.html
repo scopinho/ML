@@ -1,0 +1,541 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.0.38">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>Modelo Multinível</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+span.underline{text-decoration: underline;}
+div.column{display: inline-block; vertical-align: top; width: 50%;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #7d9029; } /* Attribute */
+code span.bn { color: #40a070; } /* BaseN */
+code span.bu { } /* BuiltIn */
+code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4070a0; } /* Char */
+code span.cn { color: #880000; } /* Constant */
+code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code span.dt { color: #902000; } /* DataType */
+code span.dv { color: #40a070; } /* DecVal */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #40a070; } /* Float */
+code span.fu { color: #06287e; } /* Function */
+code span.im { } /* Import */
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code span.op { color: #666666; } /* Operator */
+code span.ot { color: #007020; } /* Other */
+code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.sc { color: #4070a0; } /* SpecialChar */
+code span.ss { color: #bb6688; } /* SpecialString */
+code span.st { color: #4070a0; } /* String */
+code span.va { color: #19177c; } /* Variable */
+code span.vs { color: #4070a0; } /* VerbatimString */
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+</style>
+
+
+<script src="Reg_Multinivel-01_files/libs/clipboard/clipboard.min.js"></script>
+<script src="Reg_Multinivel-01_files/libs/quarto-html/quarto.js"></script>
+<script src="Reg_Multinivel-01_files/libs/quarto-html/popper.min.js"></script>
+<script src="Reg_Multinivel-01_files/libs/quarto-html/tippy.umd.min.js"></script>
+<script src="Reg_Multinivel-01_files/libs/quarto-html/anchor.min.js"></script>
+<link href="Reg_Multinivel-01_files/libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="Reg_Multinivel-01_files/libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="Reg_Multinivel-01_files/libs/bootstrap/bootstrap.min.js"></script>
+<link href="Reg_Multinivel-01_files/libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="Reg_Multinivel-01_files/libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
+
+<link href="Reg_Multinivel-01_files/libs/pagedtable-1.1/css/pagedtable.css" rel="stylesheet">
+<script src="Reg_Multinivel-01_files/libs/pagedtable-1.1/js/pagedtable.js"></script>
+
+
+<link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+
+<div id="quarto-content" class="page-columns page-rows-contents page-layout-article">
+<div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+  <nav id="TOC" role="doc-toc">
+    <h2 id="toc-title">Table of contents</h2>
+   
+  <ul>
+  <li><a href="#introdução" id="toc-introdução" class="nav-link active" data-scroll-target="#introdução">Introdução</a></li>
+  <li><a href="#base-de-dados" id="toc-base-de-dados" class="nav-link" data-scroll-target="#base-de-dados">Base de Dados</a></li>
+  <li><a href="#variável-dependente" id="toc-variável-dependente" class="nav-link" data-scroll-target="#variável-dependente">Variável Dependente</a></li>
+  <li><a href="#modelo-simples-ols" id="toc-modelo-simples-ols" class="nav-link" data-scroll-target="#modelo-simples-ols">Modelo Simples (OLS)</a></li>
+  <li><a href="#modelo-hierárquico-hlm2" id="toc-modelo-hierárquico-hlm2" class="nav-link" data-scroll-target="#modelo-hierárquico-hlm2">Modelo Hierárquico (HLM2)</a></li>
+  <li><a href="#hlm2-com-efeitos-fixos-e-aleatórios" id="toc-hlm2-com-efeitos-fixos-e-aleatórios" class="nav-link" data-scroll-target="#hlm2-com-efeitos-fixos-e-aleatórios">HLM2 com efeitos fixos e aleatórios</a></li>
+  <li><a href="#comparando-os-modelos" id="toc-comparando-os-modelos" class="nav-link" data-scroll-target="#comparando-os-modelos">Comparando os modelos</a></li>
+  </ul>
+</nav>
+</div>
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">Modelo Multinível</h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+    
+  </div>
+  
+
+</header>
+
+<div class="cell">
+<details>
+<summary>Mostrar código-fonte</summary>
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse) </span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(janitor)</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(lme4)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<section id="introdução" class="level1">
+<h1>Introdução</h1>
+<p>A idéia dos modelos multi-níveis (Multi-levels models), também chamados de hierárquicos (hiarchical models) ou ainda modelos mistos generalizados (Generalized Mixed Models) é conseguir capturar tanto efeitos fixos quanto efeitos randômicos das variáveis. Eles são particularmente úteis quando temos medidas repetidas da mesma variável (estudos longitudinais) quanto agrupamentos, diretos ou latentes em variáveis explicativas.</p>
+<p>Diferente do que vimos no artigo sobre <a href="./RegLinear-01.html">Regressão Linear</a>, os modelos hierárquicos permitem identificar a heterogeneidade individual e entre grupos que pertencem estes indivíduos. Para simplificar o entendimento, pense no seguinte cenário: Alunos agrupados por escolas: Cada aluno tem componentes fixos que impactam seu desempenho, porém podemos tem componentes específicos de cada escola que também podem impactar o resultado do indivídou. Este tipo de relação jamais seria capturada em um modelo linear simples (OLS).</p>
+</section>
+<section id="base-de-dados" class="level1">
+<h1>Base de Dados</h1>
+<p>Para os próximos exemplos iremos utilizar a base de dados <em>sleepstudy</em> que possui informações sobre um estudo sobre privação do sono de 18 indivídous.</p>
+<div class="cell">
+<details>
+<summary>Mostrar código-fonte</summary>
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Selecionar base TitanicSurvival</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>df <span class="ot">&lt;-</span> sleepstudy <span class="sc">|&gt;</span> <span class="fu">as_tibble</span>()</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>df</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+
+<div data-pagedtable="false">
+  <script data-pagedtable-source="" type="application/json">
+{"columns":[{"label":["Reaction"],"name":[1],"type":["dbl"],"align":["right"]},{"label":["Days"],"name":[2],"type":["dbl"],"align":["right"]},{"label":["Subject"],"name":[3],"type":["fct"],"align":["left"]}],"data":[{"1":"249.5600","2":"0","3":"308"},{"1":"258.7047","2":"1","3":"308"},{"1":"250.8006","2":"2","3":"308"},{"1":"321.4398","2":"3","3":"308"},{"1":"356.8519","2":"4","3":"308"},{"1":"414.6901","2":"5","3":"308"},{"1":"382.2038","2":"6","3":"308"},{"1":"290.1486","2":"7","3":"308"},{"1":"430.5853","2":"8","3":"308"},{"1":"466.3535","2":"9","3":"308"},{"1":"222.7339","2":"0","3":"309"},{"1":"205.2658","2":"1","3":"309"},{"1":"202.9778","2":"2","3":"309"},{"1":"204.7070","2":"3","3":"309"},{"1":"207.7161","2":"4","3":"309"},{"1":"215.9618","2":"5","3":"309"},{"1":"213.6303","2":"6","3":"309"},{"1":"217.7272","2":"7","3":"309"},{"1":"224.2957","2":"8","3":"309"},{"1":"237.3142","2":"9","3":"309"},{"1":"199.0539","2":"0","3":"310"},{"1":"194.3322","2":"1","3":"310"},{"1":"234.3200","2":"2","3":"310"},{"1":"232.8416","2":"3","3":"310"},{"1":"229.3074","2":"4","3":"310"},{"1":"220.4579","2":"5","3":"310"},{"1":"235.4208","2":"6","3":"310"},{"1":"255.7511","2":"7","3":"310"},{"1":"261.0125","2":"8","3":"310"},{"1":"247.5153","2":"9","3":"310"},{"1":"321.5426","2":"0","3":"330"},{"1":"300.4002","2":"1","3":"330"},{"1":"283.8565","2":"2","3":"330"},{"1":"285.1330","2":"3","3":"330"},{"1":"285.7973","2":"4","3":"330"},{"1":"297.5855","2":"5","3":"330"},{"1":"280.2396","2":"6","3":"330"},{"1":"318.2613","2":"7","3":"330"},{"1":"305.3495","2":"8","3":"330"},{"1":"354.0487","2":"9","3":"330"},{"1":"287.6079","2":"0","3":"331"},{"1":"285.0000","2":"1","3":"331"},{"1":"301.8206","2":"2","3":"331"},{"1":"320.1153","2":"3","3":"331"},{"1":"316.2773","2":"4","3":"331"},{"1":"293.3187","2":"5","3":"331"},{"1":"290.0750","2":"6","3":"331"},{"1":"334.8177","2":"7","3":"331"},{"1":"293.7469","2":"8","3":"331"},{"1":"371.5811","2":"9","3":"331"},{"1":"234.8606","2":"0","3":"332"},{"1":"242.8118","2":"1","3":"332"},{"1":"272.9613","2":"2","3":"332"},{"1":"309.7688","2":"3","3":"332"},{"1":"317.4629","2":"4","3":"332"},{"1":"309.9976","2":"5","3":"332"},{"1":"454.1619","2":"6","3":"332"},{"1":"346.8311","2":"7","3":"332"},{"1":"330.3003","2":"8","3":"332"},{"1":"253.8644","2":"9","3":"332"},{"1":"283.8424","2":"0","3":"333"},{"1":"289.5550","2":"1","3":"333"},{"1":"276.7693","2":"2","3":"333"},{"1":"299.8097","2":"3","3":"333"},{"1":"297.1710","2":"4","3":"333"},{"1":"338.1665","2":"5","3":"333"},{"1":"332.0265","2":"6","3":"333"},{"1":"348.8399","2":"7","3":"333"},{"1":"333.3600","2":"8","3":"333"},{"1":"362.0428","2":"9","3":"333"},{"1":"265.4731","2":"0","3":"334"},{"1":"276.2012","2":"1","3":"334"},{"1":"243.3647","2":"2","3":"334"},{"1":"254.6723","2":"3","3":"334"},{"1":"279.0244","2":"4","3":"334"},{"1":"284.1912","2":"5","3":"334"},{"1":"305.5248","2":"6","3":"334"},{"1":"331.5229","2":"7","3":"334"},{"1":"335.7469","2":"8","3":"334"},{"1":"377.2990","2":"9","3":"334"},{"1":"241.6083","2":"0","3":"335"},{"1":"273.9472","2":"1","3":"335"},{"1":"254.4907","2":"2","3":"335"},{"1":"270.8021","2":"3","3":"335"},{"1":"251.4519","2":"4","3":"335"},{"1":"254.6362","2":"5","3":"335"},{"1":"245.4523","2":"6","3":"335"},{"1":"235.3110","2":"7","3":"335"},{"1":"235.7541","2":"8","3":"335"},{"1":"237.2466","2":"9","3":"335"},{"1":"312.3666","2":"0","3":"337"},{"1":"313.8058","2":"1","3":"337"},{"1":"291.6112","2":"2","3":"337"},{"1":"346.1222","2":"3","3":"337"},{"1":"365.7324","2":"4","3":"337"},{"1":"391.8385","2":"5","3":"337"},{"1":"404.2601","2":"6","3":"337"},{"1":"416.6923","2":"7","3":"337"},{"1":"455.8643","2":"8","3":"337"},{"1":"458.9167","2":"9","3":"337"},{"1":"236.1032","2":"0","3":"349"},{"1":"230.3167","2":"1","3":"349"},{"1":"238.9256","2":"2","3":"349"},{"1":"254.9220","2":"3","3":"349"},{"1":"250.7103","2":"4","3":"349"},{"1":"269.7744","2":"5","3":"349"},{"1":"281.5648","2":"6","3":"349"},{"1":"308.1020","2":"7","3":"349"},{"1":"336.2806","2":"8","3":"349"},{"1":"351.6451","2":"9","3":"349"},{"1":"256.2968","2":"0","3":"350"},{"1":"243.4543","2":"1","3":"350"},{"1":"256.2046","2":"2","3":"350"},{"1":"255.5271","2":"3","3":"350"},{"1":"268.9165","2":"4","3":"350"},{"1":"329.7247","2":"5","3":"350"},{"1":"379.4445","2":"6","3":"350"},{"1":"362.9184","2":"7","3":"350"},{"1":"394.4872","2":"8","3":"350"},{"1":"389.0527","2":"9","3":"350"},{"1":"250.5265","2":"0","3":"351"},{"1":"300.0576","2":"1","3":"351"},{"1":"269.8939","2":"2","3":"351"},{"1":"280.5891","2":"3","3":"351"},{"1":"271.8274","2":"4","3":"351"},{"1":"304.6336","2":"5","3":"351"},{"1":"287.7466","2":"6","3":"351"},{"1":"266.5955","2":"7","3":"351"},{"1":"321.5418","2":"8","3":"351"},{"1":"347.5655","2":"9","3":"351"},{"1":"221.6771","2":"0","3":"352"},{"1":"298.1939","2":"1","3":"352"},{"1":"326.8785","2":"2","3":"352"},{"1":"346.8555","2":"3","3":"352"},{"1":"348.7402","2":"4","3":"352"},{"1":"352.8287","2":"5","3":"352"},{"1":"354.4266","2":"6","3":"352"},{"1":"360.4326","2":"7","3":"352"},{"1":"375.6406","2":"8","3":"352"},{"1":"388.5417","2":"9","3":"352"},{"1":"271.9235","2":"0","3":"369"},{"1":"268.4369","2":"1","3":"369"},{"1":"257.2424","2":"2","3":"369"},{"1":"277.6566","2":"3","3":"369"},{"1":"314.8222","2":"4","3":"369"},{"1":"317.2135","2":"5","3":"369"},{"1":"298.1353","2":"6","3":"369"},{"1":"348.1229","2":"7","3":"369"},{"1":"340.2800","2":"8","3":"369"},{"1":"366.5131","2":"9","3":"369"},{"1":"225.2640","2":"0","3":"370"},{"1":"234.5235","2":"1","3":"370"},{"1":"238.9008","2":"2","3":"370"},{"1":"240.4730","2":"3","3":"370"},{"1":"267.5373","2":"4","3":"370"},{"1":"344.1937","2":"5","3":"370"},{"1":"281.1481","2":"6","3":"370"},{"1":"347.5855","2":"7","3":"370"},{"1":"365.1630","2":"8","3":"370"},{"1":"372.2288","2":"9","3":"370"},{"1":"269.8804","2":"0","3":"371"},{"1":"272.4428","2":"1","3":"371"},{"1":"277.8989","2":"2","3":"371"},{"1":"281.7895","2":"3","3":"371"},{"1":"279.1705","2":"4","3":"371"},{"1":"284.5120","2":"5","3":"371"},{"1":"259.2658","2":"6","3":"371"},{"1":"304.6306","2":"7","3":"371"},{"1":"350.7807","2":"8","3":"371"},{"1":"369.4692","2":"9","3":"371"},{"1":"269.4117","2":"0","3":"372"},{"1":"273.4740","2":"1","3":"372"},{"1":"297.5968","2":"2","3":"372"},{"1":"310.6316","2":"3","3":"372"},{"1":"287.1726","2":"4","3":"372"},{"1":"329.6076","2":"5","3":"372"},{"1":"334.4818","2":"6","3":"372"},{"1":"343.2199","2":"7","3":"372"},{"1":"369.1417","2":"8","3":"372"},{"1":"364.1236","2":"9","3":"372"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+  </script>
+</div>
+</div>
+</div>
+</section>
+<section id="variável-dependente" class="level1">
+<h1>Variável Dependente</h1>
+<p>A variável <strong>Reaction</strong> é o tempo média do indivíduo por dia (em milisegundos). O dias 0 e 1 são de adaptação de treino, dia 2 é o baseline e a privação do sono (apenas 3 horas de tempo na cama) inicia-se após o segundo dia.</p>
+<p>Aqui, uma regressão simples, já teria uma de suas premissas feridas, pois não temos independência dos dados, pois o mesmo indivíduo aparece em vaŕias observações. Vamos dar uma olhada inicial no dataset.</p>
+<div class="cell">
+<details>
+<summary>Mostrar código-fonte</summary>
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">glimpse</span>(df)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>Rows: 180
+Columns: 3
+$ Reaction &lt;dbl&gt; 249.5600, 258.7047, 250.8006, 321.4398, 356.8519, 414.6901, 3…
+$ Days     &lt;dbl&gt; 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 0…
+$ Subject  &lt;fct&gt; 308, 308, 308, 308, 308, 308, 308, 308, 308, 308, 309, 309, 3…</code></pre>
+</div>
+</div>
+</section>
+<section id="modelo-simples-ols" class="level1">
+<h1>Modelo Simples (OLS)</h1>
+<p>Vejamos os dados quando não consideramos este elemento de agrupamento em consideração. Para facilitar o entendimento, vamos coloca no gráfico apenas os 5 primeiros indivíduos.</p>
+<div class="cell">
+<details>
+<summary>Mostrar código-fonte</summary>
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>df <span class="ot">&lt;-</span> sleepstudy <span class="sc">|&gt;</span> <span class="fu">filter</span>(Subject <span class="sc">%in%</span> <span class="fu">c</span>(<span class="dv">308</span>,<span class="dv">309</span>,<span class="dv">330</span>,<span class="dv">331</span>, <span class="dv">372</span>)) </span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>df <span class="sc">|&gt;</span> </span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x=</span>Days, <span class="at">y=</span>Reaction))<span class="sc">+</span></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<p><img src="Reg_Multinivel-01_files/figure-html/unnamed-chunk-4-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<p>Apesar de cada indivíduo ter uma média diária, cada um pode ter reações em diferentes níveis e em alguns casos até opostas.</p>
+<p>Se criamos um modelo de regressão simples, teríamos algo como:</p>
+<div class="cell">
+<details>
+<summary>Mostrar código-fonte</summary>
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>mod_lm_simples <span class="ot">&lt;-</span> <span class="fu">lm</span>(Reaction <span class="sc">~</span> Days, <span class="at">data =</span> df)</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>df<span class="sc">$</span>fit_simples <span class="ot">&lt;-</span> <span class="fu">predict</span>(mod_lm_simples)</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>df <span class="sc">|&gt;</span> </span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x=</span>Days, <span class="at">y=</span>Reaction))<span class="sc">+</span></span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>() <span class="sc">+</span></span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_smooth</span>(<span class="fu">aes</span>(<span class="at">y=</span>fit_simples))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<p><img src="Reg_Multinivel-01_files/figure-html/unnamed-chunk-5-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<p>Porém, se simplesmente agruparmos as observações por indivíduos, podemos observar que o indivídous tem um tempo de reação maior com o passar dos dias, porém alguns tem tempos de reação distintos já desde o início, ou seja, o intercepto de cada um dos grupos já seria diferente desde o início do teste.</p>
+<div class="cell">
+<details>
+<summary>Mostrar código-fonte</summary>
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>mod_lm_simples <span class="ot">&lt;-</span> <span class="fu">lm</span>(Reaction <span class="sc">~</span> Days, <span class="at">data =</span> df)</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>df<span class="sc">$</span>fit_simples <span class="ot">&lt;-</span> <span class="fu">predict</span>(mod_lm_simples)</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>df <span class="sc">|&gt;</span> </span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x=</span>Days, <span class="at">y=</span>Reaction, <span class="at">color=</span>Subject))<span class="sc">+</span></span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>() <span class="sc">+</span></span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_smooth</span>(<span class="fu">aes</span>(<span class="at">y=</span>fit_simples))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<p><img src="Reg_Multinivel-01_files/figure-html/unnamed-chunk-6-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+</section>
+<section id="modelo-hierárquico-hlm2" class="level1">
+<h1>Modelo Hierárquico (HLM2)</h1>
+<p>Vejamos com seria um modelo hierárquico tendo a variável “Subject” como nível 2 e apenas permitindo o efeito do grupo na variável de saída:</p>
+<div class="cell">
+<details>
+<summary>Mostrar código-fonte</summary>
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>mod_mm_0 <span class="ot">&lt;-</span> <span class="fu">lmer</span>(Reaction <span class="sc">~</span> Days <span class="sc">+</span> (<span class="sc">+</span><span class="dv">1</span> <span class="sc">|</span> Subject), <span class="at">data =</span> df)</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>df<span class="sc">$</span>fit_mm_0 <span class="ot">&lt;-</span> <span class="fu">predict</span>(mod_mm_0)</span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>df <span class="sc">|&gt;</span> </span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x=</span>Days, <span class="at">y=</span>Reaction, <span class="at">color=</span>Subject))<span class="sc">+</span></span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>() <span class="sc">+</span></span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_smooth</span>(<span class="fu">aes</span>(<span class="at">y=</span>fit_mm_0))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<p><img src="Reg_Multinivel-01_files/figure-html/unnamed-chunk-7-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<p>Observamos que apenas permitindo o efeito do grupo variar no intercepto, já visualizamos o impacto potencial. Vejamos um resumo do modelo:</p>
+<div class="cell">
+<details>
+<summary>Mostrar código-fonte</summary>
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>jtools<span class="sc">::</span><span class="fu">summ</span>(mod_mm_0)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+
+<table class="table table-striped table-hover table-condensed table-responsive" style="width: auto !important; margin-left: auto; margin-right: auto;">
+<tbody>
+  <tr>
+   <td style="text-align:left;font-weight: bold;"> Observations </td>
+   <td style="text-align:right;"> 50 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;font-weight: bold;"> Dependent variable </td>
+   <td style="text-align:right;"> Reaction </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;font-weight: bold;"> Type </td>
+   <td style="text-align:right;"> Mixed effects linear regression </td>
+  </tr>
+</tbody>
+</table> <table class="table table-striped table-hover table-condensed table-responsive" style="width: auto !important; margin-left: auto; margin-right: auto;">
+<tbody>
+  <tr>
+   <td style="text-align:left;font-weight: bold;"> AIC </td>
+   <td style="text-align:right;"> 503.94 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;font-weight: bold;"> BIC </td>
+   <td style="text-align:right;"> 511.59 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;font-weight: bold;"> Pseudo-R² (fixed effects) </td>
+   <td style="text-align:right;"> 0.16 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;font-weight: bold;"> Pseudo-R² (total) </td>
+   <td style="text-align:right;"> 0.72 </td>
+  </tr>
+</tbody>
+</table> <table class="table table-striped table-hover table-condensed table-responsive" style="width: auto !important; margin-left: auto; margin-right: auto;border-bottom: 0;">
+ <thead>
+<tr><th style="border-bottom:hidden;padding-bottom:0; padding-left:3px;padding-right:3px;text-align: center; " colspan="6"><div style="border-bottom: 1px solid #ddd; padding-bottom: 5px; ">Fixed Effects</div></th></tr>
+  <tr>
+   <th style="text-align:left;">   </th>
+   <th style="text-align:right;"> Est. </th>
+   <th style="text-align:right;"> S.E. </th>
+   <th style="text-align:right;"> t val. </th>
+   <th style="text-align:right;"> d.f. </th>
+   <th style="text-align:right;"> p </th>
+  </tr>
+ </thead>
+<tbody>
+  <tr>
+   <td style="text-align:left;font-weight: bold;"> (Intercept) </td>
+   <td style="text-align:right;"> 258.34 </td>
+   <td style="text-align:right;"> 22.88 </td>
+   <td style="text-align:right;"> 11.29 </td>
+   <td style="text-align:right;"> 5.00 </td>
+   <td style="text-align:right;"> 0.00 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;font-weight: bold;"> Days </td>
+   <td style="text-align:right;"> 8.72 </td>
+   <td style="text-align:right;"> 1.66 </td>
+   <td style="text-align:right;"> 5.25 </td>
+   <td style="text-align:right;"> 44.00 </td>
+   <td style="text-align:right;"> 0.00 </td>
+  </tr>
+</tbody>
+<tfoot><tr><td style="padding: 0; " colspan="100%">
+<sup></sup>  p values calculated using Satterthwaite d.f. </td></tr></tfoot>
+</table> <table class="table table-striped table-hover table-condensed table-responsive" style="width: auto !important; margin-left: auto; margin-right: auto;">
+ <thead>
+<tr><th style="border-bottom:hidden;padding-bottom:0; padding-left:3px;padding-right:3px;text-align: center; " colspan="3"><div style="border-bottom: 1px solid #ddd; padding-bottom: 5px; ">Random Effects</div></th></tr>
+  <tr>
+   <th> Group </th>
+   <th> Parameter </th>
+   <th> Std. Dev. </th>
+  </tr>
+ </thead>
+<tbody>
+  <tr>
+   <td> Subject </td>
+   <td> (Intercept) </td>
+   <td> 47.16 </td>
+  </tr>
+  <tr>
+   <td> Residual </td>
+   <td>  </td>
+   <td> 33.70 </td>
+  </tr>
+</tbody>
+</table> <table class="table table-striped table-hover table-condensed table-responsive" style="width: auto !important; margin-left: auto; margin-right: auto;">
+ <thead>
+<tr><th style="border-bottom:hidden;padding-bottom:0; padding-left:3px;padding-right:3px;text-align: center; " colspan="3"><div style="border-bottom: 1px solid #ddd; padding-bottom: 5px; ">Grouping Variables</div></th></tr>
+  <tr>
+   <th> Group </th>
+   <th> # groups </th>
+   <th> ICC </th>
+  </tr>
+ </thead>
+<tbody>
+  <tr>
+   <td> Subject </td>
+   <td> 5 </td>
+   <td> 0.66 </td>
+  </tr>
+</tbody>
+</table>
+</div>
+</div>
+<p>Podemos observar que temos a sessão de efeitos Fixos e Randômicos. O p-value da variável Days se mostra estatisticamente significante (à 95%) no efeito fixo (como no modelo lm simples), porém observamos o efeito randômico do grupo no intercépto. O ICC (<em>Inteclass Correlation Coefficient</em>) pode ser interpretado com a proporção de variância explicada pela estrutura de grupo. Neste exemplo (2224/(2224+1136)), vemos que 66% da variância já pode ser explicada permitindo o efeito de grupo em nosso modelo.</p>
+<div class="cell">
+<details>
+<summary>Mostrar código-fonte</summary>
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span> (mod_mm_0)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>Linear mixed model fit by REML ['lmerMod']
+Formula: Reaction ~ Days + (+1 | Subject)
+   Data: df
+
+REML criterion at convergence: 495.9
+
+Scaled residuals: 
+     Min       1Q   Median       3Q      Max 
+-2.12491 -0.58143  0.07722  0.47775  2.58557 
+
+Random effects:
+ Groups   Name        Variance Std.Dev.
+ Subject  (Intercept) 2224     47.16   
+ Residual             1136     33.70   
+Number of obs: 50, groups:  Subject, 5
+
+Fixed effects:
+            Estimate Std. Error t value
+(Intercept)   258.34      22.88  11.293
+Days            8.72       1.66   5.254
+
+Correlation of Fixed Effects:
+     (Intr)
+Days -0.326</code></pre>
+</div>
+</div>
+</section>
+<section id="hlm2-com-efeitos-fixos-e-aleatórios" class="level1">
+<h1>HLM2 com efeitos fixos e aleatórios</h1>
+<p>Podemos também permitr o efeito aleatório do grupo na variável Days tanto no intercepto quanto na inclinação:</p>
+<div class="cell">
+<details>
+<summary>Mostrar código-fonte</summary>
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>mod_mm_1 <span class="ot">&lt;-</span> <span class="fu">lmer</span>(Reaction <span class="sc">~</span> Days <span class="sc">+</span> (Days <span class="sc">|</span> Subject), <span class="at">data =</span> df)</span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>df<span class="sc">$</span>fit_mm_1 <span class="ot">&lt;-</span> <span class="fu">predict</span>(mod_mm_1)</span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>df <span class="sc">|&gt;</span> </span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x=</span>Days, <span class="at">y=</span>Reaction, <span class="at">color=</span>Subject))<span class="sc">+</span></span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>() <span class="sc">+</span></span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_smooth</span>(<span class="fu">aes</span>(<span class="at">y=</span>fit_mm_1))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<p><img src="Reg_Multinivel-01_files/figure-html/unnamed-chunk-10-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<p>Aqui, podemos observar que o grupo (neste caso indivíduo), tem impacto tanto no componente fixo quanto no componente aleatório.</p>
+</section>
+<section id="comparando-os-modelos" class="level1">
+<h1>Comparando os modelos</h1>
+<p>Se comporarmos os modelos, observamos um ganho substancial no AIC e BIC do último modelo:</p>
+<div class="callout-note callout callout-style-default callout-captioned">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-caption-container flex-fill">
+Note
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>É importante observar que não há procedimento stepwise para modelo multi-nível, desta forma deve-se fazer manualmente o procedimento step-up, que seria a adição e comparação dos modelos e significância das variáveis começando do modelo nulo até um mais completo.</p>
+</div>
+</div>
+</section>
+
+</main>
+<!-- /main column -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const clipboard = new window.ClipboardJS('.code-copy-button', {
+    target: function(trigger) {
+      return trigger.previousElementSibling;
+    }
+  });
+  clipboard.on('success', function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    setTimeout(function() {
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  });
+  function tippyHover(el, contentFn) {
+    const config = {
+      allowHTML: true,
+      content: contentFn,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start'
+    };
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      let href = ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      return note.innerHTML;
+    });
+  }
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const cites = ref.parentNode.getAttribute('data-cites').split(' ');
+    tippyHover(ref, function() {
+      var popup = window.document.createElement('div');
+      cites.forEach(function(cite) {
+        var citeDiv = window.document.createElement('div');
+        citeDiv.classList.add('hanging-indent');
+        citeDiv.classList.add('csl-entry');
+        var biblioDiv = window.document.getElementById('ref-' + cite);
+        if (biblioDiv) {
+          citeDiv.innerHTML = biblioDiv.innerHTML;
+        }
+        popup.appendChild(citeDiv);
+      });
+      return popup.innerHTML;
+    });
+  }
+});
+</script>
+</div> <!-- /content -->
+
+
+
+</body></html>

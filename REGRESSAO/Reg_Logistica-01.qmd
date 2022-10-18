@@ -31,6 +31,8 @@ library(nnet)
 # Introdução
 
 Diferente do que vimos no artigo sobre [Regressão Linear](./RegLinear-01.html) onde criamos um modelo de ML supervisionado para fazer inferências sobre uma variável dependente contínua, neste artigo iremos criar modelos onde a variável dependente obedece à uma distribuição de **Bernoulli**. Neste caso, temos uma variável dependente dicotômica (0 ou 1), tendo a probabilidade de um evento ocorrer ($p$) e dele não ocorrer ($1-p$).
+Este tipo de modelo, faz parte dos **Modelos Lineares Generalizados** (*Generalized Linear Models*), onde temos uma função de **ligação canônica** (link function) para mapear uma relação não linear em uma parte linear.
+Podemos dizer que é uma generalização do modelo de regressão simples, que permite, através desta função de ligação canônica, fazermos predições para outros tipos de distribuições diferentes da normal (ex, poisson, exponencial, binomial negativa, etc).
 
 # Base de Dados
 
@@ -43,7 +45,7 @@ df
 ```
 
 :::callout-warning
-Veja que temos variaveis qualitativas tanto para a explicativa quanto para a variavel dependente. Devemos portanto, ou criar as variáveis dummies conforme vimos no artigo de [Regressao Linear](./RegLinear-01.html), seja de forma manual ou saber exatamente como as funçoes lidam com tais cenários. 
+Veja que temos variáveis qualitativas tanto para a explicativa quanto para a variavel dependente. Devemos portanto, ou criar as variáveis dummies conforme vimos no artigo de [Regressao Linear](./RegLinear-01.html), seja de forma manual ou saber exatamente como as funçoes lidam com tais cenários. 
 :::
 # Variável dependente
 
@@ -182,7 +184,7 @@ Veja que os coeficientes de $\alpha = 0.98$ e $\beta = -2.42$ serão muito simil
 
 # Modelo Logístico Binomial
 
-Usaremos a função **gml**() do R para criar o modelo.
+Usaremos a função **glm**() do R para criar o modelo.
 
 Vamos inicalmente criar um modelo logístico binomial simples, ou seja, com apenas a variável dependente (survived) e uma variável explicativa (sex).
 
