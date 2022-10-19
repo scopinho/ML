@@ -260,7 +260,13 @@ Podemos observar que a linha tracejada do modelo OLS, não considera os efeitos 
 
 # Modelos HLM com mais níveis
 
-De forma 
+De forma similar ao que fizemos no modelo com 2 níveis hierárquicos, é possivel empilhar outros níveis para capturar os efeitos destes níveis também. Isto pode ser feito, utilzando a sintaxe:
+
+modelo_hlm3_nulo <- lmer(y ~ 1 + (1|Nível 3) + (1|Nível 3:Nível 2))
+
+modelo_hlm3_intercepto_inclinacoes <- lmer(y ~ x + (x|Nível 3) + (x|Nível 3:Nível 2))
+
+
 # Modelos HLM Generalizados
 
 Além dos modelos hierárquicos lineares, podemos ter modelos hierárquicos generalizados, ou seja, para variáveis de resposta que sigam distribuições como **Bernoulli**, **Poisson**, **Binomial Negativa**, etc, de forma similar ao que discutimos na [Regressão Logística](./Reg_Logistica-01.html), porém adicionando o agrupamento e componentes **fixos** e **aleatórios** na fórmula.

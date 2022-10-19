@@ -136,6 +136,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
   <li><a href="#comparando-os-modelos" id="toc-comparando-os-modelos" class="nav-link" data-scroll-target="#comparando-os-modelos">Comparando os modelos</a></li>
   <li><a href="#fazendo-predições" id="toc-fazendo-predições" class="nav-link" data-scroll-target="#fazendo-predições">Fazendo predições</a></li>
   <li><a href="#modelos-hlm-com-mais-níveis" id="toc-modelos-hlm-com-mais-níveis" class="nav-link" data-scroll-target="#modelos-hlm-com-mais-níveis">Modelos HLM com mais níveis</a></li>
+  <li><a href="#modelos-hlm-generalizados" id="toc-modelos-hlm-generalizados" class="nav-link" data-scroll-target="#modelos-hlm-generalizados">Modelos HLM Generalizados</a></li>
   </ul>
 </nav>
 </div>
@@ -620,7 +621,12 @@ Note
 </section>
 <section id="modelos-hlm-com-mais-níveis" class="level1">
 <h1>Modelos HLM com mais níveis</h1>
-<p>De forma # Modelos HLM Generalizados</p>
+<p>De forma similar ao que fizemos no modelo com 2 níveis hierárquicos, é possivel empilhar outros níveis para capturar os efeitos destes níveis também. Isto pode ser feito, utilzando a sintaxe:</p>
+<p>modelo_hlm3_nulo &lt;- lmer(y ~ 1 + (1|Nível 3) + (1|Nível 3:Nível 2))</p>
+<p>modelo_hlm3_intercepto_inclinacoes &lt;- lmer(y ~ x + (x|Nível 3) + (x|Nível 3:Nível 2))</p>
+</section>
+<section id="modelos-hlm-generalizados" class="level1">
+<h1>Modelos HLM Generalizados</h1>
 <p>Além dos modelos hierárquicos lineares, podemos ter modelos hierárquicos generalizados, ou seja, para variáveis de resposta que sigam distribuições como <strong>Bernoulli</strong>, <strong>Poisson</strong>, <strong>Binomial Negativa</strong>, etc, de forma similar ao que discutimos na <a href="./Reg_Logistica-01.html">Regressão Logística</a>, porém adicionando o agrupamento e componentes <strong>fixos</strong> e <strong>aleatórios</strong> na fórmula.</p>
 <p>Para isto, deve-se utilzar a função <strong>glmer</strong>() do pacote lme4.</p>
 <p>Para modelos multinomiais, uma alterativa é utilizar a função <strong>mclogit</strong>() do pacote mclogit. Por hora, ficamos por aqui.</p>
