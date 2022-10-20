@@ -163,7 +163,6 @@ Podemos ainda definir os valores do *knots* manualmente, caso contrário, eles s
 Por exemplo, podemos definir em 3 segmentos nossa função de regressão cúbica conforme fizemos anteriormente:
 
 ```{r}
-```{r}
 #| layout-ncol: 2
 
 df |> 
@@ -234,3 +233,65 @@ Para maiores informações, sugerimos:
 - [Generalized Addictive Models](https://m-clark.github.io/generalized-additive-models/)
 - Wood, S. N. Generalized Additive Models: An Introduction with r. 2nd ed. CRC Press.
 
+# GAMs com efeitos aleatórios
+
+Podemos utilizar uma forma básica "**re**" também para capturar os efeitos aleatórios, assim como fizemos no modelo [HLM](./Reg_Miltinivel-01.html).
+
+Veja como ficaria um compartativo, capturando apenas o efeito fixo e aleatório de intercepto para a base de dados "sleepstudy" que utilizamos no exemplo HLM.
+
+```{r}
+#|layout-ncol: 2
+df <- lme4::sleepstudy |> filter(Subject %in% c(308, 309, 330, 331, 372))
+
+mod_gam_ml_00 <- lme4::lmer(Reaction ~ Days + ( 1 | Subject), REML = TRUE, data = df)
+
+df$fit_ml <- predict(mod_gam_ml_00, type = "response")
+
+df |> 
+  ggplot(aes(x=Days, y= Reaction, color = Subject))+
+  geom_line(linetype = "dashed")+
+  geom_line(aes(y=fit_ml), linetype = "solid")+
+  labs(title = "LME4 - Multinível")
+
+mod_gam_ml_01 <- mgcv::gam(Reaction ~ Days + s(Subject, bs="re"), method = "REML", data = df)
+
+df$fit_gam <- predict(mod_gam_ml_01, type = "response")
+
+df |> 
+  ggplot(aes(x=Days, y= Reaction, color = Subject))+
+  geom_line(linetype = "dashed")+
+  geom_line(aes(y=fit_gam), linetype = "solid") +
+  labs(title = "GAM - \"re\"")
+```
+
+Agora, um exemplos intriduzindo os efeitos de intercepto e inclinação  variável da variável Days:
+
+```{r}
+#|layout-ncol: 2
+df <- lme4::sleepstudy |> filter(Subject %in% c(308, 309, 330, 331, 372))
+
+mod_gam_ml_00a <- lme4::lmer(Reaction ~ Days + ( Days | Subject), REML = TRUE, data = df)
+
+df$fit_mla <- predict(mod_gam_ml_00a, type = "response")
+
+df |> 
+  ggplot(aes(x=Days, y= Reaction, color = Subject))+
+  geom_line(linetype = "dashed")+
+  geom_line(aes(y=fit_mla), linetype = "solid")+
+  labs(title = "LME4 - Multinível")
+
+#mod_gam_ml_01a <- mgcv::gam(Reaction ~ s(Days, by=Subject, bs="re") + s(Subject, bs="re"), method = "REML", data = df)
+
+mod_gam_ml_01a <- mgcv::gam(Reaction ~ s(Subject, bs="re") + s(Subject, Days, bs="re"), method = "REML", data = df)
+
+df$fit_gama <- predict(mod_gam_ml_01a, type = "response")
+
+df |> 
+  ggplot(aes(x=Days, y= Reaction, color = Subject))+
+  geom_line(linetype = "dashed")+
+  geom_line(aes(y=fit_gama), linetype = "solid") +
+  labs(title = "GAM - \"re\"")
+```
+
+Referência para GAMs com efeitos aleatórios hierárquicos (HGAMs), sugerimos: 
+[Hiearchical Generalized Additive Models in ecology](https://github.com/eric-pedersen/mixed-effect-gams/blob/master/compiled_paper/full_document.pdf)
