@@ -75,9 +75,10 @@ predict(modelo, type = "response", newdata = df_teste)
 
 # Passo 2: Criação da API
 
-Agora que já temos nosso modelo de exemplo, podemos criação nossa API. Para isto, usaremos o pacote **plumber**.
+Agora que já temos nosso modelo de exemplo, podemos criação nossa API. Para isto, usaremos o pacote **plumber**. Vamos criar dois arquivos. O primeiro chamado "*script_consumo.R*", que contém o código plumber para o end-point.
 
 ```{r}
+# Arquivo script_consumo.R com o código do nosso end-point
 library(plumber)
 library(mgcv)
 
@@ -100,11 +101,24 @@ function(hp, wt, cyl){
 
 Basta copiar o conteúdo abaixo em um script .R na mesma pasta do arquivo modelo.RData. Em nosso caso, salvamos em API/script_consumo.R
 
+
 Para testar, basta clicar em "**Run API**" no RStudio, depois clicar em Post, preencher os campos e confirar que está com a responsa identica ao que vimos anteriormente:
 
-![](images/ss01.png)
-![](images/ss02.png)
-Agora que temos a API criada, expondo a função do modelo, iremos criar nossa image docker.
+![](images/ss01.png) ![](images/ss02.png) Agora que temos a API criada, expondo a função do modelo, iremos criar nossa image docker.
+
+Para o segundo arquivo, o chamaremos de **server.R** que chama o serviço plumber e abrirá uma porta de conexão para nosso endpoint.
+
+```{r}
+#| eval: false
+
+# server.R
+library(plumber)
+# 'script_consumo.R' é o arquivo que contém nosso endpoint
+r <- plumb("script_consumo.R")
+# Pega a porta da variável de ambiente
+port <- strtoi(Sys.getenv("PORT"))
+r$run(port=port, host='0.0.0.0', swagger=TRUE)
+```
 
 # Passo 3: Criação da imagem para containers
 
@@ -114,11 +128,9 @@ Você precisa ter o Docker instalado em sua máquina. Baixe em: [Docker](https:/
 
 Depois de instalado, devemos baixar a image **rstudio/plumber**. Não necessariamente precisa ser esta imagem, mas está já tem o Linux/R e Plumber pré-instalados.
 
-
 ```{r}
 #| eval: false
-
-sudo docker pull rstui/plumber
+sudo docker pull rstudio/plumber
 ```
 
 Agora iremos criar um arquivo **dockerfile**.
@@ -134,13 +146,13 @@ RUN R -e 'install.packages(c("tidyverse", "nlme", "mgcv"))'
 RUN mkdir /data
 COPY modelo.RData /data
 COPY script_consumo.R /data
+COPY server.R /data
+WORKDIR /data
 
 # Plumb 
-#EXPOSE 8080
-#ENTRYPOINT ["R", "-e", \
-#"pr <- plumber::plumb('/data/script_consumo.R'); pr$run(host = "0.0.0.0", port=8080)"]
+EXPOSE 8080
 
-CMD ["/data/script_consumo.R"]
+CMD ["Rscript", "server.R"]
 ```
 
 Agora devemos criar a image. Para isso, usamos:
@@ -148,7 +160,7 @@ Agora devemos criar a image. Para isso, usamos:
 ```{r}
 #| eval: false
 
-sudo docker build -t rocker_r_api .
+sudo docker build -t r_api .
 ```
 
 Certifique-se que você está no mesmo diretório do arquivo *Dockerfile*
@@ -158,11 +170,119 @@ Agora, devemos "subir" a imagem para garantir que está tudo ok.
 ```{r}
 #| eval: false
 
-sudo docker run -it -p 8000:8000 --rm --name ml_api r_api
+sudo docker run -it -p 8080:8080 --rm --name ml_api r_api
 ```
 
-Rode o comando acima e acesse: **http://127.0.0.1:8080/__docs__/**.
-Teste a API, da mesma maneira que fizemos anteriormente e certifique-se que está retornando HTTP 200 com o valor estimado do modelo.
+Rode o comando acima e acesse: **http://127.0.0.1:8080/docs**/. Teste a API, da mesma maneira que fizemos anteriormente e certifique-se que está retornando HTTP 200 com o valor estimado do modelo.
 
+# Passo 4. Instalação do container em Cloud (Google Cloud)
 
+A criação da imagem docker local, na verdade será subitiuída pela criação e upload da image na cloud da Google.
 
+Para instalarmos nossa imagem docker na Could do Google, devemos:
+
+### Criar Conta Gloogle Cloud
+
+-   Primeiro, precisamos **criar uma conta** Google Cloud.
+
+-   Uma vez criada a conta Google Cloud, precisamos habilitar a opção "**Compute Engine API**". Basta entrar no Portal Cloud do Google, selecionar Computer Engine e clicar em no botão **Habiltar**.
+
+-   Depois vá até o menu **IAM & Admin** e criar um conta de serviço (\*\*Service Account). Esta conta será necessária para criarmos a VM através do R.
+
+-   Depois precisamos dar permissão para: Cloud Functions Developer, Compute Admin, Project Editor, Service Account User, Cloud Run Admin e Storage objects Admin:
+
+![](images/service_account-01.png){width="483"}
+
+-  Agora devemos ir ao menu "**Cloud Storage**->Buckets" e criar um bucket novo.
+
+- Depois de criar a conta, clique no email da conta, vá na opção *KEYS* e crie uma nova chave no formato JSON e baixe em um local seguro em seu computador. 
+
+<!-- Ela será utilizada para criar uma máquina virtual através do pacote **googleCloudRunner**. -->
+
+<!-- -   Agora devemos ir para uma sessão do R, criar as variáveis de ambiente abaixo e depois carregar o pacote **googleCloudRunner** -->
+
+<!-- ```{r} -->
+<!-- #| eval: false -->
+
+<!-- project = "My First Project" -->
+<!-- region = "southamerica-east1" -->
+<!-- account_key = "/home/scopinho/MyBriefcase/compelling-art-366613-344d1a56e570.json" -->
+<!-- bucket = "rapibucket" -->
+
+<!-- Sys.setenv( -->
+<!--   GCE_AUTH_FILE = account_key, -->
+<!--   GCE_DEFAULT_PROJECT_ID = project, -->
+<!--   CR_REGION = region, -->
+<!--   GCS_DEFAULT_BUCKET = bucket, -->
+<!--   PORT = 8080 -->
+<!-- ) -->
+
+<!-- library(googleCloudRunner) -->
+<!-- ``` -->
+
+### Instalar o Google Cloud CLI
+
+Os passos a seguir, irão instalar baixar e rodar o CLI da Google Cloud. O último comando irá mostrar a lista de projetos que você tem no Google Cloud.
+
+```{r}
+#| eval: false
+curl -O https://dl.google.com/dl/cloudsdk/channels/rapid/downloads/google-cloud-cli-406.0.0-linux-x86_64.tar.gz
+
+tar -xf google-cloud-cli-406.0.0-linux-x86_64.tar.gz 
+
+google-cloud-sdk/install.sh
+
+google-cloud-sdk/bin/gcloud init
+
+google-cloud-sdk/bin/gcloud projects list
+```
+
+:::callout-note
+Este exemplo faremos utilizando uma máquina Linux. Se for MS Windows, veja a documentação no site da Google.
+:::
+### Arquivo cloudbuild.yaml
+
+Após instalar o **gcloud**, crie um arquivo **cloudbuild.yaml** no mesmo diretorio que o Dockerfile
+
+```{r}
+#| eval: false
+
+## Arquivo cloudbuild.yaml
+steps:
+  # Cria uma imagem de container
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['build', '-t', 'gcr.io/compelling-art-366613/consumo', '.']
+    # sobe a imagem para o Container Registry
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['push', 'gcr.io/compelling-art-366613/consumo']
+    
+```
+
+Pegue o nome o Projeto na Cloud da google usando:
+
+**gcloud projects list**
+
+Edite o cloudbuild.yaml e coloque seu arquivo e chave json lá.
+
+Depois crie e publique a image na Cloud da Google com o comando:
+
+**gcloud builds submit --config cloudbuild.yaml **
+
+Depois crie um serviço (new Service) no **Cloud Run** e teste.
+
+Abaixo o link de nossa API R plumber sendo executada na Cloud do Google.
+
+[API de Consumo do Modelo em R](https://consumo-j5z2wz2lbq-uc.a.run.app/__docs__/#/default/post_consumo)
+
+Podemos testar nossa API passando a URL e parâmetros no terminal com o comando curl
+
+```{r}
+#| eval: false
+curl -X POST "https://consumo-j5z2wz2lbq-uc.a.run.app/consumo?hp=110&wt=3&cyl=4" -H "accept: */*" -d ""
+```
+
+[21.47]
+
+:::callout-note
+Estes passos estão melhor explicados em maiores detalhes neste artigo do [Ander Fernandez](https://anderfernandez.com/en/blog/how-to-put-an-r-model-in-production/) e do [Tom Legnard](https://medium.com/@tea_legs/deploying-an-r-environment-in-docker-part-2-a39717cae172)
+:::

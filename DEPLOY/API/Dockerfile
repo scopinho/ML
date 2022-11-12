@@ -7,10 +7,10 @@ RUN R -e 'install.packages(c("tidyverse", "nlme", "mgcv"))'
 RUN mkdir /data
 COPY modelo.RData /data
 COPY script_consumo.R /data
+COPY server.R /data
+WORKDIR /data
 
 # Plumb 
-#EXPOSE 8080
-#ENTRYPOINT ["R", "-e", \
-#"pr <- plumber::plumb('/data/script_consumo.R'); pr$run(host = "0.0.0.0", port=8080)"]
+EXPOSE 8080
 
-CMD ["/data/script_consumo.R"]
+CMD ["Rscript", "server.R"]

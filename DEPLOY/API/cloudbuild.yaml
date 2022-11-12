@@ -1,0 +1,7 @@
+steps:
+  # Cria uma imagem de container
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['build', '-t', 'gcr.io/compelling-art-366613/consumo', '.']
+    # sobe a imagem para o Container Registry
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['push', 'gcr.io/compelling-art-366613/consumo']
