@@ -16,6 +16,7 @@ library(readr)
 library (lubridate)
 library(factoextra)
 library (mgcv)
+library(nnet)
 ```
 
 # Introdução
@@ -435,7 +436,7 @@ df_compras  <- df_compras |> mutate (diff_1 = day(days(data - diff_1)),
 
 df_dias_diff <- df_compras |> group_by (cliente) |> summarise(media = mean(diff_1, na.rm = TRUE), std = sd(diff_1, na.rm= TRUE))
 
-df_compras <- select(df_compras, -n) |> 
+df_compras <- select(df_compras, -n) |> ungroup() |> 
   left_join(df_dias_diff, by = "cliente")
 
 ```
@@ -446,7 +447,7 @@ Removendo clientes com menos de 3 compras para efeito de predição
 df_compras <- drop_na(df_compras)
 
 df_cliente <- df_cliente |> 
-  left_join(select(df_compras, -data), by = "cliente")
+  left_join(select(df_compras, -data, -n), by = "cliente")
 
 df_cliente <- df_cliente |> 
   mutate (across(.cols = c(grupo_freq, grupo_recencia, grupo_receita, score_rfm), .fns = as_factor))
@@ -456,11 +457,73 @@ df_cliente <- df_cliente |> mutate(proximo_compra_dias_range = case_when(
   proximo_compra_dias < 30 ~ 1,
   TRUE ~ 0))
 
+df_cliente$proximo_compra_dias_range <- as_factor(df_cliente$proximo_compra_dias_range)
+
+```
+
+Ajustando o dataset para treinar modelo de machine learning
+
+```{r}
+df_cliente_dummy <- fastDummies::dummy_columns(select(df_cliente, -cliente), select_columns = c("grupo_recencia", "grupo_receita", "grupo_freq", "score_rfm", "rfm"),
+                                   remove_selected_columns = T,
+                                   remove_most_frequent_dummy = T,
+                                   remove_first_dummy = F)
+```
+
+Treinando o modelo
+
+```{r}
+set.seed(123)
+
+df_cliente$id <- 1:nrow(df_cliente)
+
+df_cliente_treino <-  df_cliente |>  dplyr::sample_frac(0.70)
+df_cliente_teste <- dplyr::anti_join(df_cliente, df_cliente_treino, by = 'id')
+
+mod_log_01 <- multinom(formula = proximo_compra_dias_range ~ ., data = select(df_cliente_treino, -id, -cliente))
+
+jtools::export_summs(mod_log_01)
+```
+Chi2
+
+```{r}
+Qui2 <- function(x) {
+  maximo <- logLik(x)
+  minimo <- logLik(update(x, ~1, trace = F))
+  Qui.Quadrado <- -2*(minimo - maximo)
+  pvalue <- pchisq(Qui.Quadrado, df = 1, lower.tail = F)
+  dfq <- data.frame()
+  dfq <- cbind.data.frame(Qui.Quadrado, pvalue)
+  return(dfq)
+}
+
+Qui2(mod_log_01)
 ```
 
 ```{r}
-
+df2 <- drop_na(df_cliente_teste) 
+df_fit <- predict(mod_log_01, newdata = select(df2, -id, -cliente), type = "probs")
+df_final <- cbind (df2, df_fit)
+df_fitc <- predict(mod_log_01, newdata = select(df2, -id, -cliente), type = "class")
+df_final <- cbind (df_final, df_fitc)
 ```
 
+Matriz Confusao
 
+```{r}
+table(df_final$df_fitc, df_final$proximo_compra_dias_range)
+```
+
+Acuracia
+
+```{r}
+acuracia <- (round((sum(diag(table(df_final$df_fitc, df_final$proximo_compra_dias_range))) / 
+                      sum(table(df_final$df_fitc, df_final$proximo_compra_dias_range))), 2))
+
+acuracia
+```
+
+```{r}
+df_final |> arrange(desc(2))
+```
 

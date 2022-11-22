@@ -30,7 +30,7 @@ Most of the articles are in Portuguese language. Since there are plenty of that 
 
 ## Regressão Logística Binária e Multinomial
 
-[Regressão Logística, Chance, Logito, Multiplas Categorias, etc...](https://scopinho.github.io/ML/REGRESSAO/Reg_Logistica-01-01.html)
+[Regressão Logística, Chance, Logito, Multiplas Categorias, etc...](https://scopinho.github.io/ML/REGRESSAO/Reg_Logistica-01.html)
 
 ## Regressão Poisson, Binomial Negativa e com Inflação de Zeros (Dados de Contagem)
 
