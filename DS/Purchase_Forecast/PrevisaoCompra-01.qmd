@@ -13,10 +13,11 @@ format:
 ```{r}
 library (tidyverse)
 library(readr)
-library (lubridate)
 library(factoextra)
 library (mgcv)
 library(nnet)
+library(arrow)
+library (lubridate)
 ```
 
 # Introdução
@@ -27,10 +28,37 @@ XXX.
 
 Carregamos a base de dados.
 ```{r}
+
+########################## ARROW ##########################################
+#Para casos de melhor performance:
+
+Sys.setenv(TZ="GMT") #Ajusta para não impactar o timestamp da importação.
+sch = arrow::schema(cliente = int32(),
+                    loja = int32(),
+                    clienteloja = int32(),
+                    QtdeVendas = int32(),
+                    data = timestamp())
+
+ds <- read_csv_arrow ("~/MyBriefcase/github/ML/DS/Purchase_Forecast/expdata.csv",
+                      as_data_frame = F,
+                      timestamp_parsers = "%m/%d/%Y",
+                      col_types = sch)
+
+ds <- ds |> rename(valor_pago = ValorPago,
+                     qtde_vendas = QtdeVendas,
+                     descricao_tipo = DescricaoTipo,
+                     estado = ESTADO)
+  
+ds <- ds |> filter (valor_pago > 0)
+ds <- ds |> filter(data <= as_date("2022-10-31"))
+
+##########################################################################  
 df <- read_csv("~/MyBriefcase/github/ML/DS/Purchase_Forecast/expdata.csv", 
      col_types = cols(loja = col_integer(), 
+                      cliente = col_integer(),
          data = col_date(format = "%m/%d/%Y"), 
          QtdeVendas = col_integer()))
+
 df <- df |> 
   as_tibble() |>
   janitor::clean_names()
@@ -45,10 +73,11 @@ Total de registros:
 
 ```{r}
 dim (df)
-min
+
 ```
 
-9 variáveis e 2.956.085 registros. Nenhum vazio
+9 variáveis e 2.956.085 registros. e 2.834.758 com valores de venda maior que zero.
+2.807.334 em meses completos (de Jan até Out).
 
 ## Ajuste dos dados
 
@@ -130,9 +159,11 @@ df_qtd |> ggplot(aes(x = mes_ano, y= qtd)) +
 Assumimos que novo cliente é o que compra pela primeira vez no mês.
 
 ```{r}
-df_primeira_compra <- df |> 
+df_primeira_compra <- ds |> 
   group_by(cliente) |> 
-  summarise(primeira_compra = min(data))
+  summarise(primeira_compra = min(data)) |> 
+  collect() |> 
+  mutate (cliente = as_factor(cliente))
 
 df <- df |> left_join(df_primeira_compra, by = "cliente") |> 
   mutate (mes_ano_primeira_compra = format(as.Date(primeira_compra), "%m-%Y")) |> 
@@ -178,7 +209,7 @@ df_clientes_novos |>
 ```{r}
 df_taxa_ret <- df |> group_by(cliente, mes_ano) |> 
   summarise(receita = sum(valor_pago)) |> 
-  ungroup()
+  ungroup() 
 
 df_taxa_ret <- df_taxa_ret |> complete(cliente, mes_ano)
 df_taxa_ret <- df_taxa_ret |> mutate (receita = replace_na(receita, 0),
@@ -213,12 +244,15 @@ Dias de inatividade desde a última compra.
 
 ```{r}
 
-df_ultima_compra <- df |> arrange(data) |> group_by(cliente) |> summarise(ultima_compra = max(data)) 
+df_ultima_compra <- ds |> group_by(cliente) |> summarise(ultima_compra = max(data)) |> 
+  collect() |> 
+  mutate (cliente = as_factor(cliente)) 
 
 df <- df |> left_join(df_ultima_compra, by = "cliente") |> 
   mutate (mes_ano_ultima_compra = format(as.Date(ultima_compra), "%m-%Y"))
 
-df <- df |> arrange(data) |> mutate (recencia = day(days(ultima_compra - data)))
+
+df <- df |> arrange(data) |> mutate (recencia = day(days(as_date(ultima_compra) - data)))
 
 df_recencia <- df |> group_by(cliente, data) |> summarise(recencia = max(recencia))
 
@@ -275,7 +309,9 @@ df_recencia |>
 
 ```{r}
 
-df_freq <- df |> group_by(cliente) |> summarise(freq = n())
+df_freq <- ds |> group_by(cliente) |> summarise(freq = n()) |> 
+  collect() |> 
+  mutate (cliente = as_factor(cliente))
 
 k4 <- kmeans(df_freq$freq, centers = 4)
 
@@ -308,7 +344,10 @@ df_freq |> ggplot(aes(x=freq)) + geom_histogram()+
 ### Receita
 
 ```{r}
-df_receita_por_cliente<- df |> group_by(cliente) |> summarise(receita = sum(valor_pago))
+df_receita_por_cliente <- ds |> group_by(cliente) |> 
+  summarise(receita = sum(valor_pago)) |> 
+  collect() |> 
+  mutate (cliente =as_factor(cliente))
 
 k4 <- kmeans(df_receita_por_cliente$receita, centers = 4)
 
