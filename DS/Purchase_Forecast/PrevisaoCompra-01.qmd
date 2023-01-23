@@ -37,7 +37,9 @@ sch = arrow::schema(cliente = int32(),
                     loja = int32(),
                     clienteloja = int32(),
                     QtdeVendas = int32(),
-                    data = timestamp())
+                    data = timestamp(),
+                    cidade = string(),
+                    ESTADO = string())
 
 ds <- read_csv_arrow ("~/MyBriefcase/github/ML/DS/Purchase_Forecast/expdata.csv",
                       as_data_frame = F,
@@ -52,27 +54,35 @@ ds <- ds |> rename(valor_pago = ValorPago,
 ds <- ds |> filter (valor_pago > 0)
 ds <- ds |> filter(data <= as_date("2022-10-31"))
 
+## Criando variáveis suplementares
+
+ds <- ds |> 
+  mutate(ano = cast(year(data), int32()),
+         mes = cast(month(data), int32()),
+         dia = cast(day(data), int32()),
+         mes_ano = cast(format(as_date(data), "%m-%Y"), string()))
+
 ##########################################################################  
-df <- read_csv("~/MyBriefcase/github/ML/DS/Purchase_Forecast/expdata.csv", 
-     col_types = cols(loja = col_integer(), 
-                      cliente = col_integer(),
-         data = col_date(format = "%m/%d/%Y"), 
-         QtdeVendas = col_integer()))
-
-df <- df |> 
-  as_tibble() |>
-  janitor::clean_names()
-  
-df <- df |> mutate (across(.cols = c(loja, cidade, estado, clienteloja, cliente), .fns = as_factor))
-
-df <- df |> filter (valor_pago > 0)
-head(df)
+# df <- read_csv("~/MyBriefcase/github/ML/DS/Purchase_Forecast/expdata.csv", 
+#      col_types = cols(loja = col_integer(), 
+#                       cliente = col_integer(),
+#          data = col_date(format = "%m/%d/%Y"), 
+#          QtdeVendas = col_integer()))
+# 
+# df <- df |> 
+#   as_tibble() |>
+#   janitor::clean_names()
+#   
+# df <- df |> mutate (across(.cols = c(loja, cidade, estado, clienteloja, cliente), .fns = as_factor))
+# 
+# df <- df |> filter (valor_pago > 0)
+# head(df)
 ```
 
 Total de registros:
 
 ```{r}
-dim (df)
+dim (ds)
 
 ```
 
@@ -81,33 +91,18 @@ dim (df)
 
 ## Ajuste dos dados
 
-Criando variáveis auxiliares através da data
-
-```{r}
-df <- df |> 
-  mutate(ano = year(data),
-         mes = month(data),
-         dia = day(data),
-         mes_ano = format(as.Date(data), "%m-%Y")) 
-
-df
-```
-## Filtrando meses completos
-
-```{r}
-df <- df |> filter(data <= date("2022-10-31"))
-```
 
 # Análise Exploratória dos Dados
 
 ## Receita por Mês
 
 ```{r}
-df_receita <- df |> select(mes_ano, valor_pago) |> 
+df_receita <- ds |> select(mes_ano, valor_pago) |> 
   group_by(mes_ano) |> 
   summarise(receita = sum(valor_pago)) |> 
   arrange(mes_ano) |> 
   ungroup() |> 
+  collect() |> 
   mutate (mes_ano = as_factor(mes_ano))
 
 df_receita |> ggplot(aes(x = mes_ano, y= receita)) +
@@ -129,11 +124,13 @@ df_receita |> ggplot(aes(x = mes_ano, y= taxa)) +
 ## Clientes Ativos por mês
 
 ```{r}
-df_clientes <- df |> select(cliente, mes_ano) |> 
+df_clientes <- ds |> select(cliente, mes_ano) |> 
   group_by(mes_ano) |> 
+  mutate (cliente = as.integer(cliente)) |> 
   summarise(clientes = n_distinct(cliente)) |> 
   arrange(mes_ano) |> 
   ungroup() |> 
+  collect() |> 
   mutate (mes_ano = as_factor(mes_ano))
 
 df_clientes |> ggplot(aes(x = mes_ano, y= clientes)) +
@@ -143,11 +140,12 @@ df_clientes |> ggplot(aes(x = mes_ano, y= clientes)) +
 ### Quantidade de vendas por mês
 
 ```{r}
-df_qtd<- df |> select(mes_ano, qtde_vendas) |> 
+df_qtd<- ds |> select(mes_ano, qtde_vendas) |> 
   group_by(mes_ano) |> 
   summarise(qtd = sum(qtde_vendas)) |> 
   arrange(mes_ano) |> 
   ungroup() |> 
+  collect() |> 
   mutate (mes_ano = as_factor(mes_ano))
 
 df_qtd |> ggplot(aes(x = mes_ano, y= qtd)) +
@@ -159,28 +157,41 @@ df_qtd |> ggplot(aes(x = mes_ano, y= qtd)) +
 Assumimos que novo cliente é o que compra pela primeira vez no mês.
 
 ```{r}
-df_primeira_compra <- ds |> 
+df_primeira_compra <- ds |>
   group_by(cliente) |> 
-  summarise(primeira_compra = min(data)) |> 
-  collect() |> 
-  mutate (cliente = as_factor(cliente))
+  summarise(primeira_compra = min(data))
 
-df <- df |> left_join(df_primeira_compra, by = "cliente") |> 
+ds <- ds |>   left_join(df_primeira_compra, by = "cliente") |> 
   mutate (mes_ano_primeira_compra = format(as.Date(primeira_compra), "%m-%Y")) |> 
   mutate (cliente_novo = case_when(mes_ano == mes_ano_primeira_compra ~ "Novos",
-                                   TRUE ~ "Atuais")) |> 
-  mutate (cliente_novo = as_factor(cliente_novo))
+                                   TRUE ~ "Atuais")) 
+
+df_ultima_compra <- ds |> 
+  group_by(cliente) |> 
+  summarise(ultima_compra = max(data))  
+
+ds <- ds |> left_join(df_ultima_compra, by = "cliente") |> 
+  mutate (mes_ano_ultima_compra = format(as.Date(ultima_compra), "%m-%Y"))
+
+pq_path <- "data/ds_compras"
+
+ds |> group_by (ano, mes) |>
+  write_dataset(path = pq_path, format = "parquet")
+
+ds <- open_dataset(pq_path)
 ```
 
 ### Receita por Novos versus Atuais clientes
 
 ```{r}
 
-df_receita_clientes_novos <- df |> select(mes_ano, qtde_vendas, cliente_novo) |> 
+df_receita_clientes_novos <- ds |> 
+  select(mes_ano, qtde_vendas, cliente_novo) |> 
   group_by(mes_ano, cliente_novo) |> 
   summarise(receita = sum(qtde_vendas)) |> 
-  arrange(mes_ano) |> 
+  collect() |>
   ungroup() |> 
+  arrange(mes_ano) |> 
   mutate (mes_ano = as_factor(mes_ano))
 
 ```
@@ -195,8 +206,10 @@ Clientes atuais continuam comprando mais, porém novos clientes apresentam queda
 ### Taxa novos clientes
 
 ```{r}
-df_clientes_novos <- df |> group_by(mes_ano, cliente_novo) |> 
+df_clientes_novos <- ds |> group_by(mes_ano, cliente_novo) |> 
   summarise(n_distinct = n_distinct(cliente)) |> 
+  collect() |> 
+  arrange(mes_ano) |> 
   mutate (taxa = n_distinct  / lag(n_distinct)) |> 
   mutate (taxa = replace_na(taxa, 0)) 
 
@@ -207,9 +220,10 @@ df_clientes_novos |>
 ### Taxa de retenção
 
 ```{r}
-df_taxa_ret <- df |> group_by(cliente, mes_ano) |> 
+df_taxa_ret <- ds |> group_by(cliente, mes_ano) |> 
   summarise(receita = sum(valor_pago)) |> 
-  ungroup() 
+  ungroup() |> 
+  collect()
 
 df_taxa_ret <- df_taxa_ret |> complete(cliente, mes_ano)
 df_taxa_ret <- df_taxa_ret |> mutate (receita = replace_na(receita, 0),
@@ -244,25 +258,20 @@ Dias de inatividade desde a última compra.
 
 ```{r}
 
-df_ultima_compra <- ds |> group_by(cliente) |> summarise(ultima_compra = max(data)) |> 
+df_recencia <- ds |> arrange(data) |>
   collect() |> 
-  mutate (cliente = as_factor(cliente)) 
-
-df <- df |> left_join(df_ultima_compra, by = "cliente") |> 
-  mutate (mes_ano_ultima_compra = format(as.Date(ultima_compra), "%m-%Y"))
-
-
-df <- df |> arrange(data) |> mutate (recencia = day(days(as_date(ultima_compra) - data)))
-
-df_recencia <- df |> group_by(cliente, data) |> summarise(recencia = max(recencia))
+  mutate (recencia = day(days(as_date(ultima_compra) - as_date(data)))) |> 
+  group_by(cliente, data) |> 
+  summarise(recencia = max(recencia))
 
 df_recencia <- df_recencia |>  
   filter(recencia > 0) |> 
   select(cliente, recencia) |> 
   group_by(cliente) |> 
   summarise(recencia = min(recencia))
-df <- df |> select (- recencia)
-df <- df |> left_join(df_recencia, by = "cliente")
+
+#df <- df |> select (- recencia)
+#df <- df |> left_join(df_recencia, by = "cliente")
 
 ```
 
@@ -309,9 +318,10 @@ df_recencia |>
 
 ```{r}
 
-df_freq <- ds |> group_by(cliente) |> summarise(freq = n()) |> 
-  collect() |> 
-  mutate (cliente = as_factor(cliente))
+df_freq <- ds |> 
+  group_by(cliente) |> 
+  summarise(freq = n()) |> 
+  collect() 
 
 k4 <- kmeans(df_freq$freq, centers = 4)
 
@@ -346,8 +356,7 @@ df_freq |> ggplot(aes(x=freq)) + geom_histogram()+
 ```{r}
 df_receita_por_cliente <- ds |> group_by(cliente) |> 
   summarise(receita = sum(valor_pago)) |> 
-  collect() |> 
-  mutate (cliente =as_factor(cliente))
+  collect() 
 
 k4 <- kmeans(df_receita_por_cliente$receita, centers = 4)
 
@@ -386,7 +395,7 @@ df_rfm <-
   left_join(df_receita_por_cliente, by = "cliente") 
 
 df_rfm <- df_rfm |> mutate (grupo_recencia = replace_na(grupo_recencia, 0),
-                            recencia = replace_na(recencia, 0))
+                            recencia = replace_na(recencia, 999))
 
 df_rfm <- df_rfm |> 
   mutate (score_rfm = grupo_recencia + grupo_freq + grupo_receita,
@@ -401,17 +410,16 @@ df_rfm <- df_rfm |>
 ## Visualizando
 
 ```{r}
-df_rfm |> ggplot(aes(x=freq, y=receita, color = rfm)) +
-  geom_point(alpha = (2/10))
-
-df_rfm |> ggplot(aes(x=recencia, y=receita, color = rfm)) +
-  geom_point(alpha = (2/10))
-
-df_rfm |> ggplot(aes(x=recencia, y=freq, color = rfm)) +
-  geom_point(alpha = (2/10))
+# df_rfm |> ggplot(aes(x=freq, y=receita, color = rfm)) +
+#   geom_point(alpha = (2/10))
+# 
+# df_rfm |> ggplot(aes(x=recencia, y=receita, color = rfm)) +
+#   geom_point(alpha = (2/10))
+# 
+# df_rfm |> ggplot(aes(x=recencia, y=freq, color = rfm)) +
+#   geom_point(alpha = (2/10))
 
 ```
-
 
 Baseado no RFM, podemos já pensar em algumas estratégias macros como:
 
@@ -425,18 +433,18 @@ RFM Baixo: Estratégia para aumento de Frequência
 Vamos usar os primeiros 8 meses e prever os proximos 2.
 
 ```{r}
-df_8m <- df |> filter(data < ymd("2022-09-01"))
-df_proximo <- df |> filter(data > ymd("2022-08-31"))
+df_8m <- ds |> filter(data < ymd("2022-09-01"))
+df_proximo <- ds |> filter(data > ymd("2022-08-31"))
 ```
 
 ```{r}
-df_cliente <- df |> distinct(cliente)
+df_cliente <- ds |> distinct(cliente) |> collect()
 ```
 
 ```{r}
-df_proximo_primeira_compra <- df_proximo |> group_by(cliente) |> summarise(primeira_compra = min(data))
+df_proximo_primeira_compra <- df_proximo |> group_by(cliente) |> summarise(primeira_compra = min(data)) |> collect()
 
-df_atual_ultima_compra <- df_8m|> group_by(cliente) |> summarise(ultima_compra = max(data))
+df_atual_ultima_compra <- df_8m|> group_by(cliente) |> summarise(ultima_compra = max(data)) |> collect()
 
 df_cliente <- df_cliente |> left_join(df_atual_ultima_compra, by = "cliente") |> 
   left_join(df_proximo_primeira_compra, by = "cliente")
@@ -462,9 +470,9 @@ df_cliente <- df_cliente |>
 Media de dias das 3 ultimas compras
 
 ```{r}
-df_compras <- select(df, cliente, data) |> group_by(cliente, data) |> summarise(n=n())
+df_compras <- ds |> select(cliente, data) |> group_by(cliente, data) |> summarise(n=n())
 
-df_compras <- df_compras |> arrange (cliente, data) 
+df_compras <- df_compras |> arrange (cliente, data) |> collect()
 df_compras <- df_compras |> mutate (diff_1 = lag(data),
                                     diff_2 = lag(data, n = 2),
                                     diff_3 = lag(data, n = 3))
@@ -475,7 +483,7 @@ df_compras  <- df_compras |> mutate (diff_1 = day(days(data - diff_1)),
 
 df_dias_diff <- df_compras |> group_by (cliente) |> summarise(media = mean(diff_1, na.rm = TRUE), std = sd(diff_1, na.rm= TRUE))
 
-df_compras <- select(df_compras, -n) |> ungroup() |> 
+df_compras <- select(df_compras, -n) |> ungroup() |>
   left_join(df_dias_diff, by = "cliente")
 
 ```
@@ -483,17 +491,17 @@ df_compras <- select(df_compras, -n) |> ungroup() |>
 Removendo clientes com menos de 3 compras para efeito de predição
 
 ```{r}
-df_compras <- drop_na(df_compras)
+#df_compras <- drop_na(df_compras)
 
-df_cliente <- df_cliente |> 
-  left_join(select(df_compras, -data, -n), by = "cliente")
+#df_cliente <- df_cliente |> 
+#  left_join(select(df_compras, -data), by = "cliente")
 
 df_cliente <- df_cliente |> 
   mutate (across(.cols = c(grupo_freq, grupo_recencia, grupo_receita, score_rfm), .fns = as_factor))
 
 df_cliente <- df_cliente |> mutate(proximo_compra_dias_range = case_when(
-  proximo_compra_dias < 7 ~ 2,
-  proximo_compra_dias < 30 ~ 1,
+  proximo_compra_dias < 30 ~ 2,
+  proximo_compra_dias < 60 ~ 1,
   TRUE ~ 0))
 
 df_cliente$proximo_compra_dias_range <- as_factor(df_cliente$proximo_compra_dias_range)
