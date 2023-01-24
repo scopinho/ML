@@ -23,10 +23,10 @@ library (lubridate)
 Abrindo arquivos criados anteriormente
 
 ```{r}
-pq_path <- "data/ds_compras"
+#pq_path <- "data/ds_csv"
 pq_path2 <- "data/ds_cliente"
 
-ds <- open_dataset(pq_path)
+#ds <- open_dataset(pq_path)
 df_cliente <- open_dataset(pq_path2)
 df_cliente <- df_cliente |> collect()
 ```
@@ -51,7 +51,7 @@ df_cliente_teste <- dplyr::anti_join(df_cliente, df_cliente_treino, by = 'id')
 
 # Treino
 df_cliente_treino <- df_cliente_treino |> 
-  select (proximo_compra_dias, recencia, freq, receita, loja) 
+  select (proximo_compra_dias, recencia, freq, receita, media, std) 
 
 df_cliente_treino <- df_cliente_treino |> mutate (loja = as_factor(loja))
 
@@ -61,7 +61,7 @@ df_cliente_treino <- fastDummies::dummy_columns(df_cliente_treino, select_column
                                    remove_first_dummy = T)
 #Teste
 df_cliente_teste <- df_cliente_teste |> 
-  select (proximo_compra_dias, recencia, freq, receita, loja) 
+  select (proximo_compra_dias, recencia, freq, receita, media, std) 
 
 df_cliente_teste <- df_cliente_teste |> mutate (loja = as_factor(loja))
 levels (df_cliente_teste$loja) <- levels(df_cliente_treino$loja)
@@ -79,6 +79,8 @@ Treinando os modelos
 
 ```{r}
 mod_reg_05 <- lm(formula = proximo_compra_dias ~ ., data = select (df_cliente_treino, -loja))
+mod_reg_06 <- lm(formula = proximo_compra_dias ~ ., data = df_cliente_treino)
+
 
 #mod_reg_05_step <- step(mod_reg_05 , k = 3.841459, steps = 5, trace = 1)
 
@@ -88,8 +90,8 @@ jtools::export_summs(mod_reg_05)
 Predição
 
 ```{r}
-df2 <- select (df_cliente_teste, -loja, -proximo_compra_dias) 
-df_fit <- predict(mod_reg_05, newdata = df2)
+df2 <- select (df_cliente_teste, -proximo_compra_dias) 
+df_fit <- predict(mod_reg_06, newdata = df2)
 df_final <- cbind (df_cliente_teste, df_fit = round(df_fit,digits = 0))
 ```
 

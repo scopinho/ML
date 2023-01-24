@@ -173,7 +173,7 @@ df_ultima_compra <- ds |>
 ds <- ds |> left_join(df_ultima_compra, by = "cliente") |> 
   mutate (mes_ano_ultima_compra = format(as.Date(ultima_compra), "%m-%Y"))
 
-pq_path <- "data/ds_compras"
+pq_path <- "data/ds_csv"
 
 ds |> group_by (ano, mes) |>
   write_dataset(path = pq_path, format = "parquet")
@@ -486,15 +486,24 @@ df_dias_diff <- df_compras |> group_by (cliente) |> summarise(media = mean(diff_
 df_compras <- select(df_compras, -n) |> ungroup() |>
   left_join(df_dias_diff, by = "cliente")
 
+df_compras <- drop_na(df_compras)
+
+pq_path3 <- "data/ds_compras"
+
+df_compras |>
+  write_dataset(path = pq_path3, format = "parquet")
+
+df_compras <- open_dataset(pq_path3)
+df_compras <- df_compras |> collect()
+
 ```
 
 Removendo clientes com menos de 3 compras para efeito de predição
 
 ```{r}
-df_compras <- drop_na(df_compras)
 
 df_cliente <- df_cliente |> 
-  left_join(select(df_compras, cliente, std, media), by = "cliente")
+  left_join(select(df_compras, cliente, std, media) |> distinct(), by = "cliente")
 
 df_cliente <- df_cliente |> 
   mutate (across(.cols = c(grupo_freq, grupo_recencia, grupo_receita, score_rfm), .fns = as_factor))
@@ -558,7 +567,6 @@ df_cliente |>
 
 df_cliente <- open_dataset(pq_path2)
 df_cliente <- df_cliente |> collect()
-
 
 ```
 
