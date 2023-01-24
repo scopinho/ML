@@ -1,0 +1,95 @@
+---
+title: "Previsão de Compra"
+execute: 
+  warning: false
+format:
+  html:
+    toc: true
+    html-math-method: katex
+    css: styles.css
+    df-print: paged
+---
+
+```{r}
+library (tidyverse)
+library(readr)
+library(factoextra)
+library (mgcv)
+library(nnet)
+library(arrow)
+library (lubridate)
+```
+
+Abrindo arquivos criados anteriormente
+
+```{r}
+pq_path <- "data/ds_compras"
+pq_path2 <- "data/ds_cliente"
+
+ds <- open_dataset(pq_path)
+df_cliente <- open_dataset(pq_path2)
+df_cliente <- df_cliente |> collect()
+```
+
+
+EDA
+
+```{r}
+PerformanceAnalytics::chart.Correlation(df_cliente[c("proximo_compra_dias", "recencia", "freq")])
+```
+
+Separando as bases de teste e treino
+
+```{r}
+set.seed(123)
+
+df_cliente <- df_cliente |> drop_na() |> filter(proximo_compra_dias < 999)
+df_cliente$id <- 1:nrow(df_cliente)
+
+df_cliente_treino <-  df_cliente |>  dplyr::sample_frac(0.70)
+df_cliente_teste <- dplyr::anti_join(df_cliente, df_cliente_treino, by = 'id')
+
+# Treino
+df_cliente_treino <- df_cliente_treino |> 
+  select (proximo_compra_dias, recencia, freq, receita, loja) 
+
+df_cliente_treino <- df_cliente_treino |> mutate (loja = as_factor(loja))
+
+df_cliente_treino <- fastDummies::dummy_columns(df_cliente_treino, select_columns = c("loja"),
+                                   remove_selected_columns = F,
+                                   remove_most_frequent_dummy = F,
+                                   remove_first_dummy = T)
+#Teste
+df_cliente_teste <- df_cliente_teste |> 
+  select (proximo_compra_dias, recencia, freq, receita, loja) 
+
+df_cliente_teste <- df_cliente_teste |> mutate (loja = as_factor(loja))
+levels (df_cliente_teste$loja) <- levels(df_cliente_treino$loja)
+
+df_cliente_teste <- fastDummies::dummy_columns(df_cliente_teste, select_columns = c("loja"),
+                                   remove_selected_columns = F,
+                                   remove_most_frequent_dummy = F,
+                                   remove_first_dummy = T)
+
+
+#df_cliente_treino <- df_cliente_treino |> dplyr::sample_frac(0.05)
+```
+
+Treinando os modelos
+
+```{r}
+mod_reg_05 <- lm(formula = proximo_compra_dias ~ ., data = select (df_cliente_treino, -loja))
+
+#mod_reg_05_step <- step(mod_reg_05 , k = 3.841459, steps = 5, trace = 1)
+
+jtools::export_summs(mod_reg_05)
+```
+
+Predição
+
+```{r}
+df2 <- select (df_cliente_teste, -loja, -proximo_compra_dias) 
+df_fit <- predict(mod_reg_05, newdata = df2)
+df_final <- cbind (df_cliente_teste, df_fit = round(df_fit,digits = 0))
+```
+
