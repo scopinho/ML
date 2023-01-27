@@ -26,12 +26,16 @@ library (caret)
 Abrindo arquivos criados anteriormente
 
 ```{r}
-#pq_path <- "data/ds_csv"
+pq_path <- "data/ds_csv"
 pq_path2 <- "data/ds_cliente"
+pq_path3 <- "data/ds_compras"
 
-#ds <- open_dataset(pq_path)
+ds <- open_dataset(pq_path)
 df_cliente <- open_dataset(pq_path2)
 df_cliente <- df_cliente |> collect()
+
+df_compras <- open_dataset(pq_path3)
+df_compras <- df_compras |> collect()
 ```
 
 
@@ -111,7 +115,7 @@ Treinando os modelos
 # mod_reg_06 <- lm(formula = proximo_compra_dias ~ ., data = df_cliente_treino)
 # mod_reg_06_bc <- lm(formula = proximo_compra_dias_bc ~ . -proximo_compra_dias , data = df_cliente_treino)
 # 
-#mod_log_01 <- glm(formula = comprou_15_dias ~ ., family = "binomial", data = df_cliente_treino)
+mod_log_01 <- glm(formula = comprou_15_dias ~ ., family = "binomial", data = dplyr::select(df_cliente_treino, -starts_with("loja"), -starts_with("cidade")))
 
 #sparse_matrix <- Matrix::sparse.model.matrix(comprou_15_dias ~ -1., data = df_cliente_treino)
 
@@ -176,21 +180,22 @@ mod_xgb_01 <- xgboost(data = df_cliente_treino_sparse,
 Predição
 
 ```{r}
-df2 <- select (df_cliente_teste, -comprou_15_dias) 
-#df_fit <- predict(mod_log_01, newdata = df2, type = "response")
-#df_fit <- predict(mod_xgb_01, newdata = as.matrix(df2))
-df_fit <- predict(mod_xgb_01, df_cliente_teste_sparse)
-#df_fit <- predict(mod_xgb_02, newdata = df2)
+df2 <- select (df_cliente_teste, -comprou_15_dias, -starts_with("loja"),-starts_with("cidade")) 
+#df_fit <- predict(mod_xgb_01, df_cliente_teste_sparse)
 
+df_fit <- predict(mod_log_01, newdata = df2, type = "response")
+#df_fit <- predict(mod_xgb_01, newdata = as.matrix(df2))
+#df_fit <- predict(mod_xgb_02, newdata = df2)
 #df_final <- cbind (df_cliente_teste, df_fit = df_fit)
-df_final <- cbind (df_cliente_teste, df_fit_class = df_fit)
+
+df_final <- cbind (df_cliente_teste, df_fit = df_fit)
 df_final <- df_final |> ungroup()
 df_final <- df_final |> mutate (df_fit_class = as_factor(case_when(df_fit < 0.5 ~ "nao",
                                         TRUE ~ "sim")))
 ```
 
 ```{r}
-caret::confusionMatrix(df_final$df_fit_class, df_final$comprou_15_dias, positive="sim")
+caret::confusionMatrix(df_final$df_fit_class, df_final$comprou_15_dias, positive="sim", mode="everything")
 ```
 
 Analise das features

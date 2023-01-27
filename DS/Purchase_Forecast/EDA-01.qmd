@@ -1,0 +1,113 @@
+---
+title: "Previsão de Compra EDA"
+execute: 
+  warning: false
+format:
+  html:
+    toc: true
+    html-math-method: katex
+    css: styles.css
+    df-print: paged
+---
+
+```{r}
+library (tidyverse)
+library(arrow)
+library (lubridate)
+library(scales)
+```
+
+```{r}
+options(scipen = 999)
+# Open Dataset
+pq_path <- "data/ds_csv"
+pq_path2 <- "data/ds_cliente"
+
+ds <- open_dataset(pq_path)
+ds_cliente <- open_dataset(pq_path)
+```
+
+```{r}
+# Total de clientes que compraram 
+
+ds |> distinct(cliente) |> collect() |> nrow() 
+
+```
+
+```{r}
+ds_mensal <- ds |> 
+  mutate (mes = month(data),
+          mes_label = month(data, label=T, abbr=T)) |> 
+  group_by(mes, mes_label) |> 
+  summarise(clientes_unicos = n_distinct(cliente),
+            vendas = n(),
+            produtos_vendidos = sum(qtde_vendas),
+            receita = sum(valor_pago)) |> 
+  collect() 
+
+plot <- ds_mensal |> ggplot(aes(x=fct_reorder(as_factor(mes_label), mes)))  
+
+gg_clientes <- plot +
+  geom_col(aes(y=clientes_unicos, fill = clientes_unicos < 200000), show.legend = F)+
+  labs(x="mes", y="clientes", title="Clientes por Mês")
+
+gg_vendas <- plot +
+  geom_col(aes(y=vendas))+
+  labs(x="mes", y="vendas", title="Vendas por Mês")
+
+gg_prod_vendidos<- plot +
+  geom_col(aes(y=produtos_vendidos))+
+  labs(x="mes", y="produtos_vendidos", title="Produtos Vendidos por Mês")
+
+gg_receita <- plot +
+  geom_col(aes(y=receita))+
+  labs(x="mes", y="receita", title="Receita por Mês")
+
+(gg_clientes | gg_vendas) /
+(gg_prod_vendidos | gg_receita)
+```
+
+```{r}
+ds_lojas <- ds |> 
+  mutate (mes = month(data),
+          mes_label = month(data, label=T, abbr=T)) |> 
+  group_by(mes, mes_label, loja, cidade) |> 
+  summarise(clientes_unicos = n_distinct(cliente),
+            vendas = n(),
+            produtos_vendidos = sum(qtde_vendas),
+            receita = sum(valor_pago)) |> 
+  collect() 
+```
+
+```{r}
+ds_lojas  |> 
+  mutate (loja = as_factor(loja),
+          loja_label = paste0(loja,"-",cidade)) |> 
+  ungroup() |> 
+  select (loja, receita, cidade, loja_label) |> 
+  group_by(loja) |> 
+  summarise(receita = sum(receita),
+            loja_label = max(loja_label)) |> 
+  arrange(desc(receita)) |> 
+  slice_head(n=10) |> 
+  ggplot(aes(y=fct_reorder(loja_label, receita), x=receita, fill = fct_reorder(loja, desc(receita))))+
+  geom_col(show.legend = T)+
+  scale_x_continuous(labels = scales::dollar_format(big.mark = ".", decimal.mark = ","))+
+  labs(x="Receita", y="Loja", title="TOP 10 - Receita por Loja")+
+  guides(fill=guide_legend(title="Lojas"))
+```
+
+```{r}
+ds_cliente_novos_e_atuais <- ds |> 
+  mutate (mes_ano = format(data, "%m-%Y")) |>  
+  group_by(cliente, mes_ano) |> 
+  select(cliente, mes_ano) |> 
+  distinct() |> 
+  arrange(cliente)|> 
+  ungroup() |> 
+  group_by(cliente) |> 
+  collect() |> 
+  mutate (mes_inicial = min(mes_ano), 
+          Novo_no_mes =case_when(mes_inicial == mes_ano ~ "S", TRUE ~ "N")) 
+```
+
