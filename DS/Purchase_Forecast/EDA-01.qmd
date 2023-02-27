@@ -2,6 +2,7 @@
 title: "Previsão de Compra EDA"
 execute: 
   warning: false
+  echo: fenced
 format:
   html:
     toc: true
@@ -15,6 +16,7 @@ library (tidyverse)
 library(arrow)
 library (lubridate)
 library(scales)
+library(patchwork)
 ```
 
 ```{r}
@@ -109,5 +111,121 @@ ds_cliente_novos_e_atuais <- ds |>
   collect() |> 
   mutate (mes_inicial = min(mes_ano), 
           Novo_no_mes =case_when(mes_inicial == mes_ano ~ "S", TRUE ~ "N")) 
+
+ds_cliente_novos_e_atuais_por_mes  <- ds_cliente_novos_e_atuais |> 
+  ungroup() |> 
+  group_by(mes_ano, Novo_no_mes) |>
+  summarise(n = n())
+
+ds_cliente_novos_e_atuais_por_mes |> ggplot(aes(x=mes_ano, y=n, color=Novo_no_mes, fill=Novo_no_mes))+
+       geom_col(position = position_dodge2(preserve = "single"),
+                alpha = 1/4, 
+                color=FALSE,
+                show.legend = F)+
+  geom_point(position = position_dodge(width = 1),
+             show.legend = F)+
+  stat_summary(aes(group=Novo_no_mes), 
+               fun=sum, geom="line", 
+               position = position_dodge(width = 1),
+               size=1.1)+
+  labs(title = "Clientes Novos e Recorrentes (acum.) por mês", x = "mês-ano", y="qtd")+
+  guides(color=guide_legend(title = "Clientes Novos"))+
+  scale_color_discrete(labels=c("Não", "Sim"))
+```
+
+
+```{r}
+ds |> select(cliente) |> distinct() |> count() |> collect() 
+```
+
+```{r}
+ds |>
+  filter(cliente_novo == "Novos") |> select(cliente, cliente_novo, mes_ano) |> 
+  group_by(mes_ano, cliente_novo) |> 
+  distinct() |>
+  summarise(n=n()) |> 
+  arrange(mes_ano) |> 
+  ungroup() |> 
+  collect() |> 
+  mutate (taxa_cresimento_clientes_novos = (n - lag(n)) / n) |> 
+  mutate (taxa_cresimento_clientes_novos = replace_na(taxa_cresimento_clientes_novos, 0),
+          taxa_cresimento_clientes_novos_acc = taxa_cresimento_clientes_novos + lag(taxa_cresimento_clientes_novos)) |> 
+  select(mes_ano, taxa_cresimento_clientes_novos, taxa_cresimento_clientes_novos_acc) |> 
+  pivot_longer(cols = c("taxa_cresimento_clientes_novos", "taxa_cresimento_clientes_novos_acc"),
+               names_to = "tipo_taxas", values_to = "n") |> 
+  filter(tipo_taxas == "taxa_cresimento_clientes_novos") |> 
+  mutate (neg_pos = if_else(n < 0, "Negativo", "Positivo")) |> 
+  
+  # Plot
+  ggplot(aes(x=mes_ano, y=n, fill = neg_pos))+
+  geom_col(position = position_dodge2())+
+  geom_text(aes(label = paste0(round(n*100,1),"%"), vjust = ifelse(n < 0, 1.5, -0.5)))+
+  scale_y_continuous(labels = scales::label_percent())+
+  labs(title = "Taxa de crescimento de novos clientes por mês", y="Valor", x="Ano-Mês")+
+  scale_fill_manual(values = c("Positivo"="#669933", "Negativo"="firebrick"))+
+  guides(fill = guide_legend(title = "Taxas") )
+  
+```
+
+```{r}
+ds_receitas_por_cliente  <- ds |>  select(cliente, valor_pago) |> group_by(cliente) |> summarise(receita = sum(valor_pago)) |> collect()
+```
+
+```{r}
+ds_receitas_por_cliente |> ggplot(aes(x=receita))+geom_histogram(binwidth = 50)+
+  scale_x_continuous(labels = scales::dollar_format(), limits = c(0, 2000))+
+  labs(title="Histograma de Receita", 
+       y="Qtd de Clientes",
+       x="Receita")
+
+```
+
+
+```{r}
+# Agrupamento por Receita
+
+#factoextra::fviz_nbclust(slice_sample(ds_receitas_por_cliente, n=1000) |> select(receita), FUN = hcut, method = "wss")
+
+k4 <- kmeans(ds_receitas_por_cliente |> select(receita), centers = 4)
+
+ds_receitas_por_cliente_k <- bind_cols(ds_receitas_por_cliente, grupo_receita=k4$cluster)
+
+ds_receitas_por_cliente_grp_k <- ds_receitas_por_cliente_k |> group_by(grupo_receita) |> summarise(media = mean(receita), std = sd(receita), min = min(receita), max=max(receita))
+
+ds_receitas_por_cliente_k |> ggplot(aes(y=receita, color=as_factor(grupo_receita)))+ 
+  geom_boxplot()+
+  scale_y_continuous(limits = c(0,5000)) +
+  guides(color=guide_legend(title="Grupos"))
+```
+
+```{r}
+# Agrupamento por Frequencia
+
+#factoextra::fviz_nbclust(slice_sample(ds_freq_por_cliente, n=1000) |> select(freq), FUN = hcut, method = "wss")
+
+k4 <- kmeans(ds_freq_por_cliente |> select(freq), centers = 4)
+
+ds_freq_por_cliente_k <- bind_cols(ds_freq_por_cliente, grupo_freq=k4$cluster)
+
+ds_freq_por_cliente_grp_k <- ds_freq_por_cliente_k |> group_by(grupo_freq) |> summarise(media = mean(freq), std = sd(freq), min = min(freq), max=max(freq))
+
+ds_freq_por_cliente_k |> ggplot(aes(x=as_factor(grupo_freq), y=freq, color=as_factor(grupo_freq)))+ 
+  geom_boxplot()+
+  scale_y_continuous(limits = c(0,100)) +
+  guides(color=guide_legend(title="Grupos"))+
+  labs(x=NULL)
+
+ds_freq_por_cliente <- ds |> distinct(cliente, data) |> group_by(cliente) |> summarise(freq=n()) |> collect() |> arrange(desc(freq))
+```
+
+```{r}
+#factoextra::fviz_nbclust(slice_sample(ds_cliente_cluster, n=1000) |> select(freq, receita), FUN = hcut, method = "wss")
+ds_cliente_cluster <- ds_freq_por_cliente_k |> left_join(ds_receitas_por_cliente_k, by = "cliente") 
+k4 <- kmeans(ds_cliente_cluster |> select(freq, receita), centers = 4)
+ds_cliente_cluster$cluster <- k4$cluster
+ds_cliente_cluster |>   ggplot(aes(x=receita, y=freq, color=as_factor(cluster)))+
+  geom_point()+
+  scale_color_viridis_d()+
+  guides(color = guide_legend(title="Grupos"))
 ```
 
