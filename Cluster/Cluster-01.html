@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.0.38">
+<meta name="generator" content="quarto-1.2.269">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
@@ -11,10 +11,15 @@
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
-span.underline{text-decoration: underline;}
-div.column{display: inline-block; vertical-align: top; width: 50%;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
 div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
 ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1.6em;
+  vertical-align: middle;
+}
 pre > code.sourceCode { white-space: pre; position: relative; }
 pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
 pre > code.sourceCode > span:empty { height: 1.2em; }
@@ -53,7 +58,7 @@ code span.al { color: #ff0000; font-weight: bold; } /* Alert */
 code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
 code span.at { color: #7d9029; } /* Attribute */
 code span.bn { color: #40a070; } /* BaseN */
-code span.bu { } /* BuiltIn */
+code span.bu { color: #008000; } /* BuiltIn */
 code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
 code span.ch { color: #4070a0; } /* Char */
 code span.cn { color: #880000; } /* Constant */
@@ -66,7 +71,7 @@ code span.er { color: #ff0000; font-weight: bold; } /* Error */
 code span.ex { } /* Extension */
 code span.fl { color: #40a070; } /* Float */
 code span.fu { color: #06287e; } /* Function */
-code span.im { } /* Import */
+code span.im { color: #008000; font-weight: bold; } /* Import */
 code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
 code span.kw { color: #007020; font-weight: bold; } /* Keyword */
 code span.op { color: #666666; } /* Operator */
@@ -100,7 +105,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 
 <div id="quarto-content" class="page-columns page-rows-contents page-layout-article">
 <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
-  <nav id="TOC" role="doc-toc">
+  <nav id="TOC" role="doc-toc" class="toc-active">
     <h2 id="toc-title">Table of contents</h2>
    
   <ul>
@@ -129,6 +134,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <div class="quarto-title-meta">
 
     
+  
     
   </div>
   
@@ -361,12 +367,12 @@ Warning
 <span id="cb20-9"><a href="#cb20-9" aria-hidden="true" tabindex="-1"></a>    })</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 
-<div id="yyichzgjis" style="overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<div id="yyichzgjis" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
 <style>html {
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Helvetica Neue', 'Fira Sans', 'Droid Sans', Arial, sans-serif;
 }
 
-#yyichzgjis .gt_table {
+:where(#yyichzgjis) .gt_table {
   display: table;
   border-collapse: collapse;
   margin-left: auto;
@@ -391,7 +397,7 @@ Warning
   border-left-color: #D3D3D3;
 }
 
-#yyichzgjis .gt_heading {
+:where(#yyichzgjis) .gt_heading {
   background-color: #FFFFFF;
   text-align: center;
   border-bottom-color: #FFFFFF;
@@ -403,7 +409,12 @@ Warning
   border-right-color: #D3D3D3;
 }
 
-#yyichzgjis .gt_title {
+:where(#yyichzgjis) .gt_caption {
+  padding-top: 4px;
+  padding-bottom: 4px;
+}
+
+:where(#yyichzgjis) .gt_title {
   color: #333333;
   font-size: 125%;
   font-weight: initial;
@@ -415,7 +426,7 @@ Warning
   border-bottom-width: 0;
 }
 
-#yyichzgjis .gt_subtitle {
+:where(#yyichzgjis) .gt_subtitle {
   color: #333333;
   font-size: 85%;
   font-weight: initial;
@@ -427,13 +438,13 @@ Warning
   border-top-width: 0;
 }
 
-#yyichzgjis .gt_bottom_border {
+:where(#yyichzgjis) .gt_bottom_border {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
 }
 
-#yyichzgjis .gt_col_headings {
+:where(#yyichzgjis) .gt_col_headings {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -448,7 +459,7 @@ Warning
   border-right-color: #D3D3D3;
 }
 
-#yyichzgjis .gt_col_heading {
+:where(#yyichzgjis) .gt_col_heading {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -468,7 +479,7 @@ Warning
   overflow-x: hidden;
 }
 
-#yyichzgjis .gt_column_spanner_outer {
+:where(#yyichzgjis) .gt_column_spanner_outer {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -480,15 +491,15 @@ Warning
   padding-right: 4px;
 }
 
-#yyichzgjis .gt_column_spanner_outer:first-child {
+:where(#yyichzgjis) .gt_column_spanner_outer:first-child {
   padding-left: 0;
 }
 
-#yyichzgjis .gt_column_spanner_outer:last-child {
+:where(#yyichzgjis) .gt_column_spanner_outer:last-child {
   padding-right: 0;
 }
 
-#yyichzgjis .gt_column_spanner {
+:where(#yyichzgjis) .gt_column_spanner {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
@@ -500,7 +511,7 @@ Warning
   width: 100%;
 }
 
-#yyichzgjis .gt_group_heading {
+:where(#yyichzgjis) .gt_group_heading {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -523,9 +534,10 @@ Warning
   border-right-width: 1px;
   border-right-color: #D3D3D3;
   vertical-align: middle;
+  text-align: left;
 }
 
-#yyichzgjis .gt_empty_group_heading {
+:where(#yyichzgjis) .gt_empty_group_heading {
   padding: 0.5px;
   color: #333333;
   background-color: #FFFFFF;
@@ -540,15 +552,15 @@ Warning
   vertical-align: middle;
 }
 
-#yyichzgjis .gt_from_md > :first-child {
+:where(#yyichzgjis) .gt_from_md > :first-child {
   margin-top: 0;
 }
 
-#yyichzgjis .gt_from_md > :last-child {
+:where(#yyichzgjis) .gt_from_md > :last-child {
   margin-bottom: 0;
 }
 
-#yyichzgjis .gt_row {
+:where(#yyichzgjis) .gt_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -567,7 +579,7 @@ Warning
   overflow-x: hidden;
 }
 
-#yyichzgjis .gt_stub {
+:where(#yyichzgjis) .gt_stub {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -580,7 +592,7 @@ Warning
   padding-right: 5px;
 }
 
-#yyichzgjis .gt_stub_row_group {
+:where(#yyichzgjis) .gt_stub_row_group {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -594,11 +606,11 @@ Warning
   vertical-align: top;
 }
 
-#yyichzgjis .gt_row_group_first td {
+:where(#yyichzgjis) .gt_row_group_first td {
   border-top-width: 2px;
 }
 
-#yyichzgjis .gt_summary_row {
+:where(#yyichzgjis) .gt_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -608,16 +620,16 @@ Warning
   padding-right: 5px;
 }
 
-#yyichzgjis .gt_first_summary_row {
+:where(#yyichzgjis) .gt_first_summary_row {
   border-top-style: solid;
   border-top-color: #D3D3D3;
 }
 
-#yyichzgjis .gt_first_summary_row.thick {
+:where(#yyichzgjis) .gt_first_summary_row.thick {
   border-top-width: 2px;
 }
 
-#yyichzgjis .gt_last_summary_row {
+:where(#yyichzgjis) .gt_last_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -627,7 +639,7 @@ Warning
   border-bottom-color: #D3D3D3;
 }
 
-#yyichzgjis .gt_grand_summary_row {
+:where(#yyichzgjis) .gt_grand_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -637,7 +649,7 @@ Warning
   padding-right: 5px;
 }
 
-#yyichzgjis .gt_first_grand_summary_row {
+:where(#yyichzgjis) .gt_first_grand_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -647,11 +659,11 @@ Warning
   border-top-color: #D3D3D3;
 }
 
-#yyichzgjis .gt_striped {
+:where(#yyichzgjis) .gt_striped {
   background-color: rgba(128, 128, 128, 0.05);
 }
 
-#yyichzgjis .gt_table_body {
+:where(#yyichzgjis) .gt_table_body {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -660,7 +672,7 @@ Warning
   border-bottom-color: #D3D3D3;
 }
 
-#yyichzgjis .gt_footnotes {
+:where(#yyichzgjis) .gt_footnotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -674,7 +686,7 @@ Warning
   border-right-color: #D3D3D3;
 }
 
-#yyichzgjis .gt_footnote {
+:where(#yyichzgjis) .gt_footnote {
   margin: 0px;
   font-size: 90%;
   padding-left: 4px;
@@ -683,7 +695,7 @@ Warning
   padding-right: 5px;
 }
 
-#yyichzgjis .gt_sourcenotes {
+:where(#yyichzgjis) .gt_sourcenotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -697,7 +709,7 @@ Warning
   border-right-color: #D3D3D3;
 }
 
-#yyichzgjis .gt_sourcenote {
+:where(#yyichzgjis) .gt_sourcenote {
   font-size: 90%;
   padding-top: 4px;
   padding-bottom: 4px;
@@ -705,459 +717,452 @@ Warning
   padding-right: 5px;
 }
 
-#yyichzgjis .gt_left {
+:where(#yyichzgjis) .gt_left {
   text-align: left;
 }
 
-#yyichzgjis .gt_center {
+:where(#yyichzgjis) .gt_center {
   text-align: center;
 }
 
-#yyichzgjis .gt_right {
+:where(#yyichzgjis) .gt_right {
   text-align: right;
   font-variant-numeric: tabular-nums;
 }
 
-#yyichzgjis .gt_font_normal {
+:where(#yyichzgjis) .gt_font_normal {
   font-weight: normal;
 }
 
-#yyichzgjis .gt_font_bold {
+:where(#yyichzgjis) .gt_font_bold {
   font-weight: bold;
 }
 
-#yyichzgjis .gt_font_italic {
+:where(#yyichzgjis) .gt_font_italic {
   font-style: italic;
 }
 
-#yyichzgjis .gt_super {
+:where(#yyichzgjis) .gt_super {
   font-size: 65%;
 }
 
-#yyichzgjis .gt_two_val_uncert {
-  display: inline-block;
-  line-height: 1em;
-  text-align: right;
-  font-size: 60%;
-  vertical-align: -0.25em;
-  margin-left: 0.1em;
-}
-
-#yyichzgjis .gt_footnote_marks {
+:where(#yyichzgjis) .gt_footnote_marks {
   font-style: italic;
   font-weight: normal;
   font-size: 75%;
   vertical-align: 0.4em;
 }
 
-#yyichzgjis .gt_asterisk {
+:where(#yyichzgjis) .gt_asterisk {
   font-size: 100%;
   vertical-align: 0;
 }
 
-#yyichzgjis .gt_slash_mark {
-  font-size: 0.7em;
-  line-height: 0.7em;
-  vertical-align: 0.15em;
+:where(#yyichzgjis) .gt_indent_1 {
+  text-indent: 5px;
 }
 
-#yyichzgjis .gt_fraction_numerator {
-  font-size: 0.6em;
-  line-height: 0.6em;
-  vertical-align: 0.45em;
+:where(#yyichzgjis) .gt_indent_2 {
+  text-indent: 10px;
 }
 
-#yyichzgjis .gt_fraction_denominator {
-  font-size: 0.6em;
-  line-height: 0.6em;
-  vertical-align: -0.05em;
+:where(#yyichzgjis) .gt_indent_3 {
+  text-indent: 15px;
+}
+
+:where(#yyichzgjis) .gt_indent_4 {
+  text-indent: 20px;
+}
+
+:where(#yyichzgjis) .gt_indent_5 {
+  text-indent: 25px;
 }
 </style>
 <table class="gt_table">
   
   <thead class="gt_col_headings">
     <tr>
-      <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1">mpg</th>
-      <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1">cyl</th>
-      <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1">disp</th>
-      <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1">hp</th>
-      <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1">drat</th>
-      <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1">wt</th>
-      <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1">qsec</th>
-      <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1">vs</th>
-      <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1">am</th>
-      <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1">gear</th>
-      <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1">carb</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="mpg">mpg</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="cyl">cyl</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="disp">disp</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="hp">hp</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="drat">drat</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="wt">wt</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="qsec">qsec</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="vs">vs</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="am">am</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="gear">gear</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="carb">carb</th>
     </tr>
   </thead>
   <tbody class="gt_table_body">
     <tr class="gt_group_heading_row">
-      <td colspan="11" class="gt_group_heading">Cluster: 2</td>
+      <th colspan="11" class="gt_group_heading" scope="colgroup" id="Cluster: 2">Cluster: 2</th>
     </tr>
-    <tr class="gt_row_group_first"><td class="gt_row gt_right">21.0</td>
-<td class="gt_row gt_right">6</td>
-<td class="gt_row gt_right">160.0</td>
-<td class="gt_row gt_right">110</td>
-<td class="gt_row gt_right">3.90</td>
-<td class="gt_row gt_right">2.620</td>
-<td class="gt_row gt_right">16.46</td>
-<td class="gt_row gt_right">0</td>
-<td class="gt_row gt_right">1</td>
-<td class="gt_row gt_right">4</td>
-<td class="gt_row gt_right">4</td></tr>
-    <tr><td class="gt_row gt_right gt_striped">21.0</td>
-<td class="gt_row gt_right gt_striped">6</td>
-<td class="gt_row gt_right gt_striped">160.0</td>
-<td class="gt_row gt_right gt_striped">110</td>
-<td class="gt_row gt_right gt_striped">3.90</td>
-<td class="gt_row gt_right gt_striped">2.875</td>
-<td class="gt_row gt_right gt_striped">17.02</td>
-<td class="gt_row gt_right gt_striped">0</td>
-<td class="gt_row gt_right gt_striped">1</td>
-<td class="gt_row gt_right gt_striped">4</td>
-<td class="gt_row gt_right gt_striped">4</td></tr>
-    <tr><td class="gt_row gt_right">22.8</td>
-<td class="gt_row gt_right">4</td>
-<td class="gt_row gt_right">108.0</td>
-<td class="gt_row gt_right">93</td>
-<td class="gt_row gt_right">3.85</td>
-<td class="gt_row gt_right">2.320</td>
-<td class="gt_row gt_right">18.61</td>
-<td class="gt_row gt_right">1</td>
-<td class="gt_row gt_right">1</td>
-<td class="gt_row gt_right">4</td>
-<td class="gt_row gt_right">1</td></tr>
-    <tr><td class="gt_row gt_right gt_striped">24.4</td>
-<td class="gt_row gt_right gt_striped">4</td>
-<td class="gt_row gt_right gt_striped">146.7</td>
-<td class="gt_row gt_right gt_striped">62</td>
-<td class="gt_row gt_right gt_striped">3.69</td>
-<td class="gt_row gt_right gt_striped">3.190</td>
-<td class="gt_row gt_right gt_striped">20.00</td>
-<td class="gt_row gt_right gt_striped">1</td>
-<td class="gt_row gt_right gt_striped">0</td>
-<td class="gt_row gt_right gt_striped">4</td>
-<td class="gt_row gt_right gt_striped">2</td></tr>
-    <tr><td class="gt_row gt_right">22.8</td>
-<td class="gt_row gt_right">4</td>
-<td class="gt_row gt_right">140.8</td>
-<td class="gt_row gt_right">95</td>
-<td class="gt_row gt_right">3.92</td>
-<td class="gt_row gt_right">3.150</td>
-<td class="gt_row gt_right">22.90</td>
-<td class="gt_row gt_right">1</td>
-<td class="gt_row gt_right">0</td>
-<td class="gt_row gt_right">4</td>
-<td class="gt_row gt_right">2</td></tr>
-    <tr><td class="gt_row gt_right gt_striped">19.2</td>
-<td class="gt_row gt_right gt_striped">6</td>
-<td class="gt_row gt_right gt_striped">167.6</td>
-<td class="gt_row gt_right gt_striped">123</td>
-<td class="gt_row gt_right gt_striped">3.92</td>
-<td class="gt_row gt_right gt_striped">3.440</td>
-<td class="gt_row gt_right gt_striped">18.30</td>
-<td class="gt_row gt_right gt_striped">1</td>
-<td class="gt_row gt_right gt_striped">0</td>
-<td class="gt_row gt_right gt_striped">4</td>
-<td class="gt_row gt_right gt_striped">4</td></tr>
-    <tr><td class="gt_row gt_right">17.8</td>
-<td class="gt_row gt_right">6</td>
-<td class="gt_row gt_right">167.6</td>
-<td class="gt_row gt_right">123</td>
-<td class="gt_row gt_right">3.92</td>
-<td class="gt_row gt_right">3.440</td>
-<td class="gt_row gt_right">18.90</td>
-<td class="gt_row gt_right">1</td>
-<td class="gt_row gt_right">0</td>
-<td class="gt_row gt_right">4</td>
-<td class="gt_row gt_right">4</td></tr>
-    <tr><td class="gt_row gt_right gt_striped">21.5</td>
-<td class="gt_row gt_right gt_striped">4</td>
-<td class="gt_row gt_right gt_striped">120.1</td>
-<td class="gt_row gt_right gt_striped">97</td>
-<td class="gt_row gt_right gt_striped">3.70</td>
-<td class="gt_row gt_right gt_striped">2.465</td>
-<td class="gt_row gt_right gt_striped">20.01</td>
-<td class="gt_row gt_right gt_striped">1</td>
-<td class="gt_row gt_right gt_striped">0</td>
-<td class="gt_row gt_right gt_striped">3</td>
-<td class="gt_row gt_right gt_striped">1</td></tr>
-    <tr><td class="gt_row gt_right">19.7</td>
-<td class="gt_row gt_right">6</td>
-<td class="gt_row gt_right">145.0</td>
-<td class="gt_row gt_right">175</td>
-<td class="gt_row gt_right">3.62</td>
-<td class="gt_row gt_right">2.770</td>
-<td class="gt_row gt_right">15.50</td>
-<td class="gt_row gt_right">0</td>
-<td class="gt_row gt_right">1</td>
-<td class="gt_row gt_right">5</td>
-<td class="gt_row gt_right">6</td></tr>
-    <tr><td class="gt_row gt_right gt_striped">21.4</td>
-<td class="gt_row gt_right gt_striped">4</td>
-<td class="gt_row gt_right gt_striped">121.0</td>
-<td class="gt_row gt_right gt_striped">109</td>
-<td class="gt_row gt_right gt_striped">4.11</td>
-<td class="gt_row gt_right gt_striped">2.780</td>
-<td class="gt_row gt_right gt_striped">18.60</td>
-<td class="gt_row gt_right gt_striped">1</td>
-<td class="gt_row gt_right gt_striped">1</td>
-<td class="gt_row gt_right gt_striped">4</td>
-<td class="gt_row gt_right gt_striped">2</td></tr>
+    <tr class="gt_row_group_first"><td headers="2  mpg" class="gt_row gt_right">21.0</td>
+<td headers="2  cyl" class="gt_row gt_right">6</td>
+<td headers="2  disp" class="gt_row gt_right">160.0</td>
+<td headers="2  hp" class="gt_row gt_right">110</td>
+<td headers="2  drat" class="gt_row gt_right">3.90</td>
+<td headers="2  wt" class="gt_row gt_right">2.620</td>
+<td headers="2  qsec" class="gt_row gt_right">16.46</td>
+<td headers="2  vs" class="gt_row gt_right">0</td>
+<td headers="2  am" class="gt_row gt_right">1</td>
+<td headers="2  gear" class="gt_row gt_right">4</td>
+<td headers="2  carb" class="gt_row gt_right">4</td></tr>
+    <tr><td headers="2  mpg" class="gt_row gt_right gt_striped">21.0</td>
+<td headers="2  cyl" class="gt_row gt_right gt_striped">6</td>
+<td headers="2  disp" class="gt_row gt_right gt_striped">160.0</td>
+<td headers="2  hp" class="gt_row gt_right gt_striped">110</td>
+<td headers="2  drat" class="gt_row gt_right gt_striped">3.90</td>
+<td headers="2  wt" class="gt_row gt_right gt_striped">2.875</td>
+<td headers="2  qsec" class="gt_row gt_right gt_striped">17.02</td>
+<td headers="2  vs" class="gt_row gt_right gt_striped">0</td>
+<td headers="2  am" class="gt_row gt_right gt_striped">1</td>
+<td headers="2  gear" class="gt_row gt_right gt_striped">4</td>
+<td headers="2  carb" class="gt_row gt_right gt_striped">4</td></tr>
+    <tr><td headers="2  mpg" class="gt_row gt_right">22.8</td>
+<td headers="2  cyl" class="gt_row gt_right">4</td>
+<td headers="2  disp" class="gt_row gt_right">108.0</td>
+<td headers="2  hp" class="gt_row gt_right">93</td>
+<td headers="2  drat" class="gt_row gt_right">3.85</td>
+<td headers="2  wt" class="gt_row gt_right">2.320</td>
+<td headers="2  qsec" class="gt_row gt_right">18.61</td>
+<td headers="2  vs" class="gt_row gt_right">1</td>
+<td headers="2  am" class="gt_row gt_right">1</td>
+<td headers="2  gear" class="gt_row gt_right">4</td>
+<td headers="2  carb" class="gt_row gt_right">1</td></tr>
+    <tr><td headers="2  mpg" class="gt_row gt_right gt_striped">24.4</td>
+<td headers="2  cyl" class="gt_row gt_right gt_striped">4</td>
+<td headers="2  disp" class="gt_row gt_right gt_striped">146.7</td>
+<td headers="2  hp" class="gt_row gt_right gt_striped">62</td>
+<td headers="2  drat" class="gt_row gt_right gt_striped">3.69</td>
+<td headers="2  wt" class="gt_row gt_right gt_striped">3.190</td>
+<td headers="2  qsec" class="gt_row gt_right gt_striped">20.00</td>
+<td headers="2  vs" class="gt_row gt_right gt_striped">1</td>
+<td headers="2  am" class="gt_row gt_right gt_striped">0</td>
+<td headers="2  gear" class="gt_row gt_right gt_striped">4</td>
+<td headers="2  carb" class="gt_row gt_right gt_striped">2</td></tr>
+    <tr><td headers="2  mpg" class="gt_row gt_right">22.8</td>
+<td headers="2  cyl" class="gt_row gt_right">4</td>
+<td headers="2  disp" class="gt_row gt_right">140.8</td>
+<td headers="2  hp" class="gt_row gt_right">95</td>
+<td headers="2  drat" class="gt_row gt_right">3.92</td>
+<td headers="2  wt" class="gt_row gt_right">3.150</td>
+<td headers="2  qsec" class="gt_row gt_right">22.90</td>
+<td headers="2  vs" class="gt_row gt_right">1</td>
+<td headers="2  am" class="gt_row gt_right">0</td>
+<td headers="2  gear" class="gt_row gt_right">4</td>
+<td headers="2  carb" class="gt_row gt_right">2</td></tr>
+    <tr><td headers="2  mpg" class="gt_row gt_right gt_striped">19.2</td>
+<td headers="2  cyl" class="gt_row gt_right gt_striped">6</td>
+<td headers="2  disp" class="gt_row gt_right gt_striped">167.6</td>
+<td headers="2  hp" class="gt_row gt_right gt_striped">123</td>
+<td headers="2  drat" class="gt_row gt_right gt_striped">3.92</td>
+<td headers="2  wt" class="gt_row gt_right gt_striped">3.440</td>
+<td headers="2  qsec" class="gt_row gt_right gt_striped">18.30</td>
+<td headers="2  vs" class="gt_row gt_right gt_striped">1</td>
+<td headers="2  am" class="gt_row gt_right gt_striped">0</td>
+<td headers="2  gear" class="gt_row gt_right gt_striped">4</td>
+<td headers="2  carb" class="gt_row gt_right gt_striped">4</td></tr>
+    <tr><td headers="2  mpg" class="gt_row gt_right">17.8</td>
+<td headers="2  cyl" class="gt_row gt_right">6</td>
+<td headers="2  disp" class="gt_row gt_right">167.6</td>
+<td headers="2  hp" class="gt_row gt_right">123</td>
+<td headers="2  drat" class="gt_row gt_right">3.92</td>
+<td headers="2  wt" class="gt_row gt_right">3.440</td>
+<td headers="2  qsec" class="gt_row gt_right">18.90</td>
+<td headers="2  vs" class="gt_row gt_right">1</td>
+<td headers="2  am" class="gt_row gt_right">0</td>
+<td headers="2  gear" class="gt_row gt_right">4</td>
+<td headers="2  carb" class="gt_row gt_right">4</td></tr>
+    <tr><td headers="2  mpg" class="gt_row gt_right gt_striped">21.5</td>
+<td headers="2  cyl" class="gt_row gt_right gt_striped">4</td>
+<td headers="2  disp" class="gt_row gt_right gt_striped">120.1</td>
+<td headers="2  hp" class="gt_row gt_right gt_striped">97</td>
+<td headers="2  drat" class="gt_row gt_right gt_striped">3.70</td>
+<td headers="2  wt" class="gt_row gt_right gt_striped">2.465</td>
+<td headers="2  qsec" class="gt_row gt_right gt_striped">20.01</td>
+<td headers="2  vs" class="gt_row gt_right gt_striped">1</td>
+<td headers="2  am" class="gt_row gt_right gt_striped">0</td>
+<td headers="2  gear" class="gt_row gt_right gt_striped">3</td>
+<td headers="2  carb" class="gt_row gt_right gt_striped">1</td></tr>
+    <tr><td headers="2  mpg" class="gt_row gt_right">19.7</td>
+<td headers="2  cyl" class="gt_row gt_right">6</td>
+<td headers="2  disp" class="gt_row gt_right">145.0</td>
+<td headers="2  hp" class="gt_row gt_right">175</td>
+<td headers="2  drat" class="gt_row gt_right">3.62</td>
+<td headers="2  wt" class="gt_row gt_right">2.770</td>
+<td headers="2  qsec" class="gt_row gt_right">15.50</td>
+<td headers="2  vs" class="gt_row gt_right">0</td>
+<td headers="2  am" class="gt_row gt_right">1</td>
+<td headers="2  gear" class="gt_row gt_right">5</td>
+<td headers="2  carb" class="gt_row gt_right">6</td></tr>
+    <tr><td headers="2  mpg" class="gt_row gt_right gt_striped">21.4</td>
+<td headers="2  cyl" class="gt_row gt_right gt_striped">4</td>
+<td headers="2  disp" class="gt_row gt_right gt_striped">121.0</td>
+<td headers="2  hp" class="gt_row gt_right gt_striped">109</td>
+<td headers="2  drat" class="gt_row gt_right gt_striped">4.11</td>
+<td headers="2  wt" class="gt_row gt_right gt_striped">2.780</td>
+<td headers="2  qsec" class="gt_row gt_right gt_striped">18.60</td>
+<td headers="2  vs" class="gt_row gt_right gt_striped">1</td>
+<td headers="2  am" class="gt_row gt_right gt_striped">1</td>
+<td headers="2  gear" class="gt_row gt_right gt_striped">4</td>
+<td headers="2  carb" class="gt_row gt_right gt_striped">2</td></tr>
     <tr class="gt_group_heading_row">
-      <td colspan="11" class="gt_group_heading">Cluster: 1</td>
+      <th colspan="11" class="gt_group_heading" scope="colgroup" id="Cluster: 1">Cluster: 1</th>
     </tr>
-    <tr class="gt_row_group_first"><td class="gt_row gt_right">21.4</td>
-<td class="gt_row gt_right">6</td>
-<td class="gt_row gt_right">258.0</td>
-<td class="gt_row gt_right">110</td>
-<td class="gt_row gt_right">3.08</td>
-<td class="gt_row gt_right">3.215</td>
-<td class="gt_row gt_right">19.44</td>
-<td class="gt_row gt_right">1</td>
-<td class="gt_row gt_right">0</td>
-<td class="gt_row gt_right">3</td>
-<td class="gt_row gt_right">1</td></tr>
-    <tr><td class="gt_row gt_right gt_striped">18.7</td>
-<td class="gt_row gt_right gt_striped">8</td>
-<td class="gt_row gt_right gt_striped">360.0</td>
-<td class="gt_row gt_right gt_striped">175</td>
-<td class="gt_row gt_right gt_striped">3.15</td>
-<td class="gt_row gt_right gt_striped">3.440</td>
-<td class="gt_row gt_right gt_striped">17.02</td>
-<td class="gt_row gt_right gt_striped">0</td>
-<td class="gt_row gt_right gt_striped">0</td>
-<td class="gt_row gt_right gt_striped">3</td>
-<td class="gt_row gt_right gt_striped">2</td></tr>
-    <tr><td class="gt_row gt_right">18.1</td>
-<td class="gt_row gt_right">6</td>
-<td class="gt_row gt_right">225.0</td>
-<td class="gt_row gt_right">105</td>
-<td class="gt_row gt_right">2.76</td>
-<td class="gt_row gt_right">3.460</td>
-<td class="gt_row gt_right">20.22</td>
-<td class="gt_row gt_right">1</td>
-<td class="gt_row gt_right">0</td>
-<td class="gt_row gt_right">3</td>
-<td class="gt_row gt_right">1</td></tr>
-    <tr><td class="gt_row gt_right gt_striped">16.4</td>
-<td class="gt_row gt_right gt_striped">8</td>
-<td class="gt_row gt_right gt_striped">275.8</td>
-<td class="gt_row gt_right gt_striped">180</td>
-<td class="gt_row gt_right gt_striped">3.07</td>
-<td class="gt_row gt_right gt_striped">4.070</td>
-<td class="gt_row gt_right gt_striped">17.40</td>
-<td class="gt_row gt_right gt_striped">0</td>
-<td class="gt_row gt_right gt_striped">0</td>
-<td class="gt_row gt_right gt_striped">3</td>
-<td class="gt_row gt_right gt_striped">3</td></tr>
-    <tr><td class="gt_row gt_right">17.3</td>
-<td class="gt_row gt_right">8</td>
-<td class="gt_row gt_right">275.8</td>
-<td class="gt_row gt_right">180</td>
-<td class="gt_row gt_right">3.07</td>
-<td class="gt_row gt_right">3.730</td>
-<td class="gt_row gt_right">17.60</td>
-<td class="gt_row gt_right">0</td>
-<td class="gt_row gt_right">0</td>
-<td class="gt_row gt_right">3</td>
-<td class="gt_row gt_right">3</td></tr>
-    <tr><td class="gt_row gt_right gt_striped">15.2</td>
-<td class="gt_row gt_right gt_striped">8</td>
-<td class="gt_row gt_right gt_striped">275.8</td>
-<td class="gt_row gt_right gt_striped">180</td>
-<td class="gt_row gt_right gt_striped">3.07</td>
-<td class="gt_row gt_right gt_striped">3.780</td>
-<td class="gt_row gt_right gt_striped">18.00</td>
-<td class="gt_row gt_right gt_striped">0</td>
-<td class="gt_row gt_right gt_striped">0</td>
-<td class="gt_row gt_right gt_striped">3</td>
-<td class="gt_row gt_right gt_striped">3</td></tr>
-    <tr><td class="gt_row gt_right">15.5</td>
-<td class="gt_row gt_right">8</td>
-<td class="gt_row gt_right">318.0</td>
-<td class="gt_row gt_right">150</td>
-<td class="gt_row gt_right">2.76</td>
-<td class="gt_row gt_right">3.520</td>
-<td class="gt_row gt_right">16.87</td>
-<td class="gt_row gt_right">0</td>
-<td class="gt_row gt_right">0</td>
-<td class="gt_row gt_right">3</td>
-<td class="gt_row gt_right">2</td></tr>
-    <tr><td class="gt_row gt_right gt_striped">15.2</td>
-<td class="gt_row gt_right gt_striped">8</td>
-<td class="gt_row gt_right gt_striped">304.0</td>
-<td class="gt_row gt_right gt_striped">150</td>
-<td class="gt_row gt_right gt_striped">3.15</td>
-<td class="gt_row gt_right gt_striped">3.435</td>
-<td class="gt_row gt_right gt_striped">17.30</td>
-<td class="gt_row gt_right gt_striped">0</td>
-<td class="gt_row gt_right gt_striped">0</td>
-<td class="gt_row gt_right gt_striped">3</td>
-<td class="gt_row gt_right gt_striped">2</td></tr>
-    <tr><td class="gt_row gt_right">19.2</td>
-<td class="gt_row gt_right">8</td>
-<td class="gt_row gt_right">400.0</td>
-<td class="gt_row gt_right">175</td>
-<td class="gt_row gt_right">3.08</td>
-<td class="gt_row gt_right">3.845</td>
-<td class="gt_row gt_right">17.05</td>
-<td class="gt_row gt_right">0</td>
-<td class="gt_row gt_right">0</td>
-<td class="gt_row gt_right">3</td>
-<td class="gt_row gt_right">2</td></tr>
+    <tr class="gt_row_group_first"><td headers="1  mpg" class="gt_row gt_right">21.4</td>
+<td headers="1  cyl" class="gt_row gt_right">6</td>
+<td headers="1  disp" class="gt_row gt_right">258.0</td>
+<td headers="1  hp" class="gt_row gt_right">110</td>
+<td headers="1  drat" class="gt_row gt_right">3.08</td>
+<td headers="1  wt" class="gt_row gt_right">3.215</td>
+<td headers="1  qsec" class="gt_row gt_right">19.44</td>
+<td headers="1  vs" class="gt_row gt_right">1</td>
+<td headers="1  am" class="gt_row gt_right">0</td>
+<td headers="1  gear" class="gt_row gt_right">3</td>
+<td headers="1  carb" class="gt_row gt_right">1</td></tr>
+    <tr><td headers="1  mpg" class="gt_row gt_right gt_striped">18.7</td>
+<td headers="1  cyl" class="gt_row gt_right gt_striped">8</td>
+<td headers="1  disp" class="gt_row gt_right gt_striped">360.0</td>
+<td headers="1  hp" class="gt_row gt_right gt_striped">175</td>
+<td headers="1  drat" class="gt_row gt_right gt_striped">3.15</td>
+<td headers="1  wt" class="gt_row gt_right gt_striped">3.440</td>
+<td headers="1  qsec" class="gt_row gt_right gt_striped">17.02</td>
+<td headers="1  vs" class="gt_row gt_right gt_striped">0</td>
+<td headers="1  am" class="gt_row gt_right gt_striped">0</td>
+<td headers="1  gear" class="gt_row gt_right gt_striped">3</td>
+<td headers="1  carb" class="gt_row gt_right gt_striped">2</td></tr>
+    <tr><td headers="1  mpg" class="gt_row gt_right">18.1</td>
+<td headers="1  cyl" class="gt_row gt_right">6</td>
+<td headers="1  disp" class="gt_row gt_right">225.0</td>
+<td headers="1  hp" class="gt_row gt_right">105</td>
+<td headers="1  drat" class="gt_row gt_right">2.76</td>
+<td headers="1  wt" class="gt_row gt_right">3.460</td>
+<td headers="1  qsec" class="gt_row gt_right">20.22</td>
+<td headers="1  vs" class="gt_row gt_right">1</td>
+<td headers="1  am" class="gt_row gt_right">0</td>
+<td headers="1  gear" class="gt_row gt_right">3</td>
+<td headers="1  carb" class="gt_row gt_right">1</td></tr>
+    <tr><td headers="1  mpg" class="gt_row gt_right gt_striped">16.4</td>
+<td headers="1  cyl" class="gt_row gt_right gt_striped">8</td>
+<td headers="1  disp" class="gt_row gt_right gt_striped">275.8</td>
+<td headers="1  hp" class="gt_row gt_right gt_striped">180</td>
+<td headers="1  drat" class="gt_row gt_right gt_striped">3.07</td>
+<td headers="1  wt" class="gt_row gt_right gt_striped">4.070</td>
+<td headers="1  qsec" class="gt_row gt_right gt_striped">17.40</td>
+<td headers="1  vs" class="gt_row gt_right gt_striped">0</td>
+<td headers="1  am" class="gt_row gt_right gt_striped">0</td>
+<td headers="1  gear" class="gt_row gt_right gt_striped">3</td>
+<td headers="1  carb" class="gt_row gt_right gt_striped">3</td></tr>
+    <tr><td headers="1  mpg" class="gt_row gt_right">17.3</td>
+<td headers="1  cyl" class="gt_row gt_right">8</td>
+<td headers="1  disp" class="gt_row gt_right">275.8</td>
+<td headers="1  hp" class="gt_row gt_right">180</td>
+<td headers="1  drat" class="gt_row gt_right">3.07</td>
+<td headers="1  wt" class="gt_row gt_right">3.730</td>
+<td headers="1  qsec" class="gt_row gt_right">17.60</td>
+<td headers="1  vs" class="gt_row gt_right">0</td>
+<td headers="1  am" class="gt_row gt_right">0</td>
+<td headers="1  gear" class="gt_row gt_right">3</td>
+<td headers="1  carb" class="gt_row gt_right">3</td></tr>
+    <tr><td headers="1  mpg" class="gt_row gt_right gt_striped">15.2</td>
+<td headers="1  cyl" class="gt_row gt_right gt_striped">8</td>
+<td headers="1  disp" class="gt_row gt_right gt_striped">275.8</td>
+<td headers="1  hp" class="gt_row gt_right gt_striped">180</td>
+<td headers="1  drat" class="gt_row gt_right gt_striped">3.07</td>
+<td headers="1  wt" class="gt_row gt_right gt_striped">3.780</td>
+<td headers="1  qsec" class="gt_row gt_right gt_striped">18.00</td>
+<td headers="1  vs" class="gt_row gt_right gt_striped">0</td>
+<td headers="1  am" class="gt_row gt_right gt_striped">0</td>
+<td headers="1  gear" class="gt_row gt_right gt_striped">3</td>
+<td headers="1  carb" class="gt_row gt_right gt_striped">3</td></tr>
+    <tr><td headers="1  mpg" class="gt_row gt_right">15.5</td>
+<td headers="1  cyl" class="gt_row gt_right">8</td>
+<td headers="1  disp" class="gt_row gt_right">318.0</td>
+<td headers="1  hp" class="gt_row gt_right">150</td>
+<td headers="1  drat" class="gt_row gt_right">2.76</td>
+<td headers="1  wt" class="gt_row gt_right">3.520</td>
+<td headers="1  qsec" class="gt_row gt_right">16.87</td>
+<td headers="1  vs" class="gt_row gt_right">0</td>
+<td headers="1  am" class="gt_row gt_right">0</td>
+<td headers="1  gear" class="gt_row gt_right">3</td>
+<td headers="1  carb" class="gt_row gt_right">2</td></tr>
+    <tr><td headers="1  mpg" class="gt_row gt_right gt_striped">15.2</td>
+<td headers="1  cyl" class="gt_row gt_right gt_striped">8</td>
+<td headers="1  disp" class="gt_row gt_right gt_striped">304.0</td>
+<td headers="1  hp" class="gt_row gt_right gt_striped">150</td>
+<td headers="1  drat" class="gt_row gt_right gt_striped">3.15</td>
+<td headers="1  wt" class="gt_row gt_right gt_striped">3.435</td>
+<td headers="1  qsec" class="gt_row gt_right gt_striped">17.30</td>
+<td headers="1  vs" class="gt_row gt_right gt_striped">0</td>
+<td headers="1  am" class="gt_row gt_right gt_striped">0</td>
+<td headers="1  gear" class="gt_row gt_right gt_striped">3</td>
+<td headers="1  carb" class="gt_row gt_right gt_striped">2</td></tr>
+    <tr><td headers="1  mpg" class="gt_row gt_right">19.2</td>
+<td headers="1  cyl" class="gt_row gt_right">8</td>
+<td headers="1  disp" class="gt_row gt_right">400.0</td>
+<td headers="1  hp" class="gt_row gt_right">175</td>
+<td headers="1  drat" class="gt_row gt_right">3.08</td>
+<td headers="1  wt" class="gt_row gt_right">3.845</td>
+<td headers="1  qsec" class="gt_row gt_right">17.05</td>
+<td headers="1  vs" class="gt_row gt_right">0</td>
+<td headers="1  am" class="gt_row gt_right">0</td>
+<td headers="1  gear" class="gt_row gt_right">3</td>
+<td headers="1  carb" class="gt_row gt_right">2</td></tr>
     <tr class="gt_group_heading_row">
-      <td colspan="11" class="gt_group_heading">Cluster: 3</td>
+      <th colspan="11" class="gt_group_heading" scope="colgroup" id="Cluster: 3">Cluster: 3</th>
     </tr>
-    <tr class="gt_row_group_first"><td class="gt_row gt_right gt_striped">14.3</td>
-<td class="gt_row gt_right gt_striped">8</td>
-<td class="gt_row gt_right gt_striped">360.0</td>
-<td class="gt_row gt_right gt_striped">245</td>
-<td class="gt_row gt_right gt_striped">3.21</td>
-<td class="gt_row gt_right gt_striped">3.570</td>
-<td class="gt_row gt_right gt_striped">15.84</td>
-<td class="gt_row gt_right gt_striped">0</td>
-<td class="gt_row gt_right gt_striped">0</td>
-<td class="gt_row gt_right gt_striped">3</td>
-<td class="gt_row gt_right gt_striped">4</td></tr>
-    <tr><td class="gt_row gt_right">13.3</td>
-<td class="gt_row gt_right">8</td>
-<td class="gt_row gt_right">350.0</td>
-<td class="gt_row gt_right">245</td>
-<td class="gt_row gt_right">3.73</td>
-<td class="gt_row gt_right">3.840</td>
-<td class="gt_row gt_right">15.41</td>
-<td class="gt_row gt_right">0</td>
-<td class="gt_row gt_right">0</td>
-<td class="gt_row gt_right">3</td>
-<td class="gt_row gt_right">4</td></tr>
-    <tr><td class="gt_row gt_right gt_striped">15.8</td>
-<td class="gt_row gt_right gt_striped">8</td>
-<td class="gt_row gt_right gt_striped">351.0</td>
-<td class="gt_row gt_right gt_striped">264</td>
-<td class="gt_row gt_right gt_striped">4.22</td>
-<td class="gt_row gt_right gt_striped">3.170</td>
-<td class="gt_row gt_right gt_striped">14.50</td>
-<td class="gt_row gt_right gt_striped">0</td>
-<td class="gt_row gt_right gt_striped">1</td>
-<td class="gt_row gt_right gt_striped">5</td>
-<td class="gt_row gt_right gt_striped">4</td></tr>
-    <tr><td class="gt_row gt_right">15.0</td>
-<td class="gt_row gt_right">8</td>
-<td class="gt_row gt_right">301.0</td>
-<td class="gt_row gt_right">335</td>
-<td class="gt_row gt_right">3.54</td>
-<td class="gt_row gt_right">3.570</td>
-<td class="gt_row gt_right">14.60</td>
-<td class="gt_row gt_right">0</td>
-<td class="gt_row gt_right">1</td>
-<td class="gt_row gt_right">5</td>
-<td class="gt_row gt_right">8</td></tr>
+    <tr class="gt_row_group_first"><td headers="3  mpg" class="gt_row gt_right gt_striped">14.3</td>
+<td headers="3  cyl" class="gt_row gt_right gt_striped">8</td>
+<td headers="3  disp" class="gt_row gt_right gt_striped">360.0</td>
+<td headers="3  hp" class="gt_row gt_right gt_striped">245</td>
+<td headers="3  drat" class="gt_row gt_right gt_striped">3.21</td>
+<td headers="3  wt" class="gt_row gt_right gt_striped">3.570</td>
+<td headers="3  qsec" class="gt_row gt_right gt_striped">15.84</td>
+<td headers="3  vs" class="gt_row gt_right gt_striped">0</td>
+<td headers="3  am" class="gt_row gt_right gt_striped">0</td>
+<td headers="3  gear" class="gt_row gt_right gt_striped">3</td>
+<td headers="3  carb" class="gt_row gt_right gt_striped">4</td></tr>
+    <tr><td headers="3  mpg" class="gt_row gt_right">13.3</td>
+<td headers="3  cyl" class="gt_row gt_right">8</td>
+<td headers="3  disp" class="gt_row gt_right">350.0</td>
+<td headers="3  hp" class="gt_row gt_right">245</td>
+<td headers="3  drat" class="gt_row gt_right">3.73</td>
+<td headers="3  wt" class="gt_row gt_right">3.840</td>
+<td headers="3  qsec" class="gt_row gt_right">15.41</td>
+<td headers="3  vs" class="gt_row gt_right">0</td>
+<td headers="3  am" class="gt_row gt_right">0</td>
+<td headers="3  gear" class="gt_row gt_right">3</td>
+<td headers="3  carb" class="gt_row gt_right">4</td></tr>
+    <tr><td headers="3  mpg" class="gt_row gt_right gt_striped">15.8</td>
+<td headers="3  cyl" class="gt_row gt_right gt_striped">8</td>
+<td headers="3  disp" class="gt_row gt_right gt_striped">351.0</td>
+<td headers="3  hp" class="gt_row gt_right gt_striped">264</td>
+<td headers="3  drat" class="gt_row gt_right gt_striped">4.22</td>
+<td headers="3  wt" class="gt_row gt_right gt_striped">3.170</td>
+<td headers="3  qsec" class="gt_row gt_right gt_striped">14.50</td>
+<td headers="3  vs" class="gt_row gt_right gt_striped">0</td>
+<td headers="3  am" class="gt_row gt_right gt_striped">1</td>
+<td headers="3  gear" class="gt_row gt_right gt_striped">5</td>
+<td headers="3  carb" class="gt_row gt_right gt_striped">4</td></tr>
+    <tr><td headers="3  mpg" class="gt_row gt_right">15.0</td>
+<td headers="3  cyl" class="gt_row gt_right">8</td>
+<td headers="3  disp" class="gt_row gt_right">301.0</td>
+<td headers="3  hp" class="gt_row gt_right">335</td>
+<td headers="3  drat" class="gt_row gt_right">3.54</td>
+<td headers="3  wt" class="gt_row gt_right">3.570</td>
+<td headers="3  qsec" class="gt_row gt_right">14.60</td>
+<td headers="3  vs" class="gt_row gt_right">0</td>
+<td headers="3  am" class="gt_row gt_right">1</td>
+<td headers="3  gear" class="gt_row gt_right">5</td>
+<td headers="3  carb" class="gt_row gt_right">8</td></tr>
     <tr class="gt_group_heading_row">
-      <td colspan="11" class="gt_group_heading">Cluster: 5</td>
+      <th colspan="11" class="gt_group_heading" scope="colgroup" id="Cluster: 5">Cluster: 5</th>
     </tr>
-    <tr class="gt_row_group_first"><td class="gt_row gt_right gt_striped">10.4</td>
-<td class="gt_row gt_right gt_striped">8</td>
-<td class="gt_row gt_right gt_striped">472.0</td>
-<td class="gt_row gt_right gt_striped">205</td>
-<td class="gt_row gt_right gt_striped">2.93</td>
-<td class="gt_row gt_right gt_striped">5.250</td>
-<td class="gt_row gt_right gt_striped">17.98</td>
-<td class="gt_row gt_right gt_striped">0</td>
-<td class="gt_row gt_right gt_striped">0</td>
-<td class="gt_row gt_right gt_striped">3</td>
-<td class="gt_row gt_right gt_striped">4</td></tr>
-    <tr><td class="gt_row gt_right">10.4</td>
-<td class="gt_row gt_right">8</td>
-<td class="gt_row gt_right">460.0</td>
-<td class="gt_row gt_right">215</td>
-<td class="gt_row gt_right">3.00</td>
-<td class="gt_row gt_right">5.424</td>
-<td class="gt_row gt_right">17.82</td>
-<td class="gt_row gt_right">0</td>
-<td class="gt_row gt_right">0</td>
-<td class="gt_row gt_right">3</td>
-<td class="gt_row gt_right">4</td></tr>
-    <tr><td class="gt_row gt_right gt_striped">14.7</td>
-<td class="gt_row gt_right gt_striped">8</td>
-<td class="gt_row gt_right gt_striped">440.0</td>
-<td class="gt_row gt_right gt_striped">230</td>
-<td class="gt_row gt_right gt_striped">3.23</td>
-<td class="gt_row gt_right gt_striped">5.345</td>
-<td class="gt_row gt_right gt_striped">17.42</td>
-<td class="gt_row gt_right gt_striped">0</td>
-<td class="gt_row gt_right gt_striped">0</td>
-<td class="gt_row gt_right gt_striped">3</td>
-<td class="gt_row gt_right gt_striped">4</td></tr>
+    <tr class="gt_row_group_first"><td headers="5  mpg" class="gt_row gt_right gt_striped">10.4</td>
+<td headers="5  cyl" class="gt_row gt_right gt_striped">8</td>
+<td headers="5  disp" class="gt_row gt_right gt_striped">472.0</td>
+<td headers="5  hp" class="gt_row gt_right gt_striped">205</td>
+<td headers="5  drat" class="gt_row gt_right gt_striped">2.93</td>
+<td headers="5  wt" class="gt_row gt_right gt_striped">5.250</td>
+<td headers="5  qsec" class="gt_row gt_right gt_striped">17.98</td>
+<td headers="5  vs" class="gt_row gt_right gt_striped">0</td>
+<td headers="5  am" class="gt_row gt_right gt_striped">0</td>
+<td headers="5  gear" class="gt_row gt_right gt_striped">3</td>
+<td headers="5  carb" class="gt_row gt_right gt_striped">4</td></tr>
+    <tr><td headers="5  mpg" class="gt_row gt_right">10.4</td>
+<td headers="5  cyl" class="gt_row gt_right">8</td>
+<td headers="5  disp" class="gt_row gt_right">460.0</td>
+<td headers="5  hp" class="gt_row gt_right">215</td>
+<td headers="5  drat" class="gt_row gt_right">3.00</td>
+<td headers="5  wt" class="gt_row gt_right">5.424</td>
+<td headers="5  qsec" class="gt_row gt_right">17.82</td>
+<td headers="5  vs" class="gt_row gt_right">0</td>
+<td headers="5  am" class="gt_row gt_right">0</td>
+<td headers="5  gear" class="gt_row gt_right">3</td>
+<td headers="5  carb" class="gt_row gt_right">4</td></tr>
+    <tr><td headers="5  mpg" class="gt_row gt_right gt_striped">14.7</td>
+<td headers="5  cyl" class="gt_row gt_right gt_striped">8</td>
+<td headers="5  disp" class="gt_row gt_right gt_striped">440.0</td>
+<td headers="5  hp" class="gt_row gt_right gt_striped">230</td>
+<td headers="5  drat" class="gt_row gt_right gt_striped">3.23</td>
+<td headers="5  wt" class="gt_row gt_right gt_striped">5.345</td>
+<td headers="5  qsec" class="gt_row gt_right gt_striped">17.42</td>
+<td headers="5  vs" class="gt_row gt_right gt_striped">0</td>
+<td headers="5  am" class="gt_row gt_right gt_striped">0</td>
+<td headers="5  gear" class="gt_row gt_right gt_striped">3</td>
+<td headers="5  carb" class="gt_row gt_right gt_striped">4</td></tr>
     <tr class="gt_group_heading_row">
-      <td colspan="11" class="gt_group_heading">Cluster: 4</td>
+      <th colspan="11" class="gt_group_heading" scope="colgroup" id="Cluster: 4">Cluster: 4</th>
     </tr>
-    <tr class="gt_row_group_first"><td class="gt_row gt_right">32.4</td>
-<td class="gt_row gt_right">4</td>
-<td class="gt_row gt_right">78.7</td>
-<td class="gt_row gt_right">66</td>
-<td class="gt_row gt_right">4.08</td>
-<td class="gt_row gt_right">2.200</td>
-<td class="gt_row gt_right">19.47</td>
-<td class="gt_row gt_right">1</td>
-<td class="gt_row gt_right">1</td>
-<td class="gt_row gt_right">4</td>
-<td class="gt_row gt_right">1</td></tr>
-    <tr><td class="gt_row gt_right gt_striped">30.4</td>
-<td class="gt_row gt_right gt_striped">4</td>
-<td class="gt_row gt_right gt_striped">75.7</td>
-<td class="gt_row gt_right gt_striped">52</td>
-<td class="gt_row gt_right gt_striped">4.93</td>
-<td class="gt_row gt_right gt_striped">1.615</td>
-<td class="gt_row gt_right gt_striped">18.52</td>
-<td class="gt_row gt_right gt_striped">1</td>
-<td class="gt_row gt_right gt_striped">1</td>
-<td class="gt_row gt_right gt_striped">4</td>
-<td class="gt_row gt_right gt_striped">2</td></tr>
-    <tr><td class="gt_row gt_right">33.9</td>
-<td class="gt_row gt_right">4</td>
-<td class="gt_row gt_right">71.1</td>
-<td class="gt_row gt_right">65</td>
-<td class="gt_row gt_right">4.22</td>
-<td class="gt_row gt_right">1.835</td>
-<td class="gt_row gt_right">19.90</td>
-<td class="gt_row gt_right">1</td>
-<td class="gt_row gt_right">1</td>
-<td class="gt_row gt_right">4</td>
-<td class="gt_row gt_right">1</td></tr>
-    <tr><td class="gt_row gt_right gt_striped">27.3</td>
-<td class="gt_row gt_right gt_striped">4</td>
-<td class="gt_row gt_right gt_striped">79.0</td>
-<td class="gt_row gt_right gt_striped">66</td>
-<td class="gt_row gt_right gt_striped">4.08</td>
-<td class="gt_row gt_right gt_striped">1.935</td>
-<td class="gt_row gt_right gt_striped">18.90</td>
-<td class="gt_row gt_right gt_striped">1</td>
-<td class="gt_row gt_right gt_striped">1</td>
-<td class="gt_row gt_right gt_striped">4</td>
-<td class="gt_row gt_right gt_striped">1</td></tr>
-    <tr><td class="gt_row gt_right">26.0</td>
-<td class="gt_row gt_right">4</td>
-<td class="gt_row gt_right">120.3</td>
-<td class="gt_row gt_right">91</td>
-<td class="gt_row gt_right">4.43</td>
-<td class="gt_row gt_right">2.140</td>
-<td class="gt_row gt_right">16.70</td>
-<td class="gt_row gt_right">0</td>
-<td class="gt_row gt_right">1</td>
-<td class="gt_row gt_right">5</td>
-<td class="gt_row gt_right">2</td></tr>
-    <tr><td class="gt_row gt_right gt_striped">30.4</td>
-<td class="gt_row gt_right gt_striped">4</td>
-<td class="gt_row gt_right gt_striped">95.1</td>
-<td class="gt_row gt_right gt_striped">113</td>
-<td class="gt_row gt_right gt_striped">3.77</td>
-<td class="gt_row gt_right gt_striped">1.513</td>
-<td class="gt_row gt_right gt_striped">16.90</td>
-<td class="gt_row gt_right gt_striped">1</td>
-<td class="gt_row gt_right gt_striped">1</td>
-<td class="gt_row gt_right gt_striped">5</td>
-<td class="gt_row gt_right gt_striped">2</td></tr>
+    <tr class="gt_row_group_first"><td headers="4  mpg" class="gt_row gt_right">32.4</td>
+<td headers="4  cyl" class="gt_row gt_right">4</td>
+<td headers="4  disp" class="gt_row gt_right">78.7</td>
+<td headers="4  hp" class="gt_row gt_right">66</td>
+<td headers="4  drat" class="gt_row gt_right">4.08</td>
+<td headers="4  wt" class="gt_row gt_right">2.200</td>
+<td headers="4  qsec" class="gt_row gt_right">19.47</td>
+<td headers="4  vs" class="gt_row gt_right">1</td>
+<td headers="4  am" class="gt_row gt_right">1</td>
+<td headers="4  gear" class="gt_row gt_right">4</td>
+<td headers="4  carb" class="gt_row gt_right">1</td></tr>
+    <tr><td headers="4  mpg" class="gt_row gt_right gt_striped">30.4</td>
+<td headers="4  cyl" class="gt_row gt_right gt_striped">4</td>
+<td headers="4  disp" class="gt_row gt_right gt_striped">75.7</td>
+<td headers="4  hp" class="gt_row gt_right gt_striped">52</td>
+<td headers="4  drat" class="gt_row gt_right gt_striped">4.93</td>
+<td headers="4  wt" class="gt_row gt_right gt_striped">1.615</td>
+<td headers="4  qsec" class="gt_row gt_right gt_striped">18.52</td>
+<td headers="4  vs" class="gt_row gt_right gt_striped">1</td>
+<td headers="4  am" class="gt_row gt_right gt_striped">1</td>
+<td headers="4  gear" class="gt_row gt_right gt_striped">4</td>
+<td headers="4  carb" class="gt_row gt_right gt_striped">2</td></tr>
+    <tr><td headers="4  mpg" class="gt_row gt_right">33.9</td>
+<td headers="4  cyl" class="gt_row gt_right">4</td>
+<td headers="4  disp" class="gt_row gt_right">71.1</td>
+<td headers="4  hp" class="gt_row gt_right">65</td>
+<td headers="4  drat" class="gt_row gt_right">4.22</td>
+<td headers="4  wt" class="gt_row gt_right">1.835</td>
+<td headers="4  qsec" class="gt_row gt_right">19.90</td>
+<td headers="4  vs" class="gt_row gt_right">1</td>
+<td headers="4  am" class="gt_row gt_right">1</td>
+<td headers="4  gear" class="gt_row gt_right">4</td>
+<td headers="4  carb" class="gt_row gt_right">1</td></tr>
+    <tr><td headers="4  mpg" class="gt_row gt_right gt_striped">27.3</td>
+<td headers="4  cyl" class="gt_row gt_right gt_striped">4</td>
+<td headers="4  disp" class="gt_row gt_right gt_striped">79.0</td>
+<td headers="4  hp" class="gt_row gt_right gt_striped">66</td>
+<td headers="4  drat" class="gt_row gt_right gt_striped">4.08</td>
+<td headers="4  wt" class="gt_row gt_right gt_striped">1.935</td>
+<td headers="4  qsec" class="gt_row gt_right gt_striped">18.90</td>
+<td headers="4  vs" class="gt_row gt_right gt_striped">1</td>
+<td headers="4  am" class="gt_row gt_right gt_striped">1</td>
+<td headers="4  gear" class="gt_row gt_right gt_striped">4</td>
+<td headers="4  carb" class="gt_row gt_right gt_striped">1</td></tr>
+    <tr><td headers="4  mpg" class="gt_row gt_right">26.0</td>
+<td headers="4  cyl" class="gt_row gt_right">4</td>
+<td headers="4  disp" class="gt_row gt_right">120.3</td>
+<td headers="4  hp" class="gt_row gt_right">91</td>
+<td headers="4  drat" class="gt_row gt_right">4.43</td>
+<td headers="4  wt" class="gt_row gt_right">2.140</td>
+<td headers="4  qsec" class="gt_row gt_right">16.70</td>
+<td headers="4  vs" class="gt_row gt_right">0</td>
+<td headers="4  am" class="gt_row gt_right">1</td>
+<td headers="4  gear" class="gt_row gt_right">5</td>
+<td headers="4  carb" class="gt_row gt_right">2</td></tr>
+    <tr><td headers="4  mpg" class="gt_row gt_right gt_striped">30.4</td>
+<td headers="4  cyl" class="gt_row gt_right gt_striped">4</td>
+<td headers="4  disp" class="gt_row gt_right gt_striped">95.1</td>
+<td headers="4  hp" class="gt_row gt_right gt_striped">113</td>
+<td headers="4  drat" class="gt_row gt_right gt_striped">3.77</td>
+<td headers="4  wt" class="gt_row gt_right gt_striped">1.513</td>
+<td headers="4  qsec" class="gt_row gt_right gt_striped">16.90</td>
+<td headers="4  vs" class="gt_row gt_right gt_striped">1</td>
+<td headers="4  am" class="gt_row gt_right gt_striped">1</td>
+<td headers="4  gear" class="gt_row gt_right gt_striped">5</td>
+<td headers="4  carb" class="gt_row gt_right gt_striped">2</td></tr>
   </tbody>
   
   
@@ -1239,7 +1244,24 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
     button.classList.add('code-copy-button-checked');
     var currentTitle = button.getAttribute("title");
     button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
     setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
       button.setAttribute("title", currentTitle);
       button.classList.remove('code-copy-button-checked');
     }, 1000);
@@ -1267,31 +1289,50 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
   for (var i=0; i<noterefs.length; i++) {
     const ref = noterefs[i];
     tippyHover(ref, function() {
-      let href = ref.getAttribute('href');
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
       try { href = new URL(href).hash; } catch {}
       const id = href.replace(/^#\/?/, "");
       const note = window.document.getElementById(id);
       return note.innerHTML;
     });
   }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
   var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
   for (var i=0; i<bibliorefs.length; i++) {
     const ref = bibliorefs[i];
-    const cites = ref.parentNode.getAttribute('data-cites').split(' ');
-    tippyHover(ref, function() {
-      var popup = window.document.createElement('div');
-      cites.forEach(function(cite) {
-        var citeDiv = window.document.createElement('div');
-        citeDiv.classList.add('hanging-indent');
-        citeDiv.classList.add('csl-entry');
-        var biblioDiv = window.document.getElementById('ref-' + cite);
-        if (biblioDiv) {
-          citeDiv.innerHTML = biblioDiv.innerHTML;
-        }
-        popup.appendChild(citeDiv);
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
       });
-      return popup.innerHTML;
-    });
+    }
   }
 });
 </script>
