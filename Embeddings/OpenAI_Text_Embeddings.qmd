@@ -1,0 +1,97 @@
+## Dados
+
+```{r}
+library(tidyverse)
+
+set.seed(123)
+horror_movies <- read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2022/2022-11-01/horror_movies.csv') %>%
+  filter(!is.na(overview), original_language == "en") %>%
+  slice_sample(n = 1000)
+
+glimpse(horror_movies)
+```
+```{r}
+set.seed(234)
+sample(horror_movies$overview, size = 3)
+```
+
+## Text Embeddings
+
+```{r}
+library(httr)
+embeddings_url <- "https://api.openai.com/v1/embeddings"
+auth <- add_headers(Authorization = paste("Bearer", Sys.getenv("OPENAI_API_KEY")))
+body <- list(model = "text-embedding-ada-002", input = horror_movies$overview)
+
+resp <- POST(
+  embeddings_url,
+  auth,
+  body = body,
+  encode = "json"
+)
+
+embeddings <- content(resp, as = "text", encoding = "UTF-8") %>%
+  jsonlite::fromJSON(flatten = TRUE) %>%
+  pluck("data", "embedding")
+
+horror_embeddings <-
+  horror_movies %>%
+  mutate(embeddings = embeddings)
+
+horror_embeddings %>%
+  select(id, original_title, embeddings)
+
+```
+
+```{r}
+embeddings_mat <- matrix(
+  unlist(horror_embeddings$embeddings), 
+  ncol = 1536, byrow = TRUE
+)
+
+dim(embeddings_mat)
+```
+
+## Similaridade
+
+```{r}
+embeddings_similarity <- embeddings_mat / sqrt(rowSums(embeddings_mat * embeddings_mat))
+embeddings_similarity <- embeddings_similarity %*% t(embeddings_similarity)
+dim(embeddings_similarity)
+```
+
+```{r}
+horror_movies %>% 
+  slice(4) %>% 
+  select(title, overview)
+```
+
+```{r}
+enframe(embeddings_similarity[4,], name = "movie", value = "similarity") %>%
+  arrange(-similarity)
+```
+
+```{r}
+horror_movies %>% 
+  slice(c(935, 379, 380)) %>% 
+  select(title, overview)
+```
+
+## PCA
+
+```{r}
+set.seed(234)
+horror_pca <- irlba::prcomp_irlba(embeddings_mat, n = 32)
+```
+
+```{r}
+augmented_pca <- 
+  as_tibble(horror_pca$x) %>%
+  bind_cols(horror_movies)
+
+augmented_pca %>%
+  ggplot(aes(PC1, PC2, color = vote_average)) +
+  geom_point(size = 1.3, alpha = 0.8) +
+  scale_color_viridis_c()
+```
+

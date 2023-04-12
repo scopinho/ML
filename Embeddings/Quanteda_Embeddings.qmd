@@ -1,0 +1,214 @@
+
+```{r}
+library(devtools)
+library (quanteda)
+library(quanteda.textstats)
+library(tidyverse)
+library(text2vec)
+
+devtools::install_github("quanteda/quanteda.corpora")
+
+wiki_corp <- quanteda.corpora::download(url = "https://www.dropbox.com/s/9mubqwpgls3qi9t/data_corpus_wiki.rds?dl=1")
+```
+```{r}
+
+wiki_toks <- tokens(wiki_corp)# |> tokens_remove(stopwords("en"))
+feats <- dfm(wiki_toks, verbose = TRUE) %>%
+    dfm_trim(min_termfreq = 5) %>%
+    featnames()
+```
+```{r}
+wiki_toks2 <- tokens_select(wiki_toks, feats, padding = TRUE)
+wiki_fcm <- fcm(wiki_toks2, context = "window", count = "weighted", weights = 1 / (1:5), tri = TRUE)
+```
+
+```{r}
+glove <- GlobalVectors$new(rank = 50, x_max = 10)
+wv_main <- glove$fit_transform(wiki_fcm, n_iter = 10,
+                               convergence_tol = 0.01, n_threads = 8)
+```
+```{r}
+dim(wv_main)
+```
+
+```{r}
+wv_context <- glove$components
+dim(wv_context)
+```
+
+```{r}
+word_vectors <- wv_main + t(wv_context)
+
+```
+
+```{r}
+berlin <- word_vectors["paris", , drop = FALSE] -
+  word_vectors["france", , drop = FALSE] +
+  word_vectors["germany", , drop = FALSE]
+cos_sim <- textstat_simil(x = as.dfm(word_vectors), y = as.dfm(berlin),
+                          method = "cosine")
+head(sort(cos_sim[, 1], decreasing = TRUE), 5)
+```
+
+```{r}
+london <-  word_vectors["paris", , drop = FALSE] -
+    word_vectors["france", , drop = FALSE] +
+    word_vectors["uk", , drop = FALSE] +
+    word_vectors["england", , drop = FALSE]
+
+cos_sim <- textstat_simil(as.dfm(word_vectors), y = as.dfm(london),
+                          margin = "documents", method = "cosine")
+head(sort(cos_sim[, 1], decreasing = TRUE), 5)
+```
+
+```{r}
+get_similar_words <- function (word, ref_embeddings){
+
+  tryCatch({
+  word <-  word_vectors[word, , drop = FALSE]
+  },
+  error = function(e){
+    stop ("A palavra fornecida não é parte do vocabulário criado")
+  }
+  )
+  
+  cos_sim <- textstat_simil(as.dfm(word_vectors), y = as.dfm(word),margin = "documents", method = "cosine")
+  head(sort(cos_sim[, 1], decreasing = TRUE), 5)
+  
+}
+
+get_similar_words("two", word_vectors)
+```
+
+```{r}
+set.seed(123)
+horror_movies <- read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2022/2022-11-01/horror_movies.csv')  |> 
+  filter(!is.na(overview), original_language == "en")  |> 
+  slice_sample(n = 1000)
+
+glimpse(horror_movies)
+```
+
+```{r}
+horror_corpus <- corpus (horror_movies$overview, docnames = horror_movies$id, docvars = horror_movies$title)
+horror_toks <- tokens(horror_corpus)# |> tokens_remove(stopwords("en"))
+horror_dfm <- dfm(horror_toks, verbose = TRUE)
+horror_feats <- horror_dfm %>%
+    dfm_trim(min_termfreq = 5) %>%
+    featnames()
+```
+```{r}
+tstat1 <- textstat_simil(as.dfm(word_vectors), method = "cosine", margin = "documents")
+tstat1
+```
+
+
+
+```{r}
+#dfm(horror_toks, verbose = TRUE)
+
+emb_lookup <- function(list, embedding_matrix){
+  mat <- subset (embedding_matrix, rownames(embedding_matrix) %in% list)
+  return (mat)
+}
+
+emb_lookup2 <- function(list, embedding_matrix){
+  mat <- list
+  return (mat)
+}
+
+horror_movies <- horror_movies |> 
+  mutate (overview = str_to_lower(overview)) |> 
+  mutate (tokens = map(overview, tokens, what="word4")) 
+
+horror_movies <- horror_movies |> 
+  mutate (embeddings = map(tokens, ~emb_lookup(unlist(.), embedding_matrix)))
+
+#shark_tokens <- tokens(as.character(horror_movies |> filter (id == "17911") |> select (overview)), what = "word4")
+#shark_tokens <- tokens_tolower(tokens_select(shark_tokens, feats, padding = TRUE))
+
+overview <- london <-  word_vectors["paris", , drop = FALSE] -
+   word_vectors["france", , drop = FALSE] +
+    word_vectors["uk", , drop = FALSE] +
+    word_vectors["england", , drop = FALSE]
+
+tstat1 <- textstat_simil(as.dfm(word_vectors), 
+                         as.dfm(subset (embedding_matrix, rownames(embedding_matrix) %in% unlist(shark_tokens))),
+                         method = "cosine", margin = "documents")
+
+horror_movies |> filter (id %in% names(head(sort(tstat1[, 1], decreasing = TRUE), 5)))
+
+```
+
+```{r}
+e_mat <- matrix(unlist(horror_movies$embeddings),
+                ncol = 50,
+                byrow = TRUE)
+
+emb_sim <- e_mat / sqrt(rowSums(e_mat * e_mat))
+emb_sim <- emb_sim %*% t(emb_sim)
+dim(emb_sim)
+
+```
+
+
+```{r}
+textstat_simil(dfm(horror_toks, verbose = TRUE), 
+                         dfm(horror_toks, verbose = TRUE)["text1", ],
+                         method = "cosine", margin = "documents")
+```
+
+
+```{r}
+num_words_used <- length(horror_feats)
+embedding_dim <- ncol(word_vectors) - 1
+
+embedding_matrix <- matrix(0, nrow = num_words_used, ncol = embedding_dim)
+row.names(embedding_matrix) <- horror_feats
+
+embedding_matrix[1:10, 1:10]
+
+
+```
+
+
+```{r}
+word_vectors_tbl <-  rownames_to_column(as_tibble(word_vectors, rownames=NA))
+```
+
+
+```{r}
+#colnames(word_vectors) <- c(1:50)
+
+# this just allows us to track progress of our loop
+pb <- progress_bar$new(total = num_words_used)
+
+for (word in horror_feats) {
+  # track progress
+  pb$tick()
+  
+  # get embeddings for a given word
+  embeddings <- word_vectors_tbl %>%
+    filter(rowname == word) %>%
+    select(-rowname) %>% 
+    as.numeric()
+  
+  # if embeddings don't exist create a vector of all zeros
+  if (all(is.na(embeddings))) {
+    embeddings <- vector("numeric", embedding_dim)
+  }
+  
+  # add embeddings to appropriate location in matrix
+  embedding_matrix[word, ] <- embeddings
+}
+```
+```{r}
+embedding_matrix[1:200, 1:8]
+```
+
+```{r}
+emb_sim <- embedding_matrix / sqrt(rowSums(embedding_matrix * embedding_matrix))
+emb_sim <- emb_sim %*% t(embedding_matrix)
+dim(emb_sim)
+```
+
